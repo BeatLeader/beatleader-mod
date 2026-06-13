@@ -22,6 +22,7 @@ namespace BeatLeader.Components {
         private void Awake() {
             _avatar = Instantiate<PlayerAvatar>(transform);
             _countryFlag = Instantiate<CountryFlag>(transform);
+            _prestigeIcon = Instantiate<PrestigeIcon>(transform);
         }
 
         #endregion
@@ -29,8 +30,8 @@ namespace BeatLeader.Components {
         #region Initialize/Dispose
 
         protected override void OnInitialize() {
-            InitializeMaterial();
-
+            _prestigeIcon.Size = 5;
+            
             UserRequest.StateChangedEvent += OnProfileRequestStateChanged;
             UploadReplayRequest.StateChangedEvent += OnUploadRequestStateChanged;
             PrestigePanel.PrestigeWasPressedEvent += IncrementPrestigeIcon;
@@ -113,21 +114,12 @@ namespace BeatLeader.Components {
         }
 
         private void SwapPrestigeIcon(int prestige) {
-            _prestigeIcon.sprite = PrestigeIcon.GetBigPrestigeSprite(prestige);
-           
-            if (ConfigFileData.Instance.ExperienceBarEnabled) {
-                _prestigeIcon.gameObject.SetActive(true);
-            } else {
-                _prestigeIcon.gameObject.SetActive(false);
-            }
+            _prestigeIcon.SetPrestige(prestige);
+            _prestigeIcon.SetActive(ConfigFileData.Instance.ExperienceBarEnabled);
         }
 
         private void OnExperienceBarConfigChanged(bool enable) {
-            if (enable) {
-                _prestigeIcon.gameObject.SetActive(true);
-            }else {
-                _prestigeIcon.gameObject.SetActive(false);
-            }
+            _prestigeIcon.gameObject.SetActive(enable);
         }
 
         private void ChangeScoreContext(int context) {
@@ -152,8 +144,8 @@ namespace BeatLeader.Components {
 
         #region PrestigeIcon
 
-        [UIComponent("prestige-icon"), UsedImplicitly]
-        private ImageView _prestigeIcon = null!;
+        [UIValue("prestige-icon"), UsedImplicitly]
+        private PrestigeIcon _prestigeIcon = null!;
 
         #endregion
 
@@ -217,19 +209,6 @@ namespace BeatLeader.Components {
                 _ppText = value;
                 NotifyPropertyChanged();
             }
-        }
-
-        #endregion
-
-        #region Material
-
-        private Material _materialInstance;
-
-        private void InitializeMaterial() {
-            _materialInstance = Material.Instantiate(BundleLoader.PrestigeIconMaterial);
-            _prestigeIcon.material = _materialInstance;
-            _prestigeIcon.sprite = BundleLoader.TransparentPixel;
-            _prestigeIcon.gameObject.SetActive(false);
         }
 
         #endregion

@@ -8,6 +8,10 @@ namespace BeatLeader.Components {
     internal class PrestigeIcon : ReeUIComponentV2 {
         #region Events
 
+        protected override void OnInitialize() {
+            _image.material = BundleLoader.PrestigeIconMaterial;
+        }
+
         private void OnEnable() {
             PrestigeLevelsManager.IconsLoadedEvent += OnIconsLoaded;
             UpdateImage();
@@ -33,37 +37,35 @@ namespace BeatLeader.Components {
             if (gameObject.activeInHierarchy) UpdateImage();
         }
 
-        /// <summary>
-        /// Gets the small prestige icon sprite for score rows
-        /// </summary>
-        public static Sprite GetPrestigeSprite(int prestige) {
-            return PrestigeLevelsManager.GetSmallIcon(prestige);
-        }
-
-        /// <summary>
-        /// Gets the big prestige icon sprite for player info
-        /// </summary>
-        public static Sprite GetBigPrestigeSprite(int prestige) {
-            return PrestigeLevelsManager.GetBigIcon(prestige);
-        }
-
-        private void UpdateImage() {
-            SetSprite(GetBigPrestigeSprite(_prestige));
+        public void SetActive(bool active) {
+            Content.gameObject.SetActive(active);
         }
 
         #endregion
 
         #region Image
 
+        public int Size {
+            set {
+                _layoutElement.preferredHeight = value;
+                _layoutElement.preferredWidth = value;
+            }
+        }
+
         [UIComponent("image-component"), UsedImplicitly]
-        private Image _image;
+        private Image _image = null!;
+
+        [UIComponent("image-component"), UsedImplicitly]
+        private LayoutElement _layoutElement = null!;
 
         public void SetAlpha(float value) {
             _image.color = new Color(1, 1, 1, value);
         }
 
-        private void SetSprite(Sprite sprite) {
-            if (_image != null) _image.sprite = sprite;
+        private void UpdateImage() {
+            if (_image != null) {
+                _image.sprite = PrestigeLevelsManager.GetIcon(_prestige);
+            }
         }
 
         #endregion

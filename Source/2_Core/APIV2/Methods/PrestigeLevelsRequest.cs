@@ -9,7 +9,7 @@ namespace BeatLeader.APIV2 {
         private static string Endpoint => BLConstants.BEATLEADER_API_URL + "/experience/levels";
 
         public static void Send() {
-            SendRet(Endpoint, HttpMethod.Get);
+            SendRet(Endpoint, HttpMethod.Get, waitForLogin: false);
         }
     }
 }

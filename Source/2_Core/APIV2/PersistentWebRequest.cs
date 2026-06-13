@@ -51,10 +51,11 @@ namespace BeatLeader.WebRequests {
             HttpContent? content = null,
             WebRequestParams? requestParams = null,
             Action<HttpRequestHeaders>? headersCallback = null,
-            CancellationToken token = default
+            CancellationToken token = default,
+            bool waitForLogin = true
         ) {
             var requestMessage = CreateAndValidateRequestMessage(url, method, content, headersCallback);
-            return WebRequestFactory.Send(requestMessage, descriptor, requestParams, token);
+            return WebRequestFactory.Send(requestMessage, descriptor, requestParams, token, waitForLogin);
         }
     }
 
@@ -73,7 +74,8 @@ namespace BeatLeader.WebRequests {
             HttpContent? content = null,
             WebRequestParams? requestParams = null,
             Action<HttpRequestHeaders>? headersCallback = null,
-            TDescriptor? customParser = default
+            TDescriptor? customParser = default,
+            bool waitForLogin = true
         ) {
             var requestMessage = CreateAndValidateRequestMessage(url, method, content, headersCallback);
 
@@ -87,7 +89,7 @@ namespace BeatLeader.WebRequests {
             }
 
             Task.Run(async () => {
-                    Instance = WebRequestFactory.Send(requestMessage, customParser ?? descriptor, requestParams, tokenSource.Token);
+                    Instance = WebRequestFactory.Send(requestMessage, customParser ?? descriptor, requestParams, tokenSource.Token, waitForLogin);
                     Instance.StateChangedEvent += Instance_StateChangedEvent;
                     Instance.ProgressChangedEvent += Instance_ProgressChangedEvent;
                     Instance_StateChangedEvent(Instance, RequestState, FailReason);

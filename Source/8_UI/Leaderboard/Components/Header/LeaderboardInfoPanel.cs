@@ -358,10 +358,10 @@ namespace BeatLeader.Components {
             }
             
             int typeIndex = 0;
-            int knownTypes = MapTypesManager.MapsTypes?.Count ?? 0;
+            int knownTypes = MapTypesManager.MapTypes.Count;
             foreach (var mapTypePanel in _mapTypePanels) {
                 for (; typeIndex < knownTypes; typeIndex++) {
-                    var typeDescriptiopn = MapTypesManager.MapsTypes![typeIndex];
+                    var typeDescriptiopn = MapTypesManager.MapTypes![typeIndex];
                     if ((_mapType & typeDescriptiopn.Id) == typeDescriptiopn.Id) {
                         mapTypePanel.SetActive(true);
                         mapTypePanel.SetValues(typeDescriptiopn);

@@ -1,64 +1,53 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.APIV2;
 using BeatLeader.Models;
-using IPA.Utilities.Async;
+using BeatLeader.Utils;
+using BeatLeader.WebRequests;
+using Reactive.Components;
 using UnityEngine;
-using UnityEngine.Networking;
 
 namespace BeatLeader.DataManager {
-    public class MapTypesManager : MonoBehaviour {
+    internal static class MapTypesManager {
+        public static IReadOnlyList<MapsTypeDescription> MapTypes => _mapTypes;
 
-        public static List<MapsTypeDescription>? MapsTypes = null;
+        private static MapsTypeDescription[] _mapTypes = Array.Empty<MapsTypeDescription>();
+        private static Dictionary<MapsTypeDescription, Sprite> _sprites = new();
 
-        private void Start() {
-            MapTypesRequest.StateChangedEvent += MapTypesRequest_StateChangedEvent;
-            MapTypesRequest.Send();
+        public static void Initialize() {
+            MapTypesRequest.Send().StateChangedEvent += HandleStateChanged;
         }
 
-        private void OnDestroy() {
-            MapTypesRequest.StateChangedEvent -= MapTypesRequest_StateChangedEvent;
+        public static Sprite GetIcon(MapsTypeDescription description) {
+            return _sprites[description];
         }
 
-        public void MapTypesRequest_StateChangedEvent(WebRequests.IWebRequest<List<MapsTypeDescription>> instance, WebRequests.RequestState state, string? failReason) {
-            if (state == WebRequests.RequestState.Finished) {
-                var tasks = new List<Task>();
-                MapsTypes = instance.Result.Select(s => {
+        private static void HandleStateChanged(IWebRequest<MapsTypeDescription[]> instance, RequestState state, string? failReason) {
+            switch (state) {
+                case RequestState.Finished: {
+                    _mapTypes = instance.Result!;
                     
-                    tasks.Add(LoadIconCoroutine(s.Icon, sprite => s.Sprite = sprite));
-                    
-                    return s;
-                }).ToList();
-
-                StartCoroutine(WaitImages(tasks));
-            } else if (state == WebRequests.RequestState.Failed) {
-                Plugin.Log.Debug($"Map types retrieval failed! {failReason}");
-            }
-        }
-        
-        private static async Task LoadIconCoroutine(string url, Action<Sprite> onLoaded) {
-            var request = await RawDataRequest.Send(url).Join();
-            
-            if (request.RequestState != WebRequests.RequestState.Finished) {
-                Plugin.Log.Debug($"Failed to load icon from {url}: {request.FailReason}");
-                return;
-            }
+                    foreach (var description in _mapTypes) {
+                        _ = LoadIconAsync(description).RunCatching();
+                    }
+                    break;
+                }
                 
-            var texture = new Texture2D(2, 2, TextureFormat.RGBA32, mipChain: false);
-            var loaded = texture.LoadImage(request.Result);
-            if (loaded) {
-                var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), 
-                    new Vector2(0.5f, 0.5f));
-                onLoaded(sprite);
+                case RequestState.Failed:
+                    Plugin.Log.Debug($"Map types retrieval failed: {failReason}");
+                    break;
             }
         }
 
-        private IEnumerator WaitImages(List<Task> tasks) {
-            foreach (var task in tasks) {
-                yield return task;
+        private static async Task LoadIconAsync(MapsTypeDescription description) {
+            var image = await ImageLoader.LoadImage(description.Icon, CancellationToken.None);
+
+            if (image != null) {
+                _sprites[description] = image.Sprite;
+            } else {
+                Plugin.Log.Error("Failed to load map type icon");
             }
         }
     }

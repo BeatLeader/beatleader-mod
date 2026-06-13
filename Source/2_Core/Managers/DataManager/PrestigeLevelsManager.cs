@@ -1,24 +1,44 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.APIV2;
 using BeatLeader.Models;
+using BeatLeader.Utils;
+using BGLib.UnityExtension;
+using Reactive;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace BeatLeader.DataManager {
     public static class PrestigeLevelsManager {
-        private static readonly Dictionary<int, Sprite> BigIcons = new();
-        private static readonly Dictionary<int, Sprite> SmallIcons = new();
+        #region Loading
+
+        private record struct PrestigeRequest(
+            UnityWebRequest Request,
+            int Level
+        );
+
         private static bool _initialized;
         private static bool _loading;
 
-        public static event Action IconsLoadedEvent;
+        private static readonly ConcurrentQueue<PrestigeRequest> _requestsQueue = new();
+        private static SynchronizationContext? _mainThreadSynchronizationContext;
+        private static float _lastSyncTime;
+        private static int _processedLevels;
+        private static int _totalLevels;
 
         public static void Initialize() {
             if (_initialized || _loading) return;
+
+            if (Thread.CurrentThread.ManagedThreadId != 1) {
+                throw new InvalidOperationException("Initialize must be called from the main thread");
+            }
+
+            _mainThreadSynchronizationContext = SynchronizationContext.Current;
             _loading = true;
-            
+
             PrestigeLevelsRequest.StateChangedEvent += OnPrestigeLevelsRequestStateChanged;
             PrestigeLevelsRequest.Send();
         }
@@ -28,75 +48,109 @@ namespace BeatLeader.DataManager {
             WebRequests.RequestState state,
             string failReason
         ) {
-            if (state == WebRequests.RequestState.Finished) {
-                LoadAllIcons(instance.Result);
-            } else if (state == WebRequests.RequestState.Failed) {
-                Plugin.Log.Debug($"Prestige levels retrieval failed! {failReason}");
-                _loading = false;
+            switch (state) {
+                case WebRequests.RequestState.Finished:
+                    var levels = instance.Result!;
+
+                    foreach (var level in levels) {
+                        if (string.IsNullOrEmpty(level.BigIcon)) {
+                            continue;
+                        }
+                        
+                        _totalLevels++;
+                        _ = LoadIconAsync(level.BigIcon, level.Level).RunCatching();
+                    }
+                    break;
+
+                case WebRequests.RequestState.Failed:
+                    Plugin.Log.Debug($"Prestige levels retrieval failed! {failReason}");
+                    break;
             }
-        }
 
-        private static async void LoadAllIcons(List<PrestigeLevel> levels) {
-            var tasks = new List<Task>();
-
-            foreach (var level in levels) {
-                if (!string.IsNullOrEmpty(level.BigIcon)) {
-                    tasks.Add(LoadIconAsync(level.BigIcon, sprite => BigIcons[level.Level] = sprite));
-                }
-                if (!string.IsNullOrEmpty(level.SmallIcon)) {
-                    tasks.Add(LoadIconAsync(level.SmallIcon, sprite => SmallIcons[level.Level] = sprite));
-                }
-            }
-
-            await Task.WhenAll(tasks);
-            
-            _initialized = true;
             _loading = false;
-            
-            IconsLoadedEvent?.Invoke();
         }
 
-        private static async Task LoadIconAsync(string url, Action<Sprite> onLoaded) {
-            try {
-                var request = await RawDataRequest.Send(url).Join();
+        private static async Task LoadIconAsync(string url, int level) {
+            var request = UnityWebRequestTexture.GetTexture(url);
+            var result = await request.SendWebRequestAsync();
 
-                if (request.RequestState != WebRequests.RequestState.Finished) {
-                    Plugin.Log.Debug($"Failed to load prestige icon from {url}: {request.FailReason}");
+            if (result != UnityWebRequest.Result.Success) {
+                Plugin.Log.Debug($"Failed to load prestige icon from {url}: {request.error}");
+                _processedLevels++;
+                return;
+            }
+
+            var req = new PrestigeRequest(request, level);
+            _requestsQueue.Enqueue(req);
+
+            EnqueueSpriteJob();
+        }
+
+        private static void EnqueueSpriteJob() {
+            _mainThreadSynchronizationContext!.Post(static _ => {
+                var time = Time.time;
+
+                // ReSharper disable once CompareOfFloatsByEqualityOperator
+                if (_lastSyncTime == time) {
                     return;
                 }
 
-                var texture = new Texture2D(2, 2, TextureFormat.RGBA32, mipChain: false);
-                var loaded = texture.LoadImage(request.Result);
-                if (loaded) {
-                    var sprite = Sprite.Create(
-                        texture,
-                        new Rect(0, 0, texture.width, texture.height),
-                        new Vector2(0.5f, 0.5f)
-                    );
-                    onLoaded(sprite);
+                _lastSyncTime = time;
+
+                if (_requestsQueue.TryDequeue(out var request)) {
+                    try {
+                        var texture = DownloadHandlerTexture.GetContent(request.Request);
+                        var sprite = SpriteUtils.CreateSprite(texture);
+
+                        _icons[request.Level] = sprite!;
+                    } finally {
+                        request.Request.Dispose();
+                        _processedLevels++;
+                    }
                 }
-            } catch (Exception ex) {
-                Plugin.Log.Debug($"Exception loading prestige icon from {url}: {ex.Message}");
-            }
+
+                if (!_requestsQueue.IsEmpty) {
+                    EnqueueSpriteJob();
+                    return;
+                }
+
+                if (_processedLevels == _totalLevels) {
+                    _initialized = true;
+                    _loading = false;
+
+                    _iconsLoaded?.Invoke();
+                }
+            }, null);
         }
 
-        public static Sprite GetBigIcon(int level) {
-            if (BigIcons.TryGetValue(level, out var sprite)) {
-                return sprite;
+        #endregion
+
+        #region Public API
+
+        public static event Action? IconsLoadedEvent {
+            add {
+                if (_initialized) {
+                    value?.Invoke();
+                }
+                _iconsLoaded += value;
             }
-            return BundleLoader.TransparentPixel;
+            remove => _iconsLoaded -= value;
         }
 
-        public static Sprite GetSmallIcon(int level) {
-            if (SmallIcons.TryGetValue(level, out var sprite)) {
+        private static Action? _iconsLoaded;
+        private static readonly Dictionary<int, Sprite> _icons = new();
+
+        public static Sprite GetIcon(int level) {
+            if (_icons.TryGetValue(level, out var sprite)) {
                 return sprite;
             }
             return BundleLoader.TransparentPixel;
         }
 
         public static bool HasIcon(int level) {
-            return BigIcons.ContainsKey(level) || SmallIcons.ContainsKey(level);
+            return _icons.ContainsKey(level);
         }
+
+        #endregion
     }
 }
-

@@ -39,7 +39,7 @@ namespace BeatLeader.Components {
         public void SetValues(MapsTypeDescription mapType) {
             _mapType = mapType;
             if (_mapType != null) {
-                _icon.sprite = _mapType.Sprite;
+                _icon.sprite = MapTypesManager.GetIcon(mapType);
                 HoverHint = $"{_mapType.Name} | {_mapType.Description}";
             }
         }

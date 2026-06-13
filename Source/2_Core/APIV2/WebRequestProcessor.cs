@@ -51,12 +51,12 @@ namespace BeatLeader.WebRequests {
                 contentBuffer = Array.Empty<byte>();
             } else {
                 if (token.IsCancellationRequested) return RequestState.Failed;
-                contentBuffer = await DownloadContent(message.Content, token);
+                contentBuffer = await Task.Run(() => DownloadContent(message.Content, token));
             }
             if (token.IsCancellationRequested) return RequestState.Failed;
             try {
                 if (_requestResponseParser != null) {
-                    Result = _requestResponseParser.ParseResponse(contentBuffer);
+                    Result = await Task.Run(() => _requestResponseParser.ParseResponse(contentBuffer), token);
                 }
             } catch (Exception ex) {
                 Plugin.Log.Error($"Failed to parse web request response!\n{ex}");

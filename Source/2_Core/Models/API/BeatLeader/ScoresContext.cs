@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Models {
@@ -11,15 +12,22 @@ namespace BeatLeader.Models {
         public string Key { get; set; }
     }
 
+    [PublicAPI]
     public static class ScoresContexts {
-        public static ScoresContext General = new ScoresContext {
+        public static readonly ScoresContext General = new ScoresContext {
             Id = 0,
             Icon = BundleLoader.GeneralContextIcon,
             Name = "General",
             Description = "General",
             Key = "modifiers"
         };
-        public static List<ScoresContext> AllContexts = new List<ScoresContext> { General };
-        public static ScoresContext ContextForId(int id) => AllContexts.FirstOrDefault(c => c.Id == id) ?? General;
+
+        public static IReadOnlyList<ScoresContext> AllContexts => allContexts;
+        
+        internal static ScoresContext[] allContexts = [General];
+        
+        public static ScoresContext ContextForId(int id) {
+            return allContexts.FirstOrDefault(c => c.Id == id) ?? General;
+        }
     }
 }

@@ -19,11 +19,11 @@ namespace BeatLeader.APIV2 {
                 return;
             }
 
-            var formContent = new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string, string>("token", authToken)
-            });
-            SendRet(Endpoint, HttpMethod.Post, formContent);
+            SendRet(Endpoint, HttpMethod.Post,
+                () => new FormUrlEncodedContent(new[]
+                {
+                    new KeyValuePair<string, string>("token", authToken)
+                }));
         }
     }
 }

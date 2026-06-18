@@ -10,15 +10,16 @@ namespace BeatLeader.APIV2 {
             string authToken,
             string provider
         ) {
-            var formContent = new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string, string>("ticket", authToken),
-                new KeyValuePair<string, string>("provider", provider),
-                new KeyValuePair<string, string>("returnUrl", "/")
-            });
-            return Send(BLConstants.SIGNIN_WITH_TICKET, HttpMethod.Post, formContent, new WebRequestParams {
-                RetryCount = 3
-            }, waitForLogin: false);
+            return Send(BLConstants.SIGNIN_WITH_TICKET, HttpMethod.Post,
+                () => new FormUrlEncodedContent(new[]
+                {
+                    new KeyValuePair<string, string>("ticket", authToken),
+                    new KeyValuePair<string, string>("provider", provider),
+                    new KeyValuePair<string, string>("returnUrl", "/")
+                }),
+                new WebRequestParams {
+                    RetryCount = 3
+                }, waitForLogin: false);
         }
     }
 }

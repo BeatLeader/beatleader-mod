@@ -12,26 +12,29 @@ using BeatLeader.Models;
 using BeatLeader.Utils;
 
 namespace BeatLeader.WebRequests {
+    internal delegate Task<bool> PreSendRequestDelegate(CancellationToken token);
     internal delegate Task<HttpResponseMessage?> SendRequestDelegate(HttpRequestMessage request, CancellationToken token);
 
     internal class WebRequestProcessor<T> : IWebRequest<T>, IIoOperationDescriptor, IDisposable {
         public WebRequestProcessor(
+            PreSendRequestDelegate? preSendCallback,
             SendRequestDelegate sendCallback,
-            HttpRequestMessage requestMessage,
+            Func<HttpRequestMessage> requestMessageFactory,
             WebRequestParams requestParams,
             IWebRequestResponseParser<T>? requestResponseParser,
             CancellationToken token
         ) {
-            ValidateHttpMessage(requestMessage);
+            _preSendCallback = preSendCallback;
             _sendCallback = sendCallback;
-            _requestMessage = requestMessage;
+            _requestMessageFactory = requestMessageFactory;
             RequestParams = requestParams;
             _requestResponseParser = requestResponseParser;
 
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token);
             _cancellationToken = _cancellationTokenSource.Token;
 
-            _requestTask = SendWebRequest(sendCallback, _cancellationToken);
+            _requestMessage = CreateRequestMessage();
+            _requestTask = SendWebRequest(preSendCallback, sendCallback, _cancellationToken);
             _processTask = ProcessWebRequest(_cancellationToken);
         }
 
@@ -98,6 +101,12 @@ namespace BeatLeader.WebRequests {
         
 
         #region Validation
+
+        private HttpRequestMessage CreateRequestMessage() {
+            var requestMessage = _requestMessageFactory();
+            ValidateHttpMessage(requestMessage);
+            return requestMessage;
+        }
 
         private void ValidateHttpMessage(HttpRequestMessage requestMessage) {
             var content = requestMessage.Content;
@@ -188,7 +197,13 @@ namespace BeatLeader.WebRequests {
 
         #region SendWebRequest
 
-        private async Task<HttpResponseMessage?> SendWebRequest(SendRequestDelegate sendCallback, CancellationToken token) {
+        private async Task<HttpResponseMessage?> SendWebRequest(PreSendRequestDelegate? preSendCallback, SendRequestDelegate sendCallback, CancellationToken token) {
+            if (preSendCallback != null) {
+                if (!(await preSendCallback(token))) {
+                    throw new TaskCanceledException($"Request pre-send action failed");
+                }
+            }
+
             var timeout = RequestParams.TimeoutSeconds;
             using var timeoutTokenSource = GetTimeoutTokenSource(TimeSpan.FromSeconds(timeout), token);
             var linkedToken = timeoutTokenSource?.Token ?? token;
@@ -218,7 +233,9 @@ namespace BeatLeader.WebRequests {
         protected WebRequestParams RequestParams { get; }
 
         private Task<HttpResponseMessage?> _requestTask;
-        private readonly HttpRequestMessage _requestMessage;
+        private HttpRequestMessage _requestMessage;
+        private readonly Func<HttpRequestMessage> _requestMessageFactory;
+        private readonly PreSendRequestDelegate? _preSendCallback;
         private readonly SendRequestDelegate _sendCallback;
         private readonly Task _processTask;
         
@@ -264,23 +281,27 @@ namespace BeatLeader.WebRequests {
 
         private async Task ProcessFailure(HttpResponseMessage? httpResponse, Exception? ex) {
             if (ex != null) {
-                RequestState = RequestState.Failed;
                 if (ex is TaskCanceledException) {
                     FailReason = "Request cancelled";
                     Plugin.Log.Debug($"[Request({_requestTask.GetHashCode()})] Cancelled");
+                } else if (RetryAttempt < RequestParams.RetryCount) {
+                    await Retry();
+                } else if (ex is TimeoutException) {
+                    FailReason = "Request timed out";
+                    Plugin.Log.Debug($"[Request({_requestTask.GetHashCode()})] Timed out");
                 } else {
                     FailReason = "Exception occured, please report on Discord";
                     Plugin.Log.Info($"[Request({_requestTask.GetHashCode()})] Exception: {ex}");
                 }
+                RequestState = RequestState.Failed;
             } else if (httpResponse != null) {
                 NetworkingUtils.GetRequestFailReason(httpResponse, out string failReason, out bool shouldRetry);
+                FailReason = failReason;
+                RequestState = RequestState.Failed;
 
                 if (shouldRetry && RetryAttempt < RequestParams.RetryCount) {
                     await Retry();
-                    return;
                 } else {
-                    RequestState = RequestState.Failed;
-                    FailReason = failReason;
                     Plugin.Log.Info($"[Request({_requestTask.GetHashCode()})] Fail reason: {failReason}");
                 }
             }
@@ -289,7 +310,11 @@ namespace BeatLeader.WebRequests {
         private async Task Retry() {
             RetryAttempt++;
 
-            _requestTask = SendWebRequest(_sendCallback, _cancellationToken);
+            Plugin.Log.Info($"[Request({_requestTask.GetHashCode()})] Retrying: {RetryAttempt}");
+
+            _requestMessage.Dispose();
+            _requestMessage = CreateRequestMessage();
+            _requestTask = SendWebRequest(_preSendCallback, _sendCallback, _cancellationToken);
             await ProcessWebRequest(_cancellationToken);
         }
 

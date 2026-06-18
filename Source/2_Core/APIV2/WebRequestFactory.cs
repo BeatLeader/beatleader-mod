@@ -19,32 +19,30 @@ namespace BeatLeader.WebRequests {
         }
 
         public static IWebRequest<object> Send(
-                HttpRequestMessage requestMessage,
+                Func<HttpRequestMessage> requestMessageFactory,
                 WebRequestParams? requestParams = null,
                 CancellationToken token = default,
                 bool waitForLogin = true
             ) {
             requestParams ??= new();
-            SendRequestDelegate sendCallback = waitForLogin
-                ? (message, requestToken) => SendInternalLogin(message, requestParams.ResponseCompletionOption, requestToken)
-                : (message, requestToken) => SendInternal(message, requestParams.ResponseCompletionOption, requestToken);
+            PreSendRequestDelegate? preSendCallback = waitForLogin ? (requestToken) => WaitLogin(requestToken) : null;
+            SendRequestDelegate sendCallback = (message, requestToken) => SendInternal(message, requestParams.ResponseCompletionOption, requestToken);
 
-            return new WebRequestProcessor<object>(sendCallback, requestMessage, requestParams, null, token);
+            return new WebRequestProcessor<object>(preSendCallback, sendCallback, requestMessageFactory, requestParams, null, token);
         }
 
         public static IWebRequest<T> Send<T>(
-            HttpRequestMessage requestMessage,
+            Func<HttpRequestMessage> requestMessageFactory,
             IWebRequestResponseParser<T> responseParser,
             WebRequestParams? requestParams = null,
             CancellationToken token = default,
             bool waitForLogin = true
         ) {
             requestParams ??= new();
-            SendRequestDelegate sendCallback = waitForLogin
-                ? (message, requestToken) => SendInternalLogin(message, requestParams.ResponseCompletionOption, requestToken)
-                : (message, requestToken) => SendInternal(message, requestParams.ResponseCompletionOption, requestToken);
+            PreSendRequestDelegate? preSendCallback = waitForLogin ? (requestToken) => WaitLogin(requestToken) : null;
+            SendRequestDelegate sendCallback = (message, requestToken) => SendInternal(message, requestParams.ResponseCompletionOption, requestToken);
 
-            return new WebRequestProcessor<T>(sendCallback, requestMessage, requestParams, responseParser, token);
+            return new WebRequestProcessor<T>(preSendCallback, sendCallback, requestMessageFactory, requestParams, responseParser, token);
         }
 
         private static Task<HttpResponseMessage?> SendInternal(
@@ -56,17 +54,9 @@ namespace BeatLeader.WebRequests {
             return httpClient.SendAsync(requestMessage, completionOption, token);
         }
 
-        private static Task<HttpResponseMessage?> SendInternalLogin(
-            HttpRequestMessage requestMessage,
-            HttpCompletionOption completionOption,
-            CancellationToken token
-        ) {
-            ApplyDefaultHeaders(requestMessage);
-
+        private static Task<bool> WaitLogin(CancellationToken token) {
             return Task.Run(async () => {
-                var loggedIn = await Authentication.WaitLogin();
-                if (!loggedIn) return null;
-                return await httpClient.SendAsync(requestMessage, completionOption, token);
+                return await Authentication.WaitLogin();
             }).RunCatching();
         }
 

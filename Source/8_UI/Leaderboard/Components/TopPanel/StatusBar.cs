@@ -28,6 +28,7 @@ namespace BeatLeader.Components {
         }
 
         private void OnDisable() {
+            if (!_animating) return;
             StopAllCoroutines();
             MessageText = "";
         }
@@ -87,28 +88,33 @@ namespace BeatLeader.Components {
 
         #region ShowMessage
 
-        private const float DefaultDuration = 1.4f;
         private const string GoodNewsColor = "#88FF88";
         private const string BadNewsColor = "#FF8888";
+        private bool _animating = false;
 
-        private void ShowGoodNews(string message, float duration = DefaultDuration) {
+        private void ShowGoodNews(string message, float duration = 20f) {
             ShowMessage($"<color={GoodNewsColor}>{message}", duration);
         }
 
-        private void ShowBadNews(string message, float duration = DefaultDuration) {
+        private void ShowBadNews(string message, float duration = 60f) {
             ShowMessage($"<color={BadNewsColor}>{message}", duration);
         }
 
-        private void ShowMessage(string message, float duration = DefaultDuration) {
-            if (!gameObject.activeInHierarchy) return;
+        private void ShowMessage(string message, float duration) {
+            if (!gameObject.activeInHierarchy) {
+                MessageText = message;
+                return;
+            }
             StopAllCoroutines();
             StartCoroutine(ShowMessageCoroutine(message, duration));
         }
 
         private IEnumerator ShowMessageCoroutine(string message, float duration) {
             MessageText = message;
+            _animating = true;
             yield return new WaitForSeconds(duration);
             MessageText = "";
+            _animating = false;
         }
 
         #endregion

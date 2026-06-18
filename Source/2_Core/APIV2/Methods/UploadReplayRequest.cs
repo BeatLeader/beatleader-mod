@@ -22,10 +22,13 @@ namespace BeatLeader.APIV2 {
                 var url = string.Format(WithCookieEndpoint, NetworkingUtils.ToHttpParams(query));
 
                 var compressedData = CompressReplay(replay);
-                var content = new ByteArrayContent(compressedData);
-                content.Headers.ContentEncoding.Add("gzip");
 
-                SendRet(url, HttpMethod.Put, content,
+                SendRet(url, HttpMethod.Put,
+                    () => {
+                        var content = new ByteArrayContent(compressedData);
+                        content.Headers.ContentEncoding.Add("gzip");
+                        return content;
+                    },
                     new WebRequestParams {
                         RetryCount = 3,
                         TimeoutSeconds = 120

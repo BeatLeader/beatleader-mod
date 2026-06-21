@@ -11,6 +11,7 @@ namespace BeatLeader {
         [Inject] private readonly MainFlowCoordinator _mainFlowCoordinator = null!;
         [Inject] private readonly SoloFreePlayFlowCoordinator _soloFlowCoordinator = null!;
         [Inject] private readonly BeatLeaderHubMainViewController _hubMainViewController = null!;
+        [Inject] private readonly ReplayManagerFlowCoordinator _replayManagerFlowCoordinator = null!;
         
         private FlowCoordinator? _parentCoordinator;
 
@@ -53,6 +54,15 @@ namespace BeatLeader {
 
         public void Present(bool fromLeaderboard) {
             _parentCoordinator = fromLeaderboard ? _soloFlowCoordinator : _mainFlowCoordinator;
+
+            if (PluginConfig.OpenReplaysDirectly) {
+                _parentCoordinator.PresentFlowCoordinator(
+                    _replayManagerFlowCoordinator,
+                    animationDirection: ViewController.AnimationDirection.Vertical
+                );
+                return;
+            }
+
             _parentCoordinator.PresentFlowCoordinator(this);
         }
 

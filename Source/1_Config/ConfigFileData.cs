@@ -78,6 +78,7 @@ namespace BeatLeader {
 
         // Hub
         public BeatLeaderHubTheme HubTheme = ConfigDefaults.HubTheme;
+        public bool OpenReplaysDirectly = ConfigDefaults.OpenReplaysDirectly;
         
         // Replayer
         public ReplayerSettings ReplayerSettings = ConfigDefaults.ReplayerSettings;

@@ -37,6 +37,10 @@ namespace BeatLeader.Components {
         private ImageButton _menuButton = null!;
         private PushContainer _container = null!;
 
+        private static Sprite MenuButtonSprite => PluginConfig.OpenReplaysDirectly
+            ? BundleLoader.ReplayIcon
+            : BundleLoader.Sprites.homeIcon;
+
         private static ImageButton CreateHeaderButton(Sprite sprite, Action callback) {
             return new ImageButton {
                 Image = {
@@ -59,7 +63,7 @@ namespace BeatLeader.Components {
                         new Layout {
                             Children = {
                                 CreateHeaderButton(
-                                    BundleLoader.Sprites.homeIcon,
+                                    MenuButtonSprite,
                                     LeaderboardEvents.NotifyMenuButtonWasPressed
                                 ).Bind(ref _menuButton),
                             }
@@ -166,6 +170,7 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             LeaderboardsCache.CacheWasChangedEvent += OnCacheWasChanged;
             PluginConfig.LeaderboardDisplaySettingsChangedEvent += OnLeaderboardDisplaySettingsChanged;
+            PluginConfig.OpenReplaysDirectlyChangedEvent += OnOpenReplaysDirectlyChanged;
             EnvironmentManagerPatch.EnvironmentTypeChangedEvent += OnMenuEnvironmentChanged;
             LeaderboardEvents.ScoreInfoButtonWasPressed += OnScoreClicked;
 
@@ -176,6 +181,7 @@ namespace BeatLeader.Components {
             LeaderboardsCache.CacheWasChangedEvent -= OnCacheWasChanged;
             EnvironmentManagerPatch.EnvironmentTypeChangedEvent -= OnMenuEnvironmentChanged;
             PluginConfig.LeaderboardDisplaySettingsChangedEvent -= OnLeaderboardDisplaySettingsChanged;
+            PluginConfig.OpenReplaysDirectlyChangedEvent -= OnOpenReplaysDirectlyChanged;
             LeaderboardEvents.ScoreInfoButtonWasPressed -= OnScoreClicked;
 
             LeaderboardState.RemoveSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
@@ -234,6 +240,10 @@ namespace BeatLeader.Components {
         private void OnLeaderboardDisplaySettingsChanged(LeaderboardDisplaySettings settings) {
             _displayCaptorClan = settings.ClanCaptureDisplay;
             UpdateVisuals();
+        }
+
+        private void OnOpenReplaysDirectlyChanged(bool openReplaysDirectly) {
+            _menuButton.Image.Sprite = MenuButtonSprite;
         }
 
         private void OnMenuEnvironmentChanged(MenuEnvironmentManager.MenuEnvironmentType type) {

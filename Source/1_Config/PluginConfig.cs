@@ -27,6 +27,21 @@ namespace BeatLeader {
 
         #endregion
 
+        #region OpenReplaysDirectly
+
+        public static event Action<bool> OpenReplaysDirectlyChangedEvent;
+
+        public static bool OpenReplaysDirectly {
+            get => ConfigFileData.Instance.OpenReplaysDirectly;
+            set {
+                if (ConfigFileData.Instance.OpenReplaysDirectly == value) return;
+                ConfigFileData.Instance.OpenReplaysDirectly = value;
+                OpenReplaysDirectlyChangedEvent?.Invoke(value);
+            }
+        }
+
+        #endregion
+
         #region MainServer
 
         public static BeatLeaderServer MainServer {

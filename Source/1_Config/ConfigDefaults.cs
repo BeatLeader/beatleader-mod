@@ -19,6 +19,12 @@ namespace BeatLeader {
 
         #endregion
 
+        #region OpenReplaysDirectly
+
+        public const bool OpenReplaysDirectly = false;
+
+        #endregion
+
         #region BeatLeaderServer
 
         public const BeatLeaderServer MainServer = BeatLeaderServer.COM_DOMAIN;

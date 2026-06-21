@@ -17,6 +17,7 @@ namespace BeatLeader.Models {
 
         public ReplayerShortcuts Shortcuts { get; set; } = new();
         public ReplayerUISettings UISettings { get; set; } = new();
+        public ReplayerControlsSettings Controls { get; set; } = new();
         public BodySettings BodySettings { get; set; } = new();
         
         // This property exists as a fix for previous versions that were broken because of the camera settings being null

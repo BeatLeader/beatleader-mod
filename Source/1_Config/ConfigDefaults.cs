@@ -212,6 +212,8 @@ namespace BeatLeader {
                 PauseHotkey = KeyCode.Space,
                 RewindForwardHotkey = KeyCode.RightArrow,
                 RewindBackwardHotkey = KeyCode.LeftArrow,
+                SpeedUpHotkey = KeyCode.Plus,
+                SpeedDownHotkey = KeyCode.Minus,
             }
         };
 

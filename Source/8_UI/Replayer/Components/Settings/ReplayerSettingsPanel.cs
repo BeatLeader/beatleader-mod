@@ -32,6 +32,7 @@ namespace BeatLeader.UI.Replayer {
             
             _uiView.Setup(settings.UISettings, _quickSettingsPanel, layoutEditor, timeline, watermark);
             _otherView.Setup(timeController, finishController);
+            _controlsView.Setup(settings.Controls);
 
             _selectorContainer.Items["Avatar"] = bodySettingsFactory.CreateBodySettingsView().WithRectExpand();
 
@@ -50,6 +51,7 @@ namespace BeatLeader.UI.Replayer {
         private SettingsCameraView _cameraView = null!;
         private SettingsUIView _uiView = null!;
         private SettingsOtherView _otherView = null!;
+        private SettingsControlsView _controlsView = null!;
         private Image _backgroundImage = null!;
 
         private KeyedContainer<string> _selectorContainer = null!;
@@ -63,7 +65,8 @@ namespace BeatLeader.UI.Replayer {
                                 { "Camera", BundleLoader.CameraIcon },
                                 { "Avatar", BundleLoader.AvatarIcon },
                                 { "UI", BundleLoader.UIIcon },
-                                { "Other", BundleLoader.OtherIcon }
+                                { "Controls", BundleLoader.SettingsIcon },
+                                { "Other", BundleLoader.OtherIcon },
                             }
                         }
                         .AsFlexGroup(direction: FlexDirection.Column)
@@ -96,10 +99,14 @@ namespace BeatLeader.UI.Replayer {
                                     ["UI"] = new SettingsUIView()
                                         .AsFlexItem(size: 100.pct())
                                         .Bind(ref _uiView),
+
+                                    ["Controls"] = new SettingsControlsView()
+                                        .AsFlexItem(size: 100.pct())
+                                        .Bind(ref _controlsView),
                                     
                                     ["Other"] = new SettingsOtherView()
                                         .AsFlexItem(size: 100.pct())
-                                        .Bind(ref _otherView)
+                                        .Bind(ref _otherView),
                                 }
                             }.AsFlexItem(flexGrow: 1f, margin: 2f).AsFlexGroup().Bind(ref _selectorContainer),
 

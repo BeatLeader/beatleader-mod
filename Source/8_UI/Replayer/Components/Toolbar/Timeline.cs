@@ -27,6 +27,7 @@ namespace BeatLeader.UI.Replayer {
 
         private bool _allowTimeUpdate;
         private bool _wasPausedBeforeRewind;
+        private ContinuousSliderPointerUpdater? _pointerUpdater;
 
         public void Setup(
             IVirtualPlayersManager playersManager,
@@ -50,15 +51,18 @@ namespace BeatLeader.UI.Replayer {
         }
 
         protected override void OnDestroy() {
+            _pointerUpdater?.Dispose();
             if (_playersManager != null) {
                 _playersManager.PrimaryPlayerWasChangedEvent -= HandlePrimaryPlayerChangedEvent;
             }
+            base.OnDestroy();
         }
 
         protected override void OnUpdate() {
             if (_allowTimeUpdate) {
                 SetValueSilent(_timeController!.SongTime);
             }
+            _pointerUpdater?.Tick();
         }
 
         #endregion
@@ -291,6 +295,9 @@ namespace BeatLeader.UI.Replayer {
 
         protected override void OnInitialize() {
             base.OnInitialize();
+            if (!InputUtils.UsesFPFC) {
+                _pointerUpdater = new(_pointerEventsHandler);
+            }
             this.AsFlexItem(size: new() { y = 4f });
             this.WithListener(x => x.Value, HandleSliderValueChanged);
         }

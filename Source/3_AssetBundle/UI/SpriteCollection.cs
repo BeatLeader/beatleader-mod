@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 #nullable disable
 
@@ -32,6 +32,10 @@ namespace BeatLeader {
         public Sprite triangleIcon;
         public Sprite checkIcon;
         public Sprite inactiveCheckIcon;
+        public Sprite showIcon;
+        public Sprite hideIcon;
+        public Sprite handUIIcon;
+        public Sprite stageUIIcon;
         /* Other */
         [Space] [Header("Misc")]
         public Sprite glare;

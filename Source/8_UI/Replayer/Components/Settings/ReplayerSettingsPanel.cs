@@ -1,4 +1,4 @@
-using BeatLeader.Components;
+﻿using BeatLeader.Components;
 using BeatLeader.Models;
 using Reactive;
 using Reactive.BeatSaber.Components;
@@ -32,7 +32,6 @@ namespace BeatLeader.UI.Replayer {
             
             _uiView.Setup(settings.UISettings, _quickSettingsPanel, layoutEditor, timeline, watermark);
             _otherView.Setup(timeController, finishController);
-            _controlsView.Setup(settings.Controls);
 
             _selectorContainer.Items["Avatar"] = bodySettingsFactory.CreateBodySettingsView().WithRectExpand();
 
@@ -51,7 +50,6 @@ namespace BeatLeader.UI.Replayer {
         private SettingsCameraView _cameraView = null!;
         private SettingsUIView _uiView = null!;
         private SettingsOtherView _otherView = null!;
-        private SettingsControlsView _controlsView = null!;
         private Image _backgroundImage = null!;
 
         private KeyedContainer<string> _selectorContainer = null!;
@@ -64,8 +62,7 @@ namespace BeatLeader.UI.Replayer {
                             Items = {
                                 { "Camera", BundleLoader.CameraIcon },
                                 { "Avatar", BundleLoader.AvatarIcon },
-                                { "UI", BundleLoader.UIIcon },
-                                { "Controls", BundleLoader.SettingsIcon },
+                                { "Controls", BundleLoader.UIIcon },
                                 { "Other", BundleLoader.OtherIcon },
                             }
                         }
@@ -96,14 +93,10 @@ namespace BeatLeader.UI.Replayer {
                                         }
                                     }.WithRectExpand().Bind(ref _cameraView),
 
-                                    ["UI"] = new SettingsUIView()
+                                    ["Controls"] = new SettingsUIView()
                                         .AsFlexItem(size: 100.pct())
                                         .Bind(ref _uiView),
 
-                                    ["Controls"] = new SettingsControlsView()
-                                        .AsFlexItem(size: 100.pct())
-                                        .Bind(ref _controlsView),
-                                    
                                     ["Other"] = new SettingsOtherView()
                                         .AsFlexItem(size: 100.pct())
                                         .Bind(ref _otherView),

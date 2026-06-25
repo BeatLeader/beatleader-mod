@@ -34,7 +34,7 @@ namespace BeatLeader.Replayer.Binding {
         private float _speedNextActionTime;
 
         private void Update() {
-            var settings = _launchData.Settings.Controls;
+            var settings = _launchData.Settings.UISettings.Controls;
             if (settings is not { Enabled: true }) return;
 
             var seekNode = settings.SeekOnRightHand ? XRNode.RightHand : XRNode.LeftHand;

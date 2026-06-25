@@ -10,7 +10,7 @@ namespace BeatLeader.Replayer.Binding {
         [Inject] private readonly IBeatmapTimeController _timeController = null!;
 
         public override void OnKeyDown() {
-            var settings = _launchData.Settings.Controls;
+            var settings = _launchData.Settings.UISettings.Controls;
             if (!ReplayControlsActions.FpfcHotkeysEnabled(settings)) return;
             ReplayControlsActions.Seek(_timeController, settings, -1);
         }

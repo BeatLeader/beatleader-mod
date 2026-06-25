@@ -1,5 +1,6 @@
 using System;
 using BeatLeader.Models;
+using BeatLeader.Replayer;
 using HMUI;
 using Reactive;
 using Reactive.Components;
@@ -18,6 +19,7 @@ namespace BeatLeader.UI.Replayer {
         [Inject] private readonly ReplayLaunchData _launchData = null!;
         [Inject] private readonly ICameraController _cameraController = null!;
         [Inject] private readonly IReplayWatermark _watermark = null!;
+        [Inject] private readonly MenuControllersManager _menuControllersManager = null!;
 
         #endregion
 
@@ -35,6 +37,8 @@ namespace BeatLeader.UI.Replayer {
         private void SetupInternal() {
             _floatingPanelControls.Setup(
                 _floatingScreen!,
+                _toolbar,
+                _menuControllersManager,
                 _cameraController.Camera,
                 _launchData.Settings.UISettings.FloatingSettings ?? throw new ArgumentException(
                     "Floating settings cannot be null when using floating view"
@@ -48,7 +52,9 @@ namespace BeatLeader.UI.Replayer {
         private void Awake() {
             new Layout {
                 Children = {
-                    new ToolbarWithSettings()
+                    new ToolbarWithSettings {
+                            WithinLayoutIfDisabled = true
+                        }
                         .AsFlexItem(size: new() { x = 80f, y = 70f })
                         .Bind(ref _toolbar),
                     //

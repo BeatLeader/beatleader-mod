@@ -18,7 +18,7 @@ namespace BeatLeader.UI.Replayer {
         }
 
         protected override GameObject Construct() {
-            return new Slider {
+            return new ContinuousSlider {
                 ValueRange = new() {
                     Start = 1f,
                     End = 200f

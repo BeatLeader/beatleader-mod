@@ -41,7 +41,7 @@ namespace BeatLeader.UI.MainMenu {
                                 Skew = UIStyle.Skew
                             }
                             .AsFlexItem(size: new() { x = 10, y = 10 })
-                            .Animate(ObservableItem, (img, item) => img.WithWebSource(item.image)),
+                            .Animate(ObservableItem, (img, item) => img.WithWebSource(BeatLeaderServerUtils.ReplaceDomain(item.image))),
 
                         new Layout {
                                 Children = {

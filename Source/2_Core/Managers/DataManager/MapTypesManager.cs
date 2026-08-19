@@ -42,7 +42,7 @@ namespace BeatLeader.DataManager {
         }
 
         private static async Task LoadIconAsync(MapsTypeDescription description) {
-            var image = await ImageLoader.LoadImage(description.Icon, CancellationToken.None);
+            var image = await ImageLoader.LoadImage(BeatLeaderServerUtils.ReplaceDomain(description.Icon), CancellationToken.None);
 
             if (image != null) {
                 _sprites[description] = image.Sprite;

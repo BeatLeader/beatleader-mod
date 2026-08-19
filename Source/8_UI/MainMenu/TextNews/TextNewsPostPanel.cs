@@ -39,7 +39,7 @@ namespace BeatLeader.UI.MainMenu {
                                 if (string.IsNullOrEmpty(item.image)) {
                                     image.Enabled = false;
                                 } else {
-                                    image.Src = item.image;
+                                    image.Src = BeatLeaderServerUtils.ReplaceDomain(item.image);
                                     image.Enabled = true;
                                 }
                             }

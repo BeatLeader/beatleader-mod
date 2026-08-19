@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using BeatLeader.API.RequestHandlers;
+using BeatLeader.Models;
 using BeatLeader.Utils;
 using IPA.Loader;
 using JetBrains.Annotations;
@@ -57,6 +58,7 @@ namespace BeatLeader.API {
                 }
 
                 var request = requestDescriptor.CreateWebRequest();
+                request.url = BeatLeaderServerUtils.ReplaceDomain(request.url);
                 request.timeout = timeoutSeconds;
                 request.SetRequestHeader("User-Agent", GetUserAgent());
 

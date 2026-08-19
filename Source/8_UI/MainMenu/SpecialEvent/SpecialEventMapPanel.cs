@@ -77,7 +77,7 @@ internal class SpecialEventMapPanel : ReactiveComponent {
                             Material = BundleLoader.RoundTextureMaterial
                         }
                         .Animate(_map, (x, y) => x.Enabled = y != null)
-                        .Animate(_mapDetail, (x, y) => x.Src = y.coverImage)
+                        .Animate(_mapDetail, (x, y) => x.Src = BeatLeaderServerUtils.ReplaceDomain(y.coverImage))
                         .AsFlexItem(size: 25.pt()),
 
                     new Label {

@@ -1,4 +1,5 @@
-﻿using Reactive;
+﻿using BeatLeader.Models;
+using Reactive;
 using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
@@ -24,7 +25,7 @@ namespace BeatLeader.UI.MainMenu {
 
         public string AvatarUrl {
             get => "";
-            set => _avatarImage.WithWebSource(value);
+            set => _avatarImage.WithWebSource(BeatLeaderServerUtils.ReplaceDomain(value));
         }
 
         private Image _avatarImage = null!;

@@ -45,7 +45,7 @@ namespace BeatLeader.DataManager {
         }
 
         private static async Task LoadIconAsync(string url, ScoresContext context) {
-            var image = await ImageLoader.LoadImage(url, CancellationToken.None);
+            var image = await ImageLoader.LoadImage(BeatLeaderServerUtils.ReplaceDomain(url), CancellationToken.None);
 
             if (image != null) {
                 context.Icon = image.Sprite;

@@ -1,5 +1,6 @@
 ﻿using System;
 using BeatLeader.APIV2;
+using BeatLeader.Models;
 using BeatLeader.Utils;
 using System.Net;
 using System.Net.Http;
@@ -50,6 +51,7 @@ namespace BeatLeader.WebRequests {
             HttpCompletionOption completionOption,
             CancellationToken token
         ) {
+            ApplySelectedDomain(requestMessage);
             ApplyDefaultHeaders(requestMessage);
             return httpClient.SendAsync(requestMessage, completionOption, token);
         }
@@ -62,6 +64,11 @@ namespace BeatLeader.WebRequests {
 
         private static void ApplyDefaultHeaders(HttpRequestMessage requestMessage) {
             requestMessage.Headers.Add("User-Agent", Plugin.UserAgent);
+        }
+
+        private static void ApplySelectedDomain(HttpRequestMessage requestMessage) {
+            if (requestMessage.RequestUri == null) return;
+            requestMessage.RequestUri = BeatLeaderServerUtils.ReplaceDomain(requestMessage.RequestUri);
         }
     }
 }

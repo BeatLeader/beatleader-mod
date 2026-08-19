@@ -47,7 +47,7 @@ public class SpecialEventResultsPanel : ReactiveComponent {
                             _status,
                             (img, item) => {
                                 if (item != null) {
-                                    img.WithWebSource(item.eventDescription.image);
+                                    img.WithWebSource(BeatLeaderServerUtils.ReplaceDomain(item.eventDescription.image));
                                 }
                             }
                         ),

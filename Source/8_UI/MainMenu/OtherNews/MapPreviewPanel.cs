@@ -43,7 +43,7 @@ namespace BeatLeader.UI.MainMenu {
                                     if (string.IsNullOrEmpty(item.song.coverImage)) {
                                         img.Sprite = BundleLoader.UnknownIcon;
                                     } else {
-                                        img.WithWebSource(item.song.coverImage);
+                                        img.WithWebSource(BeatLeaderServerUtils.ReplaceDomain(item.song.coverImage));
                                     }
                                 }
                             ),

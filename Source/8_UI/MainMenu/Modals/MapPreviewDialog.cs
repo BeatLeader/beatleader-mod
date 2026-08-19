@@ -166,7 +166,7 @@ namespace BeatLeader.UI.MainMenu {
 
         private async Task LoadCoverImage() {
             try {
-                await _coverImage.SetImageAsync(Context.song.coverImage!);
+                await _coverImage.SetImageAsync(BeatLeaderServerUtils.ReplaceDomain(Context.song.coverImage!));
             } catch (Exception) {
                 // Ignore cover loading errors
             }

@@ -71,7 +71,7 @@ namespace BeatLeader.DataManager {
         }
 
         private static async Task LoadIconAsync(string url, int level) {
-            var request = UnityWebRequestTexture.GetTexture(url);
+            var request = UnityWebRequestTexture.GetTexture(BeatLeaderServerUtils.ReplaceDomain(url));
             var result = await request.SendWebRequestAsync();
 
             if (result != UnityWebRequest.Result.Success) {

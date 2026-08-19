@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using BeatLeader.Models;
 using BeatLeader.Utils;
 using BeatLeader.WebRequests;
 using BS_Utils.Gameplay;
+using IPA.Utilities.Async;
 using UnityEngine;
 
 namespace BeatLeader.APIV2 {
@@ -23,7 +26,12 @@ namespace BeatLeader.APIV2 {
             Platform = platform;
         }
 
-        public static async Task<string?> PlatformTicket() {
+        public static Task<string?> PlatformTicket() {
+            // platform APIs are accessible from the main thread only
+            return UnityMainThreadTaskScheduler.Factory.StartNew(PlatformTicketInternal).Unwrap();
+        }
+
+        private static async Task<string?> PlatformTicketInternal() {
             await GetUserInfo.GetUserAsync();
 
             var platformUserModel = Resources
@@ -77,6 +85,7 @@ namespace BeatLeader.APIV2 {
             switch ((int)result.RequestStatusCode) {
                 case 200:
                     Plugin.Log.Info("Login successful!");
+                    ShareCookiesBetweenServers();
                     _signedIn = true;
                     _taskSource.SetResult(true);
                     break;
@@ -88,6 +97,27 @@ namespace BeatLeader.APIV2 {
                 default:
                     Plugin.Log.Debug($"Login failed! status: {result.RequestStatusCode} error: {result.FailReason}");
                     break;
+            }
+        }
+
+        // The session cookie is bound to the host it was issued for,
+        // so it is copied to the other servers to keep the session alive after a domain switch
+        private static void ShareCookiesBetweenServers() {
+            var container = WebRequestFactory.CookieContainer;
+            var sourceUri = new Uri(BLConstants.BEATLEADER_API_URL);
+            var cookies = container.GetCookies(sourceUri);
+
+            foreach (var server in BeatLeaderServerUtils.ServerOptions) {
+                var targetUri = new Uri(server.GetAPIUrl());
+                if (targetUri.Host == sourceUri.Host) continue;
+
+                foreach (Cookie cookie in cookies) {
+                    container.Add(targetUri, new Cookie(cookie.Name, cookie.Value, cookie.Path) {
+                        Secure = cookie.Secure,
+                        HttpOnly = cookie.HttpOnly,
+                        Expires = cookie.Expires
+                    });
+                }
             }
         }
 

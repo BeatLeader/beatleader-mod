@@ -1,5 +1,6 @@
 using BeatLeader.Components;
 using BeatLeader.Models;
+using BeatLeader.UI.Reactive.Components;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
@@ -15,6 +16,7 @@ namespace BeatLeader.UI.Replayer {
         private IReplayWatermark? _watermark;
         private ReplayerUISettings? _settings;
         private QuickSettingsPanel? _quickSettingsPanel;
+        private readonly SettingsControlsTabs _controlsTabs = new();
 
         public void Setup(
             ReplayerUISettings settings,
@@ -39,6 +41,7 @@ namespace BeatLeader.UI.Replayer {
             _quickSettingsToggle.SetActive(settings.QuickSettingsEnabled, false, true);
 
             ReloadTimelineMarkerToggles();
+            _controlsTabs.Setup(settings.Controls, settings.FloatingSettings);
         }
 
         #endregion
@@ -107,6 +110,7 @@ namespace BeatLeader.UI.Replayer {
         private Toggle _autoHideToggle = null!;
         private Toggle _quickSettingsToggle = null!;
         private NamedRail _layoutEditorRail = null!;
+        private const string UiTab = "UI";
 
         private static Background CreateContainer(params ILayoutItem[] children) {
             return new Background()
@@ -182,7 +186,7 @@ namespace BeatLeader.UI.Replayer {
             );
         }
 
-        protected override GameObject Construct() {
+        private Layout CreateUiTab() {
             return new Layout {
                 Children = {
                     new ScrollArea {
@@ -193,7 +197,37 @@ namespace BeatLeader.UI.Replayer {
                         .AsFlexItem()
                         .With(x => scrollArea.Scrollbar = x)
                 }
-            }.AsFlexGroup(gap: 1f).AsFlexItem().Use();
+            }.AsFlexGroup(gap: 1f).AsFlexItem();
+        }
+
+        protected override GameObject Construct() {
+            var tabControl = new TextSegmentedControl<string>();
+            tabControl.Items.Add(UiTab, "UI");
+
+            var viewContainer = new KeyedContainer<string> {
+                Control = tabControl,
+                Items = {
+                    [UiTab] = CreateUiTab()
+                }
+            };
+            _controlsTabs.AddTabs(tabControl, viewContainer);
+
+            return new Layout {
+                Children = {
+                    tabControl
+                        .AsFlexItem(flexGrow: 1f)
+                        .InBackground(
+                            color: new(0.1f, 0.1f, 0.1f, 1f),
+                            pixelsPerUnit: 7f
+                        )
+                        .AsFlexGroup()
+                        .AsFlexItem(size: new() { y = 6f }),
+                    viewContainer.AsFlexItem(flexGrow: 1f)
+                }
+            }.AsFlexGroup(
+                direction: FlexDirection.Column,
+                gap: 1f
+            ).Use();
         }
 
         protected override void OnInitialize() {

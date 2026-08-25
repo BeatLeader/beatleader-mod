@@ -29,17 +29,20 @@ namespace BeatLeader.UI.Hub {
         #region Notice
 
         private bool _initialMenuButtonEnabled;
+        private bool _initialOpenReplaysDirectly;
         private bool _initialNoticeboardEnabled;
         private BLLanguage _initialLanguage;
         private BeatLeaderServer _initialServer;
 
         public void CancelSelection() {
             BeatLeaderMenuButtonManager.MenuButtonEnabled = _initialMenuButtonEnabled;
+            PluginConfig.OpenReplaysDirectly = _initialOpenReplaysDirectly;
             PluginConfig.NoticeboardEnabled = _initialNoticeboardEnabled;
             PluginConfig.SelectedLanguage = _initialLanguage;
             PluginConfig.MainServer = _initialServer;
 
             _menuButtonToggle.SetActive(_initialMenuButtonEnabled);
+            _openReplaysDirectlyToggle.SetActive(_initialOpenReplaysDirectly);
             _noticeboardToggle.SetActive(_initialNoticeboardEnabled);
             _languageDropdown.Select(_initialLanguage);
             _serverDropdown.Select(_initialServer);
@@ -47,6 +50,7 @@ namespace BeatLeader.UI.Hub {
 
         private void SaveInitialValues() {
             _initialMenuButtonEnabled = BeatLeaderMenuButtonManager.MenuButtonEnabled;
+            _initialOpenReplaysDirectly = PluginConfig.OpenReplaysDirectly;
             _initialNoticeboardEnabled = PluginConfig.NoticeboardEnabled;
             _initialLanguage = PluginConfig.SelectedLanguage;
             _initialServer = PluginConfig.MainServer;
@@ -63,6 +67,7 @@ namespace BeatLeader.UI.Hub {
         #region Construct
 
         private Toggle _menuButtonToggle = null!;
+        private Toggle _openReplaysDirectlyToggle = null!;
         private Toggle _noticeboardToggle = null;
         private TextDropdown<BLLanguage> _languageDropdown = null!;
         private TextDropdown<BeatLeaderServer> _serverDropdown = null!;
@@ -79,6 +84,14 @@ namespace BeatLeader.UI.Hub {
                         )
                         .Bind(ref _menuButtonToggle)
                         .InNamedRail("Menu Button Enabled"),
+                    new Toggle()
+                        .With(x => x.SetActive(PluginConfig.OpenReplaysDirectly, false))
+                        .WithListener(
+                            x => x.Active,
+                            x => PluginConfig.OpenReplaysDirectly = x
+                        )
+                        .Bind(ref _openReplaysDirectlyToggle)
+                        .InNamedRail("Open Replays Directly"),
                     new Toggle()
                         .With(x => x.SetActive(PluginConfig.NoticeboardEnabled, false))
                         .WithListener(

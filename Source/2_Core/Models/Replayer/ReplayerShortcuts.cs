@@ -9,5 +9,7 @@ namespace BeatLeader.Models {
         public KeyCode PauseHotkey { get; set; }
         public KeyCode RewindForwardHotkey { get; set; }
         public KeyCode RewindBackwardHotkey { get; set; }
+        public KeyCode SpeedUpHotkey { get; set; } = KeyCode.Plus;
+        public KeyCode SpeedDownHotkey { get; set; } = KeyCode.Minus;
     }
 }

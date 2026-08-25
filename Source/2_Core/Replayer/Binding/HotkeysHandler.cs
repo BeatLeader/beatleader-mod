@@ -12,7 +12,9 @@ namespace BeatLeader.Replayer.Binding {
             new HideCursorHotkey(),
             new PauseHotkey(),
             new RewindBackwardHotkey(),
-            new RewindForwardHotkey()
+            new RewindForwardHotkey(),
+            new SpeedDownHotkey(),
+            new SpeedUpHotkey()
         };
 
         private void Awake() {
@@ -24,10 +26,16 @@ namespace BeatLeader.Replayer.Binding {
         private void Update() {
             foreach (var item in Hotkeys) {
                 try {
-                    if (Input.GetKeyDown(item.Key))
-                        item.OnKeyDown();
-                    else if (Input.GetKeyUp(item.Key))
-                        item.OnKeyUp();
+                    foreach (var key in item.Keys) {
+                        if (Input.GetKeyDown(key)) {
+                            item.OnKeyDown();
+                            break;
+                        }
+                        if (Input.GetKeyUp(key)) {
+                            item.OnKeyUp();
+                            break;
+                        }
+                    }
                 } catch (Exception ex) {
                     Plugin.Log.Error($"[HotkeysHandler] Error during attempting to perform {item.GetType().Name} hotkey!\r\n{ex}");
                 }

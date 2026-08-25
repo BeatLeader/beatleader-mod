@@ -1,4 +1,4 @@
-using BeatLeader.Components;
+﻿using BeatLeader.Components;
 using BeatLeader.Models;
 using Reactive;
 using Reactive.BeatSaber.Components;
@@ -62,8 +62,8 @@ namespace BeatLeader.UI.Replayer {
                             Items = {
                                 { "Camera", BundleLoader.CameraIcon },
                                 { "Avatar", BundleLoader.AvatarIcon },
-                                { "UI", BundleLoader.UIIcon },
-                                { "Other", BundleLoader.OtherIcon }
+                                { "Controls", BundleLoader.UIIcon },
+                                { "Other", BundleLoader.OtherIcon },
                             }
                         }
                         .AsFlexGroup(direction: FlexDirection.Column)
@@ -93,13 +93,13 @@ namespace BeatLeader.UI.Replayer {
                                         }
                                     }.WithRectExpand().Bind(ref _cameraView),
 
-                                    ["UI"] = new SettingsUIView()
+                                    ["Controls"] = new SettingsUIView()
                                         .AsFlexItem(size: 100.pct())
                                         .Bind(ref _uiView),
-                                    
+
                                     ["Other"] = new SettingsOtherView()
                                         .AsFlexItem(size: 100.pct())
-                                        .Bind(ref _otherView)
+                                        .Bind(ref _otherView),
                                 }
                             }.AsFlexItem(flexGrow: 1f, margin: 2f).AsFlexGroup().Bind(ref _selectorContainer),
 

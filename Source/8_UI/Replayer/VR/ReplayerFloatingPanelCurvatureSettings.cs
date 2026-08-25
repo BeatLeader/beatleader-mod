@@ -63,7 +63,7 @@ namespace BeatLeader.UI.Replayer {
                 }
             };
 
-            return new Layout {
+            var layout = new Layout {
                     ContentTransform = {
                         pivot = new(0.5f, 1f)
                     },
@@ -122,6 +122,10 @@ namespace BeatLeader.UI.Replayer {
                 .Animate(_panelScale, x => x.ContentTransform.localScale)
                 .With(_ => group.ignoreParentGroups = true)
                 .Use();
+
+            _panelScale.EvaluateNextFrame();
+
+            return layout;
         }
 
         #endregion

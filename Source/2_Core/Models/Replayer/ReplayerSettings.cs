@@ -1,7 +1,4 @@
 ﻿using JetBrains.Annotations;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-
 namespace BeatLeader.Models {
     [PublicAPI]
     public class ReplayerSettings {

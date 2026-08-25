@@ -19,6 +19,12 @@ namespace BeatLeader {
 
         #endregion
 
+        #region OpenReplaysDirectly
+
+        public const bool OpenReplaysDirectly = false;
+
+        #endregion
+
         #region BeatLeaderServer
 
         public const BeatLeaderServer MainServer = BeatLeaderServer.COM_DOMAIN;
@@ -143,7 +149,14 @@ namespace BeatLeader {
                     Pinned = true,
                     SnapEnabled = true,
                     CurvatureRadius = 90f,
-                    CurvatureEnabled = true
+                    CurvatureEnabled = true,
+                    AttachToHand = false,
+                    AttachToRightHand = false,
+                    HandOffset = new() {
+                        position = new(0f, 0.12f, 0.24f),
+                        rotation = Quaternion.Euler(65f, 0f, 0f)
+                    },
+                    HandScale = 0.3f
                 },
                 LayoutEditorSettings = new() {
                     ReferenceResolution = new(1920f, 1200f),
@@ -212,6 +225,8 @@ namespace BeatLeader {
                 PauseHotkey = KeyCode.Space,
                 RewindForwardHotkey = KeyCode.RightArrow,
                 RewindBackwardHotkey = KeyCode.LeftArrow,
+                SpeedUpHotkey = KeyCode.Plus,
+                SpeedDownHotkey = KeyCode.Minus,
             }
         };
 

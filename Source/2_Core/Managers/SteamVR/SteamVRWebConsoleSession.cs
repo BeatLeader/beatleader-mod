@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Text;
@@ -23,10 +23,10 @@ namespace BeatLeader.SteamVR {
 
         public struct Message {
             public long nTimestamp;
-            public string sLogLevel;
-            public string sLogName;
-            public string sMessage;
-            public string sType;
+            public string? sLogLevel;
+            public string? sLogName;
+            public string? sMessage;
+            public string? sType;
         }
 
         #endregion
@@ -77,8 +77,12 @@ namespace BeatLeader.SteamVR {
 
         #region ListenTask
 
+        private const int ReceiveBufferSize = 256;
+
         private readonly StringBuilder _messageBuilder = new StringBuilder();
-        private readonly byte[] _receiveBuffer = new byte[256];
+        private readonly byte[] _receiveBuffer = new byte[ReceiveBufferSize];
+        private readonly Decoder _decoder = Encoding.UTF8.GetDecoder();
+        private readonly char[] _charBuffer = new char[Encoding.UTF8.GetMaxCharCount(ReceiveBufferSize + 4)];
 
         public async Task<(State, string)> ListenTask(Action<Message> messageHandler, CancellationToken cancellationToken) {
             if (_webSocket == null) return (CurrentState, FailReason);
@@ -91,14 +95,19 @@ namespace BeatLeader.SteamVR {
                     if (result.MessageType == WebSocketMessageType.Close) {
                         FailReason = "Closed remotely";
                         CurrentState = State.Closed;
+                        break;
                     }
 
-                    var receivedText = Encoding.UTF8.GetString(_receiveBuffer, 0, result.Count);
-                    _messageBuilder.Append(receivedText);
+                    var charCount = _decoder.GetChars(_receiveBuffer, 0, result.Count, _charBuffer, 0, result.EndOfMessage);
+                    _messageBuilder.Append(_charBuffer, 0, charCount);
 
                     if (!result.EndOfMessage) continue;
 
-                    messageHandler?.Invoke(ParseMessage(_messageBuilder.ToString()));
+                    try {
+                        messageHandler?.Invoke(ParseMessage(_messageBuilder.ToString()));
+                    } catch (Exception) {
+                        // ignored
+                    }
                     _messageBuilder.Clear();
                 }
             } catch (Exception ex) {

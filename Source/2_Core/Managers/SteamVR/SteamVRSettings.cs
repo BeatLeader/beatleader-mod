@@ -48,7 +48,7 @@ namespace BeatLeader.SteamVR {
 
         private static async Task UpdateTask(CancellationToken cancellationToken) {
             //<- Connect --------------------------------------------------
-            var session = new SteamVRWebConsoleSession();
+            using var session = new SteamVRWebConsoleSession();
             var (state, failReason) = await session.ConnectTask(cancellationToken);
 
             if (state is not SteamVRWebConsoleSession.State.Opened) {
@@ -79,12 +79,15 @@ namespace BeatLeader.SteamVR {
 
         private static ParseState _state = ParseState.SearchForSettingsBlock;
 
+        private const string ConsoleTag = "[Console]";
+
         private static void ProcessMessage(SteamVRWebConsoleSession.Message message) {
             var line = message.sMessage;
+            if (line == null) return;
 
-            var contentStart = line.IndexOf("[Console]", StringComparison.Ordinal);
+            var contentStart = line.IndexOf(ConsoleTag, StringComparison.Ordinal);
             if (contentStart < 0) return;
-            var content = line.Substring(contentStart + 10).TrimEnd();
+            var content = line.Substring(contentStart + ConsoleTag.Length).Trim();
 
             switch (_state) {
                 case ParseState.SearchForSettingsBlock:

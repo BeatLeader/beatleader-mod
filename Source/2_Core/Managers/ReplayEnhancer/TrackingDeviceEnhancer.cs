@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using BeatLeader.Models.Replay;
 using BeatLeader.SteamVR;
 using BeatLeader.Utils;
@@ -35,10 +36,16 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer {
 
         #region ProcessOpenVR
 
-        private static void ProcessOpenXRControllers(Replay replay) {
+        private readonly Task<string?> _steamVRControllerTask = SteamVRControllerDetector.DetectAsync();
+
+        private void ProcessOpenXRControllers(Replay replay) {
             var handDevices = new List<InputDevice>();
             InputDevices.GetDevicesAtXRNode(XRNode.RightHand, handDevices);
-            replay.info.controller = handDevices.Count > 0 ? handDevices.First().name : "Unknown";
+            var controller = handDevices.Count > 0 ? handDevices.First().name : "Unknown";
+            var steamVRController = _steamVRControllerTask.Status == TaskStatus.RanToCompletion ? _steamVRControllerTask.Result : null;
+            if (steamVRController != null) controller = steamVRController;
+
+            replay.info.controller = controller;
         }
 
         private static void ProcessOpenXRHeadsetWithFallback(Replay replay) {

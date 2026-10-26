@@ -21,15 +21,13 @@ namespace BeatLeader.Replayer {
 
         public override Pose ProcessPose(Pose headPose) {
             var rotation = headPose.rotation;
+            if (KeepUpright || KeepStraight) {
+                var euler = rotation.eulerAngles;
+                if (KeepUpright) euler.z = 0f;
+                if (KeepStraight) euler.x = 0f;
+                rotation = Quaternion.Euler(euler);
+            }
             var position = headPose.position + rotation * new Vector3(0, 0, PositionOffset.z);
-            if (KeepUpright) {
-                rotation.z = 0f;
-                rotation.Normalize();
-            }
-            if (KeepStraight) {
-                rotation.x = 0f;
-                rotation.Normalize();
-            }
 
             if (Smoothness > 0 && Smoothness <= SMOOTHNESS_MAX) {
                 var f = Time.deltaTime * (SMOOTHNESS_MAX - Smoothness + 1);

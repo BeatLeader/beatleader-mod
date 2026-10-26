@@ -82,6 +82,7 @@ namespace BeatLeader.Interop {
         public static void UnbindMovementProcessor() {
             if (!_hasBoundProcessor) return;
             _movementProcessor!.RemoveListener(poseReceiver);
+            _movementProcessor = null;
             _hasBoundProcessor = false;
         }
 

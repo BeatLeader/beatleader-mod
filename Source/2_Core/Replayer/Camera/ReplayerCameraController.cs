@@ -6,6 +6,7 @@ using Zenject;
 using BeatLeader.Utils;
 using BeatLeader.Models;
 using IPA.Utilities;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.SpatialTracking;
 
 namespace BeatLeader.Replayer {
@@ -17,6 +18,7 @@ namespace BeatLeader.Replayer {
         [Inject] private readonly ReplayLaunchData _launchData = null!;
         [Inject] private readonly PlayerDataModel _playerDataModel = null!;
         [Inject] private readonly DiContainer _diContainer = null!;
+        [Inject] private readonly MainCamera _mainCamera = null!;
 
         #endregion
 
@@ -158,6 +160,12 @@ namespace BeatLeader.Replayer {
 
         private void Start() {
             _playersManager.PrimaryPlayerWasChangedEvent += HandlePrimaryPlayerChanged;
+
+            var mainCamera = _mainCamera.GetComponent<Camera>();
+            Camera.depthTextureMode = mainCamera.depthTextureMode;
+            if (mainCamera.TryGetComponent<UniversalAdditionalCameraData>(out var mainCameraData)) {
+                Camera.GetUniversalAdditionalCameraData().requiresDepthTexture = mainCameraData.requiresDepthTexture;
+            }
 
             var playerSettings = _playerDataModel.playerData.playerSpecificSettings;
             var reduceDebris = playerSettings.reduceDebris;

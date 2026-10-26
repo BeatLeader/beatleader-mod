@@ -5,7 +5,6 @@ using UnityEngine;
 using Zenject;
 using BeatLeader.Utils;
 using BeatLeader.Models;
-using IPA.Utilities;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.SpatialTracking;
 
@@ -18,7 +17,6 @@ namespace BeatLeader.Replayer {
         [Inject] private readonly ReplayLaunchData _launchData = null!;
         [Inject] private readonly PlayerDataModel _playerDataModel = null!;
         [Inject] private readonly DiContainer _diContainer = null!;
-        [Inject] private readonly MainCamera _mainCamera = null!;
 
         #endregion
 
@@ -96,24 +94,22 @@ namespace BeatLeader.Replayer {
                 trackedPoseDriver.updateType = TrackedPoseDriver.UpdateType.UpdateAndBeforeRender;
 
                 camera.stereoTargetEye = StereoTargetEyeMask.Both;
-                PatchSmoothCamera();
             }
 
             return camera;
         }
 
         private void PatchSmoothCamera() {
-            _fakeCamera.SetField("_camera", Camera);
-            _fakeCamera.SetField("_transform", _extraObjects.ReplayerCore);
+            _fakeCamera._camera = Camera;
+            _fakeCamera._transform = Camera.transform;
 
-            _originalCamera = _smoothCamera.GetField<MainCamera, SmoothCamera>("_mainCamera");
-            _smoothCamera.SetField("_mainCamera", _fakeCamera);
+            _smoothCamera._mainCamera = _fakeCamera;
             _smoothCamera.gameObject.SetActive(true);
         }
 
         private void UnpatchSmoothCamera() {
             if (_originalCamera != null && _smoothCamera != null) {
-                _smoothCamera.SetField("_mainCamera", _originalCamera);
+                _smoothCamera._mainCamera = _originalCamera;
             }
         }
 
@@ -161,10 +157,14 @@ namespace BeatLeader.Replayer {
         private void Start() {
             _playersManager.PrimaryPlayerWasChangedEvent += HandlePrimaryPlayerChanged;
 
-            var mainCamera = _mainCamera.GetComponent<Camera>();
+            _originalCamera = _smoothCamera._mainCamera;
+            var mainCamera = _originalCamera.GetComponent<Camera>();
             Camera.depthTextureMode = mainCamera.depthTextureMode;
             if (mainCamera.TryGetComponent<UniversalAdditionalCameraData>(out var mainCameraData)) {
                 Camera.GetUniversalAdditionalCameraData().requiresDepthTexture = mainCameraData.requiresDepthTexture;
+            }
+            if (!InputUtils.UsesFPFC) {
+                PatchSmoothCamera();
             }
 
             var playerSettings = _playerDataModel.playerData.playerSpecificSettings;

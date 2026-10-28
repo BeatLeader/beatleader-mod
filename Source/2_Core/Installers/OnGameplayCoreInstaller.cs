@@ -2,6 +2,7 @@
 using System.Reflection;
 using BeatLeader.Replayer;
 using BeatLeader.Core.Managers.ReplayEnhancer;
+using BeatLeader.EyeTracking;
 using BeatLeader.Utils;
 using HarmonyLib;
 using SiraUtil.Submissions;
@@ -56,6 +57,10 @@ namespace BeatLeader.Installers {
 
                 Container.BindInterfacesAndSelfTo<ReplayRecorder>().AsSingle();
                 Container.BindInterfacesAndSelfTo<TrackingDeviceEnhancer>().AsTransient();
+
+                if (EyeTrackingManager.ShouldRecord) {
+                    Container.BindInterfacesTo<EyeTrackingRecorder>().AsSingle();
+                }
             } else {
                 //Plugin.Log.Info("Unknown flow detected, recording would not be started.");
             }

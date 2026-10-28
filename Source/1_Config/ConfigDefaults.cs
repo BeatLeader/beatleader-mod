@@ -227,6 +227,12 @@ namespace BeatLeader {
 
         #endregion
 
+        #region EyeTracking
+
+        public const bool RecordEyeTracking = false;
+
+        #endregion
+
         #region Language
 
         public const BLLanguage SelectedLanguage = BLLanguage.GameDefault;

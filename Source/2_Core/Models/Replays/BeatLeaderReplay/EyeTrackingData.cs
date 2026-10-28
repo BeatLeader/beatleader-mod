@@ -16,6 +16,14 @@ namespace BeatLeader.Models.Replay {
         public float gazePosePrediction = float.NaN;
         public List<EyeTrackingSample> samples = new();
 
+        public void MirrorX() {
+            for (var i = 0; i < samples.Count; i++) {
+                var sample = samples[i];
+                sample.gaze.x *= -1;
+                samples[i] = sample;
+            }
+        }
+
         public byte[] Encode() {
             using var stream = new MemoryStream(64 + samples.Count * SampleSize);
             using var writer = new BinaryWriter(stream);

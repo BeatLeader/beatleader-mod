@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using IPA.Utilities;
 using UnityEngine;
 using Zenject;
+using BeatLeader.Interop;
 using BeatLeader.Utils;
 using BeatLeader.Models;
 using System.Reflection;
@@ -23,6 +25,10 @@ namespace BeatLeader.Replayer {
         [Inject] protected readonly BeatmapCallbacksController _beatmapCallbacksController = null!;
         [Inject] protected readonly BeatmapCallbacksUpdater _beatmapCallbacksUpdater = null!;
         [Inject] protected readonly AudioManager _audioManager = null!;
+        [Inject] protected readonly BeatmapObjectSpawnController _beatmapObjectSpawnController = null!;
+        [Inject] protected readonly IVariableMovementDataProvider _variableMovementDataProvider = null!;
+        [Inject] protected readonly DiContainer _container = null!;
+        [Inject] protected readonly PlayerTransforms _playerTransforms = null!;
 
         #endregion
 
@@ -89,6 +95,7 @@ namespace BeatLeader.Replayer {
             time = Mathf.Clamp(time, SongStartTime, SongEndTime);
 
             EarlySongWasRewoundEvent?.Invoke(time);
+            var replayCustomEvents = HeckRewindInterop.NotifyRewind(_container);
 
             var wasPausedBeforeRewind = _audioTimeSyncController
                 .state.Equals(IAudioTimeSource.State.Paused);
@@ -105,15 +112,43 @@ namespace BeatLeader.Replayer {
             foreach (var pair in _callbacksInTimes) {
                 pair.Value.lastProcessedNode = FindBeatmapItem(time);
             }
+            if (replayCustomEvents) ReplayCustomEvents(time);
 
             if (!wasPausedBeforeRewind && resumeAfterRewind)
                 _audioTimeSyncController.Resume();
 
             _beatmapCallbacksUpdater.LateUpdate();
+            SpawnPassedObjects(time);
             _beatmapCallbacksUpdater.Resume();
             _soundSpawnerSilencer.Enabled = false;
 
             SongWasRewoundEvent?.Invoke(time);
+            if (replayCustomEvents) CatchUpPrefabs(time);
+            StartCoroutine(ClearTrailsCoroutine());
+        }
+
+        private Coroutine? _resumeParticlesCoroutine;
+
+        private void CatchUpPrefabs(float time) {
+            if (_resumeParticlesCoroutine != null) StopCoroutine(_resumeParticlesCoroutine);
+            var particles = VivifyPrefabsCatchUp.CatchUp(VivifyInterop.GetPrefabs(_container), time);
+            _resumeParticlesCoroutine = StartCoroutine(ResumeParticlesCoroutine(particles, time));
+        }
+
+        private IEnumerator ResumeParticlesCoroutine(List<ParticleSystem> particles, float time) {
+            yield return new WaitForEndOfFrame();
+            yield return new WaitForEndOfFrame();
+            VivifyPrefabsCatchUp.Resume(particles, SongTime - time);
+            _resumeParticlesCoroutine = null;
+        }
+
+        private static IEnumerator ClearTrailsCoroutine() {
+            for (var i = 0; i < 2; i++) {
+                yield return null;
+                foreach (var trail in FindObjectsByType<TrailRenderer>(FindObjectsSortMode.None)) {
+                    trail.Clear();
+                }
+            }
         }
 
         private LinkedListNode<BeatmapDataItem>? FindBeatmapItem(float time) {
@@ -125,6 +160,93 @@ namespace BeatLeader.Replayer {
                 item = node;
             }
             return item;
+        }
+
+        private void ReplayCustomEvents(float time) {
+            var eventType = HeckRewindInterop.CustomEventDataType;
+            _beatmapCallbacksController._songTime = time;
+            for (var node = _beatmapData.allBeatmapDataItems.First; node != null && node.Value.time < time; node = node.Next) {
+                if (!eventType.IsInstanceOfType(node.Value)) continue;
+                foreach (var callbacks in _callbacksInTimes.Values) {
+                    callbacks.CallCallbacks(node.Value);
+                }
+            }
+        }
+
+        #endregion
+
+        #region Spawn
+
+        protected virtual bool ShouldRespawnNote(NoteData noteData) => true;
+
+        protected virtual bool TryGetHeadPose(float time, out Pose pose) {
+            pose = default;
+            return false;
+        }
+
+        // Walls and notes stop following the head after their avoided or missed mark and keep the head position from that moment
+        private bool MoveHeadToMark(float markTime, float time) {
+            if (markTime >= time || !TryGetHeadPose(markTime, out var pose)) return false;
+            _playerTransforms._headTransform.SetLocalPose(pose);
+            _playerTransforms.Update();
+            return true;
+        }
+
+        private void SpawnPassedObjects(float time) {
+            var spawnedObjectDatas = new HashSet<BeatmapObjectData>();
+            foreach (var controller in _spawnedBeatmapObjectControllers) {
+                BeatmapObjectData? data = controller switch {
+                    NoteController note => note.noteData,
+                    ObstacleController obstacle => obstacle.obstacleData,
+                    SliderController slider => slider.sliderData,
+                    _ => null
+                };
+                if (data != null) spawnedObjectDatas.Add(data);
+            }
+
+            var headTransform = _playerTransforms._headTransform;
+            var headPose = headTransform.GetLocalPose();
+            var headMoved = false;
+
+            var filterTime = _beatmapCallbacksControllerInitData.startFilterTime;
+            for (var node = _beatmapData.allBeatmapDataItems.First; node != null && node.Value.time < time; node = node.Next) {
+                if (node.Value is not BeatmapObjectData data || data.time < filterTime || spawnedObjectDatas.Contains(data)) continue;
+
+                var halfJumpDuration = NoodleExtensionsInterop.TryGetSpawnAheadTime(data, out var aheadTime)
+                    ? aheadTime - _variableMovementDataProvider.moveDuration
+                    : _variableMovementDataProvider.halfJumpDuration;
+                switch (data) {
+                    case NoteData note when note.time + halfJumpDuration > time && ShouldRespawnNote(note):
+                        headMoved |= MoveHeadToMark(note.time + NoteJump.kMissedTimeOffset, time);
+                        _beatmapObjectSpawnController._noteDataCallbackWrapper.CallCallback(note);
+                        break;
+                    case ObstacleData obstacle when obstacle.time + obstacle.duration + halfJumpDuration > time:
+                        headMoved |= MoveHeadToMark(obstacle.time + obstacle.duration + ObstacleController.kAvoidMarkTimeOffset, time);
+                        _beatmapObjectSpawnController._obstacleDataCallbackWrapper.CallCallback(obstacle);
+                        break;
+                    case SliderData { sliderType: SliderData.Type.Burst } chain when chain.tailTime + halfJumpDuration > time:
+                        headMoved |= MoveHeadToMark(chain.time + NoteJump.kMissedTimeOffset, time);
+                        SpawnPassedChain(chain);
+                        break;
+                    case SliderData slider when slider.tailTime + halfJumpDuration * 0.5f > time:
+                        _beatmapObjectSpawnController._sliderDataCallbackWrapper.CallCallback(slider);
+                        break;
+                }
+            }
+
+            if (headMoved) {
+                headTransform.SetLocalPose(headPose);
+                _playerTransforms.Update();
+            }
+        }
+
+        private void SpawnPassedChain(SliderData chain) {
+            var count = _spawnedBeatmapObjectControllers.Count;
+            _beatmapObjectSpawnController._sliderDataCallbackWrapper.CallCallback(chain);
+            for (var i = _spawnedBeatmapObjectControllers.Count - 1; i >= count; i--) {
+                if (_spawnedBeatmapObjectControllers[i] is not NoteController note || ShouldRespawnNote(note.noteData)) continue;
+                _beatmapObjectManager.Despawn(note);
+            }
         }
 
         #endregion

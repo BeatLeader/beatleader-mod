@@ -2,6 +2,7 @@
 using System.Reflection;
 using BeatLeader.Replayer;
 using BeatLeader.Core.Managers.ReplayEnhancer;
+using BeatLeader.Interop;
 using BeatLeader.Utils;
 using HarmonyLib;
 using SiraUtil.Submissions;
@@ -81,6 +82,7 @@ namespace BeatLeader.Installers {
             Container.BindInterfacesAndSelfTo<ReplayPauseController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<ReplayFinishController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<ReplayTimeController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            HeckRewindInterop.BindReLoader(Container);
 
             //Controllers
             Container.Bind<VirtualPlayerGameSabers>().AsSingle();

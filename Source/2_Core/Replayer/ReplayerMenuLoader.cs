@@ -15,7 +15,6 @@ using BeatSaber.BeatAvatarSDK;
 using BeatSaber.BeatAvatarSDK;
 using JetBrains.Annotations;
 using ModestTree;
-using ModifiersCore;
 using SiraUtil.Tools.FPFC;
 using UnityEngine;
 using Zenject;
@@ -252,14 +251,18 @@ namespace BeatLeader.Replayer {
                 beatmap,
                 data.EnvironmentInfo
             );
-            PatchModifiers(replays.First().replay.info.modifiers);
+            //base-game modifiers are dropped when ignored, so are the custom ones
+            PatchModifiers(settings.IgnoreModifiers ? string.Empty : replays.First().replay.info.modifiers);
             //starting
             StartReplayer(data, finishCallback);
         }
 
         public void StartReplayer(ReplayLaunchData data, Action? finishCallback) {
             data.ReplayWasFinishedEvent += HandleReplayWasFinished;
-            if (!_launcher.StartReplay(data, finishCallback)) return;
+            if (!_launcher.StartReplay(data, finishCallback)) {
+                UnpatchModifiers();
+                return;
+            }
             InputUtils.OverrideUsesFPFC = InputUtils.HasFpfcArg && _fpfcSettings.Ignore ? _fpfcSettings.Enabled : null;
         }
 
@@ -291,20 +294,20 @@ namespace BeatLeader.Replayer {
 
         private static void PatchModifiers(string modifiers) {
             var modifierList = modifiers.Split(',');
-            foreach (var modifier in modifierList) {
-                if (modifier.Length == 0) continue;
-                //skipping base-game
-                if (ModifierUtils.IsValidBaseGameModifier(modifier)) continue;
-                var state = ModifiersManager.GetModifierState(modifier);
-                modifierStates.Add(modifier, state);
+            //going through installed modifiers, so the ones enabled in menu but absent in the replay are turned off
+            //and unknown ids from the replay are ignored
+            foreach (var modifier in ModifiersManager.CustomModifiers) {
+                if (!modifierStates.ContainsKey(modifier.Id)) {
+                    modifierStates[modifier.Id] = ModifiersManager.GetModifierState(modifier.Id);
+                }
                 //spoofing the modifier
-                ModifiersManager.SetModifierState(modifier, true);
+                ModifiersManager.SetModifierState(modifier.Id, modifierList.Contains(modifier.Id));
             }
         }
 
         private static void UnpatchModifiers() {
-            foreach (var (id, state) in modifierStates) {
-                ModifiersManager.SetModifierState(id, state);
+            foreach (var pair in modifierStates) {
+                ModifiersManager.SetModifierState(pair.Key, pair.Value);
             }
             modifierStates.Clear();
         }

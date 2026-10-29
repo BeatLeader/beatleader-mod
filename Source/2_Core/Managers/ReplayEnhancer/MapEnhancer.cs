@@ -9,6 +9,7 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
     {
         public static BeatmapKey beatmapKey;
         public static BeatmapLevel beatmapLevel;
+        public static GameplayModifiers gameplayModifiers;
         public static PlayerSpecificSettings playerSpecificSettings;
         public static PracticeSettings practiceSettings;
         public static bool useTestNoteCutSoundEffects;
@@ -39,7 +40,29 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
 
         private static List<string> modifiers()
         {
-            return ModifiersManager.Modifiers.Where(m => ModifiersManager.GetModifierState(m.Id)).Select(m => m.Id).ToList();
+            List<string> result = new();
+
+            // Base-game modifiers come from the level setup rather than ModifiersCore,
+            // which only knows the menu selection and can't tell if NF was actually triggered
+            if (gameplayModifiers.disappearingArrows) { result.Add("DA"); }
+            if (gameplayModifiers.songSpeed == GameplayModifiers.SongSpeed.Faster) { result.Add("FS"); }
+            if (gameplayModifiers.songSpeed == GameplayModifiers.SongSpeed.Slower) { result.Add("SS"); }
+            if (gameplayModifiers.songSpeed == GameplayModifiers.SongSpeed.SuperFast) { result.Add("SF"); }
+            if (gameplayModifiers.ghostNotes) { result.Add("GN"); }
+            if (gameplayModifiers.noArrows) { result.Add("NA"); }
+            if (gameplayModifiers.noBombs) { result.Add("NB"); }
+            if (gameplayModifiers.noFailOn0Energy && energy == 0) { result.Add("NF"); }
+            if (gameplayModifiers.enabledObstacleType == GameplayModifiers.EnabledObstacleType.NoObstacles) { result.Add("NO"); }
+            if (gameplayModifiers.strictAngles) { result.Add("SA"); }
+            if (gameplayModifiers.smallCubes) { result.Add("SC"); }
+            if (gameplayModifiers.proMode) { result.Add("PM"); }
+            if (gameplayModifiers.failOnSaberClash) { result.Add("CS"); }
+            if (gameplayModifiers.instaFail) { result.Add("IF"); }
+            if (gameplayModifiers.energyType == GameplayModifiers.EnergyType.Battery) { result.Add("BE"); }
+
+            result.AddRange(ModifiersManager.CustomModifiers.Where(m => ModifiersManager.GetModifierState(m.Id)).Select(m => m.Id));
+
+            return result;
         }
     }
 }

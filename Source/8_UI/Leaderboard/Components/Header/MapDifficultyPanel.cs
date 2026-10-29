@@ -148,8 +148,8 @@ namespace BeatLeader.Components {
         private float CalculateModifiersSummand() {
             return ModifiersManager
                     .Modifiers
-                    .Where(m => ModifiersManager.GetModifierState(m.Id))
-                    .Sum(m => _modifiersMap != null && _modifiersMap.ContainsKey(m.Id.ToLower()) ? _modifiersMap[m.Id.ToLower()] : m.Multiplier);
+                    .Where(m => m.Id != "NF" && ModifiersManager.GetModifierState(m.Id))
+                    .Sum(m => _modifiersMap.GetMultiplier(m));
         }
 
         #endregion

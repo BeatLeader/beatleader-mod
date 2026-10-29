@@ -46,6 +46,13 @@ namespace BeatLeader {
                 }
             }
 
+            // Custom modifiers are not in the base-game params
+            foreach (var modifier in ModifiersManager.CustomModifiers) {
+                if (ModifiersManager.GetModifierState(modifier.Id)) {
+                    totalMultiplier += ModifiersMap.GetMultiplier(modifier);
+                }
+            }
+
             if (totalMultiplier < 0) totalMultiplier = 0; // thanks Beat Games for Zen mode -1000%
 
             var color = (totalMultiplier >= 1f) ? ____positiveColor : ____negativeColor;

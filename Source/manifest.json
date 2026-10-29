@@ -16,6 +16,7 @@
     "System.IO.Compression": "^4.6.0",
     "System.IO.Compression.FileSystem": "^4.6.0",
     "Reactive.BeatSaberSDK": "^0.2.0"
+    "ModifiersCore": "^1.0.0"
   },
   "loadAfter": [
     "BetterSongList",

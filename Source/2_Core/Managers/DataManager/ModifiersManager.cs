@@ -141,7 +141,7 @@ namespace BeatLeader.DataManager {
                     continue;
                 }
                 if (_modifiersMap != null) {
-                    var multiplierValue = _modifiersAvailable && _modifiersMap.ContainsKey(key.ToLower()) ? _modifiersMap[key.ToLower()] : 0.0f;
+                    var multiplierValue = _modifiersAvailable ? _modifiersMap.GetMultiplier(toggle.Item2) : 0.0f;
                     multiplierText.text = multiplierValue != 0.0f ? FormatToggleText(multiplierValue, toggle.Item2.Id == "NF") : "";
                 }
             }

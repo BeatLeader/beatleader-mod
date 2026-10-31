@@ -108,6 +108,7 @@ namespace BeatLeader.DataManager {
                 GameplayModifiersPanelPatch.hasModifiers = _modifiersAvailable = false;
                 _status = 0;
                 _modifiersRating = default;
+                NegativeModifiers.UpdateExclusiveModifiers(null);
                 return;
             }
 
@@ -115,6 +116,7 @@ namespace BeatLeader.DataManager {
             GameplayModifiersPanelPatch.ModifiersRating =_modifiersRating = data.DifficultyInfo.modifiersRating;
             GameplayModifiersPanelPatch.hasModifiers = _modifiersAvailable = true;
             _status = data.DifficultyInfo.status;
+            NegativeModifiers.UpdateExclusiveModifiers(_modifiersMap);
         }
 
         private void ApplyOverridenState((GameplayModifierToggle, IModifier)[] toggles) {

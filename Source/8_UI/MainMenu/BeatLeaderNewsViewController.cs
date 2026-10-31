@@ -17,8 +17,22 @@ namespace BeatLeader.UI.MainMenu {
             _newsPanel.Use(transform);
 
             LoadPlatformEvents().RunCatching();
+#pragma warning disable CS0618 // Type or member is obsolete
+            UploadReplayRequest.StateChangedEvent += HandleUploadStateChanged;
+#pragma warning restore CS0618 // Type or member is obsolete
 
             UpdateScreen();
+        }
+
+        public override void OnDestroy() {
+            base.OnDestroy();
+#pragma warning disable CS0618 // Type or member is obsolete
+            UploadReplayRequest.StateChangedEvent -= HandleUploadStateChanged;
+#pragma warning restore CS0618 // Type or member is obsolete
+        }
+
+        private void HandleUploadStateChanged(WebRequests.IWebRequest<ScoreUploadResponse> instance, WebRequests.RequestState state, string? failReason) {
+            if (state == WebRequests.RequestState.Finished) _newsPanel.RefreshDanceEvent();
         }
 
         private void OnEnable() {
@@ -39,6 +53,9 @@ namespace BeatLeader.UI.MainMenu {
         public override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             if (addedToHierarchy) {
                 UpdateScreen();
+            }
+            if (!firstActivation) {
+                _newsPanel.RefreshDanceEvent();
             }
         }
 

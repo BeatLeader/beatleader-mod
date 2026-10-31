@@ -123,6 +123,7 @@ namespace BeatLeader.Components {
         }
 
         private void ChangeScoreContext(int context) {
+            if (player == null) return;
             OnProfileUpdated(player);
         }
 

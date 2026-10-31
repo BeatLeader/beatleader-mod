@@ -29,6 +29,8 @@ namespace BeatLeader {
             TextMeshProUGUI ____totalMultiplierValueText,
             TextMeshProUGUI ____maxRankValueText
         ) {
+            DataManager.LeaderboardContextSwitcher.HandleModifiersChanged(____gameplayModifiers);
+
             if (!isPatchRequired || !hasModifiers) return;
             
             List<GameplayModifierParamsSO> modifierParams = ____gameplayModifiersModel.CreateModifierParamsList(____gameplayModifiers);

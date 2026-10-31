@@ -5,6 +5,19 @@
 		</macro.as-host>
 	</horizontal>
 
+	<horizontal ignore-layout="true" anchor-pos-x="0" anchor-pos-y="11.8" pref-width="140" active="~verdict-active">
+		<text text="~verdict-text" font-size="3" align="Center"/>
+	</horizontal>
+
+	<horizontal ignore-layout="true" anchor-pos-x="0" anchor-pos-y="-2.8" pivot-y="1" vertical-fit="PreferredSize" pref-width="120" active="~dance-text-active">
+		<text text="~dance-text" font-size="3.5" align="Top"/>
+	</horizontal>
+
+	<image id="tombstone-image" ignore-layout="true" anchor-pos-x="-71" anchor-pos-y="-3.5" size-delta-x="26" size-delta-y="29" preserve-aspect="true" active="~tombstone-active"/>
+	<horizontal ignore-layout="true" anchor-pos-x="-71" anchor-pos-y="-5.1" pref-width="22" active="~tombstone-active">
+		<text text="~tombstone-text" font-size="3.5" align="Center" font-color="#1A1A1A"/>
+	</horizontal>
+
 	<vertical ignore-layout="true" anchor-pos-x="-65" anchor-pos-y="22" pref-width="8">
 		<macro.as-host host="voting-button">
 			<macro.reparent transform="ui-component"/>

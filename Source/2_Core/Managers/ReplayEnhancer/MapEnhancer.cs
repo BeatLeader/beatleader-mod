@@ -60,7 +60,9 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
             if (gameplayModifiers.instaFail) { result.Add("IF"); }
             if (gameplayModifiers.energyType == GameplayModifiers.EnergyType.Battery) { result.Add("BE"); }
 
-            result.AddRange(ModifiersManager.CustomModifiers.Where(m => ModifiersManager.GetModifierState(m.Id)).Select(m => m.Id));
+            result.AddRange(ModifiersManager.CustomModifiers
+                .Where(m => ModifiersManager.GetModifierState(m.Id) && (m.Id != DanceModifier.Id || DanceModeTracker.IsRunning))
+                .Select(m => m.Id));
 
             return result;
         }

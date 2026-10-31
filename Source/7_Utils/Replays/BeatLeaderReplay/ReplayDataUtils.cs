@@ -119,9 +119,11 @@ namespace BeatLeader.Utils {
         #region Data Management
 
         private static GameplayModifiers.SongSpeed SongSpeedFromModifiers(string modifiers) {
-            if (modifiers.Contains("SS")) return GameplayModifiers.SongSpeed.Slower;
-            if (modifiers.Contains("SF")) return GameplayModifiers.SongSpeed.SuperFast;
-            if (modifiers.Contains("FS")) return GameplayModifiers.SongSpeed.Faster;
+            // Exact match, custom speed modifiers like BFS and BSF contain the base-game codes
+            var codes = modifiers.Split(',');
+            if (codes.Contains("SS")) return GameplayModifiers.SongSpeed.Slower;
+            if (codes.Contains("SF")) return GameplayModifiers.SongSpeed.SuperFast;
+            if (codes.Contains("FS")) return GameplayModifiers.SongSpeed.Faster;
 
             return GameplayModifiers.SongSpeed.Normal;
         }

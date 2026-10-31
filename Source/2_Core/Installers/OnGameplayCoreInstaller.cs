@@ -19,13 +19,20 @@ using BeatLeader.Models.AbstractReplay;
 using BeatLeader.UI.Replayer;
 using BeatLeader.UI.Replayer.Desktop;
 using IPA.Loader;
+using ModifiersCore;
 
 namespace BeatLeader.Installers {
     public class OnGameplayCoreInstaller : Installer<OnGameplayCoreInstaller> {
+        private static Ticket? _speedSubmissionTicket;
         public override void InstallBindings() {
             Plugin.Log.Debug("OnGameplayCoreInstaller");
             if (ReplayerLauncher.IsStartedAsReplay) InitReplayer();
             else InitRecorder();
+
+            ScoreUtil.SiraSubmissionService = Container.Resolve<Submission>();
+            if (ModifiersManager.GetModifierState(SpeedModifiers.BSF.Id) || ModifiersManager.GetModifierState(SpeedModifiers.BFS.Id)) {
+                _speedSubmissionTicket = ScoreUtil.SiraSubmissionService?.DisableScoreSubmission(ScoreUtil.SpeedTicketSource, ScoreUtil.SpeedTicketReason);
+            }
         }
 
         #region Recorder
@@ -34,6 +41,8 @@ namespace BeatLeader.Installers {
 
         private void InitRecorder() {
             RecorderUtils.buffer = RecorderUtils.shouldRecord;
+            DanceModeTracker.LastResult = null;
+            DanceDreadController.LastSummary = null;
 
             if (RecorderUtils.shouldRecord) {
                 RecorderUtils.shouldRecord = false;
@@ -56,6 +65,13 @@ namespace BeatLeader.Installers {
 
                 Container.BindInterfacesAndSelfTo<ReplayRecorder>().AsSingle();
                 Container.BindInterfacesAndSelfTo<TrackingDeviceEnhancer>().AsTransient();
+
+                if (NegativeModifiers.HasNegativeModifiers(DanceModifier.Id)) {
+                    Plugin.Log.Warn("Dance Mode can't be combined with negative modifiers, playing without it");
+                } else if (ModifiersManager.GetModifierState(DanceModifier.Id)) {
+                    Container.BindInterfacesAndSelfTo<DanceModeTracker>().AsSingle();
+                    Container.BindInterfacesAndSelfTo<DanceDreadController>().AsSingle();
+                }
             } else {
                 //Plugin.Log.Info("Unknown flow detected, recording would not be started.");
             }
@@ -165,6 +181,10 @@ namespace BeatLeader.Installers {
             if (_submissionTicket != null) {
                 Container.Resolve<Submission>()?.Remove(_submissionTicket);
                 _submissionTicket = null;
+            }
+            if (_speedSubmissionTicket != null) {
+                Container.Resolve<Submission>()?.Remove(_speedSubmissionTicket);
+                _speedSubmissionTicket = null;
             }
         }
 

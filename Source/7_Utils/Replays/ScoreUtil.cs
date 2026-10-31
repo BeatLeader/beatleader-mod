@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Reflection;
 using System.Threading;
 using BeatLeader.API;
 using BeatLeader.Models;
@@ -19,7 +21,22 @@ namespace BeatLeader.Utils {
         }
 
         private static bool ShouldSubmit() {
-            return Submission && SiraSubmission && BS_UtilsSubmission;
+            return Submission && (SiraSubmission || OnlySpeedTicketDisablesSubmission()) && BS_UtilsSubmission;
+        }
+
+        internal const string SpeedTicketSource = "BeatLeader";
+        internal const string SpeedTicketReason = "BFS and BSF scores go to BeatLeader only";
+
+        internal static SiraUtil.Submissions.Submission? SiraSubmissionService;
+
+        private static readonly PropertyInfo? ticketSourceProperty = typeof(SiraUtil.Submissions.Ticket)
+            .GetProperty("Source", BindingFlags.Instance | BindingFlags.NonPublic);
+
+        private static bool OnlySpeedTicketDisablesSubmission() {
+            var tickets = SiraSubmissionService?.Tickets();
+            if (tickets == null || tickets.Length == 0) return false;
+            return tickets.All(ticket => ticketSourceProperty?.GetValue(ticket) as string == SpeedTicketSource
+                && ticket.Reasons().All(reason => reason == SpeedTicketReason));
         }
 
         #endregion

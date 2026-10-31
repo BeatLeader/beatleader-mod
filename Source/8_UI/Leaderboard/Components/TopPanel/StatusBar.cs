@@ -61,6 +61,8 @@ namespace BeatLeader.Components {
                 case WebRequests.RequestState.Finished:
                     if (instance.Result.Status == ScoreUploadStatus.Uploaded) {
                         ShowGoodNews("Score uploaded!");
+                    } else if (instance.Result.Status == ScoreUploadStatus.Error) {
+                        ShowBadNews($"Score upload failed! {instance.Result.Description}", ErrorDuration);
                     }
                     break;
                 case WebRequests.RequestState.Failed:
@@ -88,6 +90,8 @@ namespace BeatLeader.Components {
 
         #region ShowMessage
 
+        private const float DefaultDuration = 1.4f;
+        private const float ErrorDuration = 5f;
         private const string GoodNewsColor = "#88FF88";
         private const string BadNewsColor = "#FF8888";
         private bool _animating = false;

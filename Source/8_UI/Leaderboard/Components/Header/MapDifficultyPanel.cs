@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
+using ModifiersCore;
 using UnityEngine;
 
 namespace BeatLeader.Components {
@@ -114,31 +116,24 @@ namespace BeatLeader.Components {
         #region Modifiers
 
         private GameplayModifiers _gameplayModifiers = new();
-        private ModifiersRating? _modifiersRating;
-        private ModifiersMap _modifiersMap;
+        private Dictionary<string, float>? _modifiersRating;
+        private Dictionary<string, float>? _modifiersMap;
 
         private void ModifyDiffRating(ref DiffInfo diffInfo) {
             if (_modifiersRating == null) return;
-            switch (_gameplayModifiers.songSpeed) {
-                case GameplayModifiers.SongSpeed.Faster:
-                    diffInfo.passRating = _modifiersRating.fsPassRating;
-                    diffInfo.accRating = _modifiersRating.fsAccRating;
-                    diffInfo.techRating = _modifiersRating.fsTechRating;
-                    diffInfo.stars = _modifiersRating.fsStars;
+
+            foreach (var modifier in ModifiersManager.Modifiers) {
+                var lowerId = modifier.Id.ToLower();
+                if (_modifiersRating.ContainsKey(lowerId + "Stars") &&
+                    ModifiersManager.GetModifierState(modifier.Id)) {
+                    diffInfo.passRating = _modifiersRating[lowerId + "PassRating"];
+                    diffInfo.accRating = _modifiersRating[lowerId + "AccRating"];
+                    diffInfo.techRating = _modifiersRating[lowerId + "TechRating"];
+                    diffInfo.stars = _modifiersRating[lowerId + "Stars"];
                     break;
-                case GameplayModifiers.SongSpeed.Slower:
-                    diffInfo.passRating = _modifiersRating.ssPassRating;
-                    diffInfo.accRating = _modifiersRating.ssAccRating;
-                    diffInfo.techRating = _modifiersRating.ssTechRating;
-                    diffInfo.stars = _modifiersRating.ssStars;
-                    break;
-                case GameplayModifiers.SongSpeed.SuperFast:
-                    diffInfo.passRating = _modifiersRating.sfPassRating;
-                    diffInfo.accRating = _modifiersRating.sfAccRating;
-                    diffInfo.techRating = _modifiersRating.sfTechRating;
-                    diffInfo.stars = _modifiersRating.sfStars;
-                    break;
+                }
             }
+
             var summand = CalculateModifiersSummand();
             ApplyMultiplier(ref diffInfo.passRating, summand);
             ApplyMultiplier(ref diffInfo.accRating, summand);
@@ -151,9 +146,10 @@ namespace BeatLeader.Components {
         }
 
         private float CalculateModifiersSummand() {
-            return ModifiersUtils.ModifierCodes
-                .Where(code => _gameplayModifiers.GetModifierState(code))
-                .Sum(code => _modifiersMap.GetMultiplier(code));
+            return ModifiersManager
+                    .Modifiers
+                    .Where(m => m.Id != "NF" && ModifiersManager.GetModifierState(m.Id))
+                    .Sum(m => _modifiersMap.GetMultiplier(m));
         }
 
         #endregion

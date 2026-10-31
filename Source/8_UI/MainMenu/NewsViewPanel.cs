@@ -20,6 +20,11 @@ internal class NewsViewPanel : ReactiveComponent {
 
     public void SetEvents(RequestState state, IReadOnlyList<PlatformEvent>? events) {
         _eventNewsPanel.SetData(state, events);
+        DanceEvent.SetEvents(events);
+        if (DanceEvent.Current is { } dance && !_danceAutoOpened) {
+            _danceAutoOpened = true;
+            PresentDanceEvent(dance);
+        }
 
         var happening = events?.FirstOrDefault(x => x.eventType is 1 && x.IsHappening());
         if (happening != null) {
@@ -45,6 +50,10 @@ internal class NewsViewPanel : ReactiveComponent {
     private IWebRequest<PlatformEventStatus>? _statusRequest;
 
     private void HandleEventSelected(PlatformEvent evt) {
+        if (evt.eventType == DanceEvent.EventType) {
+            PresentDanceEvent(evt);
+            return;
+        }
         if (evt.eventType != 1) {
 #pragma warning disable CS0618 // Type or member is obsolete
             ReeModalSystem.OpenModal<EventDetailsDialog>(ContentTransform, evt);
@@ -96,15 +105,60 @@ internal class NewsViewPanel : ReactiveComponent {
 
     #endregion
 
+    #region Dance Event
+
+    private static bool _danceAutoOpened;
+    private IWebRequest<DanceEventStatus>? _danceRequest;
+    private bool _danceHasData;
+
+    private void PresentDanceEvent(PlatformEvent evt) {
+        _dancePresented.Value = true;
+        _dancePanel.SetEvent(evt);
+        _dancePanel.SetLoading();
+        _danceHasData = false;
+        LoadDanceStatus(evt);
+    }
+
+    public void RefreshDanceEvent() {
+        if (!_dancePresented.Value || DanceEvent.Current is not { } evt) return;
+        LoadDanceStatus(evt);
+    }
+
+    private void LoadDanceStatus(PlatformEvent evt) {
+        if (_danceRequest is { RequestState: RequestState.Started }) {
+            _danceRequest.StateChangedEvent -= HandleDanceRequestUpdated;
+            _danceRequest.Cancel();
+        }
+        _danceRequest = DanceEventStatusRequest.Send(evt.id);
+        _danceRequest.StateChangedEvent += HandleDanceRequestUpdated;
+    }
+
+    private void HandleDanceRequestUpdated(IWebRequest<DanceEventStatus> instance, RequestState state, string? failReason) {
+        switch (state) {
+            case RequestState.Finished:
+                _dancePanel.SetData(instance.Result!);
+                _danceHasData = true;
+                break;
+            case RequestState.Failed:
+                if (!_danceHasData) _dancePanel.SetFailed();
+                break;
+        }
+    }
+
+    #endregion
+
     #region Construct
 
     private EventNewsPanel _eventNewsPanel = null!;
     private ObservableValue<PlatformEventStatus?> _eventDetailsStatus = null!;
     private ObservableValue<bool> _eventDetailsPresented = null!;
+    private DanceEventPanel _dancePanel = null!;
+    private ObservableValue<bool> _dancePresented = null!;
 
     protected override GameObject Construct() {
         _eventDetailsStatus = Remember<PlatformEventStatus?>(null);
         _eventDetailsPresented = Remember(false);
+        _dancePresented = Remember(false);
 
         var eventNews = new Layout {
                 Children = {
@@ -133,6 +187,11 @@ internal class NewsViewPanel : ReactiveComponent {
                 }
             );
 
+        var danceNews = new DanceEventPanel {
+                OnBackClick = () => _dancePresented.Value = false
+            }
+            .Bind(ref _dancePanel);
+
         return new Layout {
                 Children = {
                     new TextNewsPanel(),
@@ -149,6 +208,18 @@ internal class NewsViewPanel : ReactiveComponent {
                                 } else {
                                     billboard.Pop();
                                     specialNews.CancelPreview();
+                                }
+                            }
+                        )
+                        .Animate(
+                            _dancePresented,
+                            (billboard, y) => {
+                                if (y) {
+                                    billboard.Push(danceNews);
+                                    DanceEventPanel.Shown = danceNews.ContentTransform;
+                                } else {
+                                    billboard.Pop();
+                                    DanceEventPanel.Shown = null;
                                 }
                             }
                         )

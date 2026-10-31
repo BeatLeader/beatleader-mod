@@ -108,6 +108,9 @@ namespace BeatLeader {
         [InjectOptional, UsedImplicitly]
         private PauseController _pauseController;
 
+        [InjectOptional, UsedImplicitly]
+        private DanceModeTracker? _danceModeTracker;
+
         #endregion
 
         #region Constructor
@@ -246,6 +249,7 @@ namespace BeatLeader {
             };
 
             _replay.frames.Add(frame);
+            _danceModeTracker?.AddFrame(frame);
         }
 
         #endregion
@@ -414,6 +418,7 @@ namespace BeatLeader {
                 time = _timeSyncController.songTime
             };
             _pauseStartTime = DateTime.Now;
+            _danceModeTracker?.AddPause(_currentPause.time);
         }
 
         private void OnResume() {
@@ -489,6 +494,7 @@ namespace BeatLeader {
             if (playEndData.EndType == LevelEndType.Fail) {
                 _replay.info.failTime = _timeSyncController.songTime;
             }
+            _danceModeTracker?.Finish();
 
             try {
                 OnFinalizeReplay?.Invoke();

@@ -1,6 +1,7 @@
-﻿using BeatLeader.Models;
+﻿using BeatLeader.Models.Replay;
+using ModifiersCore;
 using System.Collections.Generic;
-using BeatLeader.Models.Replay;
+using System.Linq;
 
 namespace BeatLeader.Core.Managers.ReplayEnhancer
 {
@@ -41,6 +42,8 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
         {
             List<string> result = new();
 
+            // Base-game modifiers come from the level setup rather than ModifiersCore,
+            // which only knows the menu selection and can't tell if NF was actually triggered
             if (gameplayModifiers.disappearingArrows) { result.Add("DA"); }
             if (gameplayModifiers.songSpeed == GameplayModifiers.SongSpeed.Faster) { result.Add("FS"); }
             if (gameplayModifiers.songSpeed == GameplayModifiers.SongSpeed.Slower) { result.Add("SS"); }
@@ -56,6 +59,10 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
             if (gameplayModifiers.failOnSaberClash) { result.Add("CS"); }
             if (gameplayModifiers.instaFail) { result.Add("IF"); }
             if (gameplayModifiers.energyType == GameplayModifiers.EnergyType.Battery) { result.Add("BE"); }
+
+            result.AddRange(ModifiersManager.CustomModifiers
+                .Where(m => ModifiersManager.GetModifierState(m.Id) && (m.Id != DanceModifier.Id || DanceModeTracker.IsRunning))
+                .Select(m => m.Id));
 
             return result;
         }

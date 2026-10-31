@@ -14,7 +14,7 @@ namespace BeatLeader.UIPatches {
                 _resultsScreen = ReeUIComponentV2.Instantiate<ResultsScreenUI>(__instance.transform.Find("Container/BottomPanel"));
                 _resultsScreen.gameObject.SetActive(true);
             } 
-            _resultsScreen!.Setup(__instance._beatmapLevel);
+            _resultsScreen!.Setup(__instance._beatmapLevel, __instance);
         }
     }
 }

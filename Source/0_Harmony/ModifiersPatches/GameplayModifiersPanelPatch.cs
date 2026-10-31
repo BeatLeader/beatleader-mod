@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using BGLib.Polyglot;
 using TMPro;
 using UnityEngine;
+using ModifiersCore;
 
 namespace BeatLeader {
     [HarmonyPatch(typeof(GameplayModifiersPanelController), "RefreshTotalMultiplierAndRankUI")]
@@ -15,8 +16,8 @@ namespace BeatLeader {
 
         public static bool isPatchRequired = false;
         public static bool hasModifiers = false;
-        public static ModifiersMap ModifiersMap;
-        public static ModifiersRating? ModifiersRating;
+        public static Dictionary<string, float>? ModifiersMap;
+        public static Dictionary<string, float>? ModifiersRating;
         
         [UsedImplicitly]
         private static void Postfix(
@@ -28,6 +29,8 @@ namespace BeatLeader {
             TextMeshProUGUI ____totalMultiplierValueText,
             TextMeshProUGUI ____maxRankValueText
         ) {
+            DataManager.LeaderboardContextSwitcher.HandleModifiersChanged(____gameplayModifiers);
+
             if (!isPatchRequired || !hasModifiers) return;
             
             List<GameplayModifierParamsSO> modifierParams = ____gameplayModifiersModel.CreateModifierParamsList(____gameplayModifiers);
@@ -36,8 +39,20 @@ namespace BeatLeader {
             foreach (var param in modifierParams) {
                 if (param.multiplierConditionallyValid) continue; // for now only NoFail being ignored
 
-                var key = ModifiersUtils.ToNameCode(param.modifierNameLocalizationKey);
-                totalMultiplier += ModifiersMap.GetMultiplier(key);
+                if (!ModifierUtils.TryGetBaseModifierIdBySerializedName(param.modifierNameLocalizationKey, out var key)) {
+                    key = param.modifierNameLocalizationKey;
+                }
+    
+                if (ModifiersMap != null && ModifiersMap.ContainsKey(key.ToLower())) {
+                    totalMultiplier += ModifiersMap[key.ToLower()];
+                }
+            }
+
+            // Custom modifiers are not in the base-game params
+            foreach (var modifier in ModifiersManager.CustomModifiers) {
+                if (ModifiersManager.GetModifierState(modifier.Id)) {
+                    totalMultiplier += ModifiersMap.GetMultiplier(modifier);
+                }
             }
 
             if (totalMultiplier < 0) totalMultiplier = 0; // thanks Beat Games for Zen mode -1000%

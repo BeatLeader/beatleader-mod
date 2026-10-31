@@ -7,21 +7,20 @@ using BGLib.Polyglot;
 using TMPro;
 using UnityEngine;
 using Zenject;
+using System.Collections.Generic;
+using ModifiersCore;
 
 namespace BeatLeader.DataManager {
     internal class ModifiersManager : MonoBehaviour {
         #region Start / OnDestroy
 
         [Inject, UsedImplicitly] private GameplaySetupViewController _gameplayController;
-        private GameplayModifiersPanelController _modifiersController;
 
         private enum State { Default, Overriden }
         private State _currentState = State.Default;
         private State _targetState = State.Default;
 
         private void Start() {
-            _modifiersController = (GameplayModifiersPanelController)AccessTools
-                .Field(typeof(GameplaySetupViewController), "_gameplayModifiersPanelController").GetValue(_gameplayController);
 
             GameplayModifiersPanelPatch.isPatchRequired = false;
 
@@ -63,8 +62,7 @@ namespace BeatLeader.DataManager {
         private void UpdateToggles() {
             if (!_gameplayController.gameObject.activeInHierarchy) return;
 
-            var toggles = (GameplayModifierToggle[])AccessTools
-                .Field(typeof(GameplayModifiersPanelController), "_gameplayModifierToggles").GetValue(_modifiersController);
+            var toggles = ModifiersCore.ModifiersManager.Toggles();
 
             if (toggles == null) { return; }
 
@@ -83,12 +81,12 @@ namespace BeatLeader.DataManager {
 
         #region DefaultState
 
-        private void ApplyDefaultState(GameplayModifierToggle[] toggles) {
+        private void ApplyDefaultState((GameplayModifierToggle, IModifier)[] toggles) {
             if (_currentState == State.Default) return;
             _currentState = State.Default;
 
             foreach (var toggle in toggles) {
-                toggle.Start(); // return toggle view to default
+                toggle.Item1.Start(); // return toggle view to default
             }
 
             GameplayModifiersPanelPatch.isPatchRequired = false;
@@ -99,17 +97,18 @@ namespace BeatLeader.DataManager {
 
         #region OverridenState
 
-        private ModifiersMap _modifiersMap;
-        private ModifiersRating? _modifiersRating;
+        private Dictionary<string, float>? _modifiersMap;
+        private Dictionary<string, float>? _modifiersRating;
         private int _status = 0;
         private bool _modifiersAvailable;
 
         private void UpdateModifiersMap(bool isAnyBeatmapSelected, LeaderboardKey leaderboardKey) {
             if (!isAnyBeatmapSelected || !LeaderboardsCache.TryGetLeaderboardInfo(leaderboardKey, out var data)) {
-                GameplayModifiersPanelPatch.ModifiersMap = _modifiersMap = default;
+                GameplayModifiersPanelPatch.ModifiersMap = _modifiersMap = null;
                 GameplayModifiersPanelPatch.hasModifiers = _modifiersAvailable = false;
                 _status = 0;
                 _modifiersRating = default;
+                NegativeModifiers.UpdateExclusiveModifiers(null);
                 return;
             }
 
@@ -117,36 +116,36 @@ namespace BeatLeader.DataManager {
             GameplayModifiersPanelPatch.ModifiersRating =_modifiersRating = data.DifficultyInfo.modifiersRating;
             GameplayModifiersPanelPatch.hasModifiers = _modifiersAvailable = true;
             _status = data.DifficultyInfo.status;
+            NegativeModifiers.UpdateExclusiveModifiers(_modifiersMap);
         }
 
-        private void ApplyOverridenState(GameplayModifierToggle[] toggles) {
+        private void ApplyOverridenState((GameplayModifierToggle, IModifier)[] toggles) {
             _currentState = State.Overriden;
 
             foreach (var toggle in toggles) {
-                var multiplierText = (TextMeshProUGUI)AccessTools.Field(toggle.GetType(), "_multiplierText").GetValue(toggle);
-                var modCode = ModifiersUtils.ToNameCode(toggle.gameplayModifier.modifierNameLocalizationKey);
-                if (_modifiersRating is not null && modCode is "SS" or "FS" or "SF") {
-                    var stars = modCode switch {
-                        "SS" => _modifiersRating.ssStars,
-                        "FS" => _modifiersRating.fsStars,
-                        "SF" => _modifiersRating.sfStars,
-                        _ => 0
-                    };
+                var multiplierText = toggle.Item1._multiplierText;
+                var key = toggle.Item2.Id;
+                var starsKey = key.ToLower() + "Stars";
+
+                if (_modifiersRating != null && _modifiersRating.ContainsKey(starsKey)) {
+                    var stars = _modifiersRating[starsKey];
                     multiplierText.text = $"<color=yellow>★ {stars:F2}</color>";
                     continue;
                 }
-                if (modCode is "NF") {
+                if (key is "NF") {
                     if (_status == 3 || _status == 6) {
                         multiplierText.text = "0% / 0pp";
                     } else {
-                        toggle.Start();
+                        toggle.Item1.Start();
                     }
 
 
                     continue;
                 }
-                var multiplierValue = _modifiersAvailable ? _modifiersMap.GetMultiplier(modCode) : 0.0f;
-                multiplierText.text = multiplierValue != 0.0f ? FormatToggleText(multiplierValue, toggle.gameplayModifier.multiplierConditionallyValid) : "";
+                if (_modifiersMap != null) {
+                    var multiplierValue = _modifiersAvailable ? _modifiersMap.GetMultiplier(toggle.Item2) : 0.0f;
+                    multiplierText.text = multiplierValue != 0.0f ? FormatToggleText(multiplierValue, toggle.Item2.Id == "NF") : "";
+                }
             }
 
             GameplayModifiersPanelPatch.isPatchRequired = true;
@@ -174,7 +173,7 @@ namespace BeatLeader.DataManager {
         #region Utils
 
         private void RefreshPanel() {
-            if (_modifiersController.gameObject.activeInHierarchy) {
+            if (_gameplayController.gameObject.activeInHierarchy) {
                 _gameplayController.RefreshActivePanel();
             }
         }

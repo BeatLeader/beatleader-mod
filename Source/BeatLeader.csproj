@@ -30,6 +30,11 @@
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
+    <Reference Include="Reactive.BeatSaber">
+      <HintPath>$(BeatSaberDir)\Plugins\Reactive.BeatSaber.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
     <Reference Include="Reactive.BeatSaber.Components">
       <HintPath>$(BeatSaberDir)\Plugins\Reactive.BeatSaber.Components.dll</HintPath>
       <Private>False</Private>
@@ -136,12 +141,16 @@
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\GameInit.dll</HintPath>
       <Publicize>True</Publicize>
     </Reference>
-    <Reference Include="GameplayCore">
+    <Reference Include="GameplayCore" Publicize="true">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\GameplayCore.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="HMLib" Publicize="true">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMLib.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="HMRendering" Publicize="true">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMRendering.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="HMUI" Publicize="True">
@@ -351,9 +360,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\modifiers-core\ModifiersCore\ModifiersCore.csproj">
+      <Private>False</Private>
+      <AdditionalProperties>BeatSaberDir=$(BeatSaberDir)</AdditionalProperties>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="9_Resources\AssetBundles\asset_bundle" />
     <EmbeddedResource Include="9_Resources\BSML\**\*.bsml" />
     <EmbeddedResource Include="9_Resources\Localization.json" />
+    <EmbeddedResource Include="9_Resources\Halloween\*.png" />
+    <EmbeddedResource Include="9_Resources\Halloween\*.wav" />
+    <EmbeddedResource Include="9_Resources\Halloween\*.obj.gz" />
     <EmbeddedResource Include="manifest.json" />
   </ItemGroup>
   <ItemGroup>

@@ -1,0 +1,4 @@
+[submodule "modifiers-core"]
+	path = modifiers-core
+	url = git@github.com:BeatLeader/modifiers-core.git
+	branch = beat-leader-shenanigans

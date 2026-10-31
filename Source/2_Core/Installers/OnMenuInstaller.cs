@@ -36,6 +36,7 @@ namespace BeatLeader.Installers {
                 Container.Bind<IReplayerViewNavigator>().To<ReplayerViewNavigator>().FromResolve();
             }
             Container.BindInterfacesAndSelfTo<ModifiersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<UI.MainMenu.DanceEventMenuDecor>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
         }
 
         private void BindLeaderboard() {

@@ -37,6 +37,7 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer {
         #region ProcessOpenVR
 
         private readonly Task<string?> _steamVRControllerTask = SteamVRControllerDetector.DetectAsync();
+        private readonly Task<SteamVRHeadsetDetector.Headset?> _steamVRHeadsetTask = SteamVRHeadsetDetector.DetectAsync();
 
         private void ProcessOpenXRControllers(Replay replay) {
             var handDevices = new List<InputDevice>();
@@ -48,8 +49,11 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer {
             replay.info.controller = controller;
         }
 
-        private static void ProcessOpenXRHeadsetWithFallback(Replay replay) {
-            if (SteamVRSettings.GetString("LastKnown.HMDManufacturer") != null) {
+        private void ProcessOpenXRHeadsetWithFallback(Replay replay) {
+            var activeHeadset = _steamVRHeadsetTask.Status == TaskStatus.RanToCompletion ? _steamVRHeadsetTask.Result : null;
+            if (activeHeadset?.Model != null) {
+                replay.info.hmd = $"\"{activeHeadset.Manufacturer ?? "Unknown"}\"\"{activeHeadset.Model}\"";
+            } else if (SteamVRSettings.GetString("LastKnown.HMDManufacturer") != null) {
                 replay.info.hmd = (SteamVRSettings.GetString("LastKnown.HMDManufacturer") ?? "Unknown") + (SteamVRSettings.GetString("LastKnown.HMDModel") ?? "");
             } else if (OpenXRAcquirer.SystemName != null) {
                 replay.info.hmd = OpenXRAcquirer.SystemName ?? "Unknown";

@@ -88,6 +88,9 @@ namespace BeatLeader {
         public bool OverrideOldReplays = ConfigDefaults.OverrideOldReplays;
         public ReplaySaveOption ReplaySavingOptions = ConfigDefaults.ReplaySavingOptions;
 
+        // Eye tracking
+        public bool RecordEyeTracking = ConfigDefaults.RecordEyeTracking;
+
         #endregion
     }
 }

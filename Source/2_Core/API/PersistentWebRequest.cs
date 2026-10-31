@@ -15,14 +15,16 @@ namespace BeatLeader.WebRequests {
         protected static IWebRequest<object> Send(
             string url,
             HttpMethod method,
-            HttpContent? content = null,
+            Func<HttpContent?>? contentFactory = null,
             WebRequestParams? requestParams = null,
             Action<HttpRequestHeaders>? headersCallback = null,
             CancellationToken token = default,
             bool waitForLogin = true
         ) {
-            var requestMessage = CreateAndValidateRequestMessage(url, method, content, headersCallback);
-            return WebRequestFactory.Send(requestMessage, requestParams, token, waitForLogin);
+            return WebRequestFactory.Send(
+                () => CreateAndValidateRequestMessage(url, method, contentFactory?.Invoke(), headersCallback),
+                requestParams, token, waitForLogin
+            );
         }
 
         protected static HttpRequestMessage CreateAndValidateRequestMessage(
@@ -48,14 +50,16 @@ namespace BeatLeader.WebRequests {
         protected static IWebRequest<TResult> SendRet(
             string url,
             HttpMethod method,
-            HttpContent? content = null,
+            Func<HttpContent?>? contentFactory = null,
             WebRequestParams? requestParams = null,
             Action<HttpRequestHeaders>? headersCallback = null,
             CancellationToken token = default,
             bool waitForLogin = true
         ) {
-            var requestMessage = CreateAndValidateRequestMessage(url, method, content, headersCallback);
-            return WebRequestFactory.Send(requestMessage, descriptor, requestParams, token, waitForLogin);
+            return WebRequestFactory.Send(
+                () => CreateAndValidateRequestMessage(url, method, contentFactory?.Invoke(), headersCallback),
+                descriptor, requestParams, token, waitForLogin
+            );
         }
     }
 
@@ -71,14 +75,12 @@ namespace BeatLeader.WebRequests {
         protected static void SendRet(
             string url,
             HttpMethod method,
-            HttpContent? content = null,
+            Func<HttpContent?>? contentFactory = null,
             WebRequestParams? requestParams = null,
             Action<HttpRequestHeaders>? headersCallback = null,
             TDescriptor? customParser = default,
             bool waitForLogin = true
         ) {
-            var requestMessage = CreateAndValidateRequestMessage(url, method, content, headersCallback);
-
             if (Instance != null) {
                 tokenSource.Cancel();
                 tokenSource.Dispose();
@@ -89,7 +91,9 @@ namespace BeatLeader.WebRequests {
             }
 
             Task.Run(async () => {
-                    Instance = WebRequestFactory.Send(requestMessage, customParser ?? descriptor, requestParams, tokenSource.Token, waitForLogin);
+                    Instance = WebRequestFactory.Send(
+                        () => CreateAndValidateRequestMessage(url, method, contentFactory?.Invoke(), headersCallback),
+                        customParser ?? descriptor, requestParams, tokenSource.Token, waitForLogin);
                     Instance.StateChangedEvent += Instance_StateChangedEvent;
                     Instance.ProgressChangedEvent += Instance_ProgressChangedEvent;
                     Instance_StateChangedEvent(Instance, RequestState, FailReason);

@@ -339,18 +339,22 @@ namespace BeatLeader.WebRequests {
         private void ReloadBuffer(long size) {
             ReleaseBufferIfNeeded();
             size = AdjustBufferSize(size);
-            var buffer = bufferPool.FirstOrDefault(x => x.LongLength >= size);
-            if (buffer is not null) {
-                bufferPool.Remove(buffer);
-            } else {
-                buffer = new byte[size];
+            lock (bufferPool) {
+                var buffer = bufferPool.FirstOrDefault(x => x.LongLength >= size);
+                if (buffer is not null) {
+                    bufferPool.Remove(buffer);
+                } else {
+                    buffer = new byte[size];
+                }
+                _buffer = buffer;
             }
-            _buffer = buffer;
         }
 
         private void ReleaseBufferIfNeeded() {
             if (_buffer is null) return;
-            bufferPool.Add(_buffer);
+            lock (bufferPool) {
+                bufferPool.Add(_buffer);
+            }
             _buffer = null;
         }
 

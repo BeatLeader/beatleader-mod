@@ -1,9 +1,11 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using BeatLeader.Models;
 using BeatLeader.Models.AbstractReplay;
 using JetBrains.Annotations;
 using UnityEngine;
 using Replay = BeatLeader.Models.Replay.Replay;
+using EyeTrackingData = BeatLeader.Models.Replay.EyeTrackingData;
 using RNoteEventType = BeatLeader.Models.Replay.NoteEventType;
 using RNoteCutInfo = BeatLeader.Models.Replay.NoteCutInfo;
 
@@ -110,8 +112,16 @@ namespace BeatLeader.Utils {
                 walls.ToArray(),
                 pauses.ToArray(),
                 heights?.ToArray(),
-                replay.customData
+                mirrorX ? MirrorCustomData(replay.customData) : replay.customData
             );
+        }
+
+        private static Dictionary<string, byte[]> MirrorCustomData(Dictionary<string, byte[]> customData) {
+            if (!customData.TryGetValue(EyeTrackingData.CustomDataKey, out var bytes) || EyeTrackingData.Decode(bytes) is not { } eyeTracking) {
+                return customData;
+            }
+            eyeTracking.MirrorX();
+            return new(customData) { [EyeTrackingData.CustomDataKey] = eyeTracking.Encode() };
         }
 
         #endregion

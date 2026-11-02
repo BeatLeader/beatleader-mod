@@ -32,16 +32,18 @@ namespace BeatLeader.UI.Reactive.Components {
 
         public static Layout InShadow(this ILayoutItem content, DynamicShadowSettings? settings = null) {
             return new Layout {
+                FlexController = {
+                    ConstrainHorizontal = false,
+                    ConstrainVertical = false
+                },
+
                 Children = {
                     new DynamicShadow {
                         Settings = settings ?? new()
                     },
                     content
                 }
-            }.AsFlexGroup(
-                constrainHorizontal: false,
-                constrainVertical: false
-            );
+            };
         }
 
         #endregion

@@ -24,8 +24,13 @@ namespace BeatLeader.UI.Hub {
 
             Children.Add(
                 new Label {
+                    FlexItem = {
+                        FlexGrow = 1f,
+                        Size = new() { x = 60.pt, y = 14.pt }
+                    },
+
                     Text = "Do you really want to delete this replay?\nYou won't be able to recover it."
-                }.AsFlexItem(flexGrow: 1f, size: new() { x = 60.pt, y = 14.pt })
+                }
             );
 
             OkButton.OnClick = HandleOkButtonClicked;

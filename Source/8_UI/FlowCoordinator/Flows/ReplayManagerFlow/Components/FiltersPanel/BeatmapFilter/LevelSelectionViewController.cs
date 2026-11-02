@@ -57,23 +57,31 @@ namespace BeatLeader.UI.Hub {
 
             // Custom button to avoid messing with base game callbacks
             new Layout {
+                    FlexController = {
+                        JustifyContent = Justify.Center,
+                        AlignItems = Align.Stretch,
+                        Padding = 1f
+                    },
+
+                    FlexItem = {
+                        Size = new() { y = 10f }
+                    },
+
                     Enabled = false,
                     ContentTransform = {
                         pivot = new Vector2(0.5f, 0f)
                     },
                     Children = {
                         new BsPrimaryTextButton {
+                            FlexItem = {
+                                Size = new() { x = 24f }
+                            },
+
                             OnClick = HandleActionButtonPressed,
                             Text = "SELECT"
-                        }.AsFlexItem(size: new() { x = 24f })
+                        }
                     }
                 }
-                .AsFlexItem(size: new() { y = 10f })
-                .AsFlexGroup(
-                    justifyContent: Justify.Center,
-                    alignItems: Align.Stretch,
-                    padding: 1f
-                )
                 .Bind(ref _detailViewCustomButtons)
                 .Use(levelDetailTransform);
 

@@ -74,9 +74,22 @@ namespace BeatLeader.UI.Replayer {
             _snapButtonState = Remember(GraphicState.None);
 
             return new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column
+                },
+
                 Children = {
                     //controls
                     new Background {
+                        FlexController = {
+                            Gap = 2f,
+                            Padding = new() { top = 1f, bottom = 1f, right = 2f, left = 2f }
+                        },
+
+                        FlexItem = {
+                            Size = new() { y = 6f }
+                        },
+
                         Children = {
                             //pin button
                             CreateButton(
@@ -97,21 +110,22 @@ namespace BeatLeader.UI.Replayer {
                                 HandleCurvatureButtonClicked
                             ).AsFlexItem(size: 4f),
                         }
-                    }.AsFlexGroup(
-                        gap: 2f,
-                        padding: new() { top = 1f, bottom = 1f, right = 2f, left = 2f }
-                    ).AsBackground(
+                    }.AsBackground(
                         color: new(0.1f, 0.1f, 0.1f, 1f),
                         pixelsPerUnit: 7f
-                    ).AsFlexItem(size: new() { y = 6f }),
+                    ),
                     //handle container
                     new Layout {
+                        FlexItem = {
+                            Size = new() { y = 6f }
+                        },
+
                         ContentTransform = {
                             localScale = new(7f, 3f, 3f)
                         }
-                    }.AsFlexItem(size: new() { y = 6f }).Bind(ref _handleContainer)
+                    }.Bind(ref _handleContainer)
                 }
-            }.AsFlexGroup(direction: FlexDirection.Column).Use();
+            }.Use();
         }
 
         protected override void OnInitialize() {
@@ -162,7 +176,7 @@ namespace BeatLeader.UI.Replayer {
 
         private void HandleCurvatureButtonClicked() {
             if (!_isInitialized) return;
-            _curvatureSettings.Present();
+            _curvatureSettings.IsPresent = true;
             if (_lastHandleState) {
                 _floatingHandle.Hide();
             }
@@ -179,7 +193,7 @@ namespace BeatLeader.UI.Replayer {
         }
 
         private void HandleCurvatureSettingsCloseButtonClicked() {
-            _curvatureSettings.Hide();
+            _curvatureSettings.IsPresent = false;
             if (_lastHandleState) {
                 _floatingHandle.Present();
             }

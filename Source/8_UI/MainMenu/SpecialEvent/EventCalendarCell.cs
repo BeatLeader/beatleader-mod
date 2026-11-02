@@ -81,20 +81,29 @@ namespace BeatLeader.UI.MainMenu {
 
         protected override GameObject Construct() {
             return new Background {
+                    FlexController = {
+                        JustifyContent = Justify.Center
+                    },
+
+                    FlexItem = {
+                        Size = 5f
+                    },
+
                     Children = {
                         new Label {
-                                Alignment = TextAlignmentOptions.Capline
-                            }
-                            .Bind(ref _dayLabel)
-                            .AsFlexItem(),
+                            Alignment = TextAlignmentOptions.Capline
+                        }.Bind(ref _dayLabel),
 
                         new Label {
-                                Text = "★",
-                                Color = Color.yellow,
-                                FontSize = 3f
-                            }
-                            .Bind(ref _completedLabel)
-                            .AsFlexItem(position: new() { top = (-1.3f).pt, right = (-0.8f).pt }),
+                            FlexItem = {
+                                Position = new() { top = (-1.3f).pt, right = (-0.8f).pt },
+                                PositionType = PositionType.Absolute
+                            },
+
+                            Text = "★",
+                            Color = Color.yellow,
+                            FontSize = 3f
+                        }.Bind(ref _completedLabel),
                     }
                 }
                 .WithNativeComponent(out _pointerHandler)
@@ -104,8 +113,6 @@ namespace BeatLeader.UI.MainMenu {
                     onDown: _ => OnClick?.Invoke(this)
                 )
                 .AsBackground()
-                .AsFlexGroup(justifyContent: Justify.Center)
-                .AsFlexItem(size: 5f)
                 .Bind(ref _background)
                 .Use();
         }

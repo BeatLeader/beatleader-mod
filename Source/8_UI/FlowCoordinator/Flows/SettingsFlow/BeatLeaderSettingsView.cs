@@ -14,19 +14,33 @@ namespace BeatLeader.UI.Hub {
 
         protected override GameObject Construct() {
             return new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    AlignItems = Align.Center,
+                    Gap = 6f
+                },
+
                 Children = {
                     new BsSegmentedControl<string> {
-                            Items = new Dictionary<string, BsSegmentedControlItem> {
-                                ["GLOBAL"] = new("Global", null),
-                                ["UI"] = new("UI", null),
-                                ["REPLAYS"] = new("Replays", null)
-                            },
-                            Key = "GLOBAL",
-                            OnKeyChanged = x => _viewContainer.Key = x
-                        }
-                        .AsFlexItem(size: new() { y = 8f, x = 50f }),
+                        FlexItem = {
+                            Size = new() { y = 8f, x = 50f }
+                        },
+
+                        Items = new Dictionary<string, BsSegmentedControlItem> {
+                            ["GLOBAL"] = new("Global", null),
+                            ["UI"] = new("UI", null),
+                            ["REPLAYS"] = new("Replays", null)
+                        },
+                        Key = "GLOBAL",
+                        OnKeyChanged = x => _viewContainer.Key = x
+                    },
                     //
                     new KeyedContainer<string> {
+                        FlexItem = {
+                            FlexGrow = 1f,
+                            Size = new() { x = 90f }
+                        },
+
                         Views = new Dictionary<string, IReactiveComponent> {
                             ["GLOBAL"] = new GlobalSettingsView()
                                 .WithRectExpand()
@@ -41,13 +55,9 @@ namespace BeatLeader.UI.Hub {
                                 .Bind(ref _replaySettingsView)
                         },
                         Key = "GLOBAL"
-                    }.AsFlexItem(flexGrow: 1f, size: new() { x = 90f }).Bind(ref _viewContainer)
+                    }.Bind(ref _viewContainer)
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Column,
-                alignItems: Align.Center,
-                gap: 6f
-            ).WithRectExpand().Use();
+            }.WithRectExpand().Use();
         }
 
         public void Setup(BeatLeaderHubTheme hubTheme, MenuTransitionsHelper? menuTransitionsHelper) {

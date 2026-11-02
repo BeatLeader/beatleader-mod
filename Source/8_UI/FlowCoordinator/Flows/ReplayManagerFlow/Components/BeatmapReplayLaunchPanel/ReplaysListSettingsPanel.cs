@@ -46,6 +46,10 @@ namespace BeatLeader.UI.Hub {
                     Children = {
                         //sorter selector
                         new NamedRail {
+                            FlexItem = {
+                                FlexBasis = 6f
+                            },
+
                             Label = {
                                 Text = "Sort By"
                             },
@@ -60,32 +64,44 @@ namespace BeatLeader.UI.Hub {
                                 Key = ReplaysListSorter.Date,
                                 OnKeyChanged = x => _replaysList?.Sorter = x
                             }.Bind(ref _sortersDropdown)
-                        }.AsFlexItem(basis: 6f),
+                        },
                         //sort order selector
                         new NamedRail {
+                            FlexItem = {
+                                FlexBasis = 6f
+                            },
+
                             Label = {
                                 Text = "Order"
                             },
                             Component = new Background {
+                                FlexItem = {
+                                    Size = new() { x = 36f }
+                                },
+
                                 Children = {
                                     new BsSegmentedControl<SortOrder> {
-                                            Items = new Dictionary<SortOrder, BsSegmentedControlItem> {
-                                                [SortOrder.Ascending] = new(null, BundleLoader.Sprites.ascendingIcon),
-                                                [SortOrder.Descending] = new(null, BundleLoader.Sprites.descendingIcon)
-                                            },
-                                            Key = SortOrder.Ascending,
-                                            OnKeyChanged = x => _replaysList?.SortOrder = x
-                                        }
-                                        .AsFlexGroup(padding: 1f)
-                                        .AsFlexItem(flexGrow: 1f, size: new() { y = 100.pct })
-                                        .Bind(ref _sortOrderSelector)
+                                        FlexController = {
+                                            Padding = 1f
+                                        },
+
+                                        FlexItem = {
+                                            FlexGrow = 1f,
+                                            Size = new() { y = 100.pct }
+                                        },
+
+                                        Items = new Dictionary<SortOrder, BsSegmentedControlItem> {
+                                            [SortOrder.Ascending] = new(null, BundleLoader.Sprites.ascendingIcon),
+                                            [SortOrder.Descending] = new(null, BundleLoader.Sprites.descendingIcon)
+                                        },
+                                        Key = SortOrder.Ascending,
+                                        OnKeyChanged = x => _replaysList?.SortOrder = x
+                                    }.Bind(ref _sortOrderSelector)
                                 }
-                            }.AsFlexGroup().AsFlexItem(
-                                size: new() { x = 36f }
-                            ).AsBlurBackground(
+                            }.AsFlexGroup().AsBlurBackground(
                                 color: Color.white.ColorWithAlpha(0.8f)
                             )
-                        }.AsFlexItem(basis: 6f)
+                        }
                     }
                 }.AsBlurBackground();
             }
@@ -104,16 +120,25 @@ namespace BeatLeader.UI.Hub {
 
         protected override GameObject Construct() {
             return new Background {
+                FlexController = {
+                    Padding = 0.6f,
+                    Gap = 0.5f
+                },
+
                 Children = {
                     new SortOptionsModal()
                         .WithPlacement(RelativePlacement.TopRight)
                         .Bind(ref _sortOptionsModal),
                     //label
                     new Label {
+                        FlexItem = {
+                            FlexGrow = 1f
+                        },
+
                         Text = "List settings",
                         Alignment = TextAlignmentOptions.MidlineLeft,
                         FontSize = 3f
-                    }.AsFlexItem(flexGrow: 1f),
+                    },
                     //refresh button
                     CreateGlowingButton(
                         BundleLoader.RotateRightIcon,
@@ -128,7 +153,7 @@ namespace BeatLeader.UI.Hub {
                         () => _sortOptionsModal.IsPushed = true
                     ).AsFlexItem(aspectRatio: 1f)
                 }
-            }.AsFlexGroup(padding: 0.6f, gap: 0.5f).AsBlurBackground().Use();
+            }.AsBlurBackground().Use();
         }
 
         [StateGen]

@@ -35,25 +35,35 @@ namespace BeatLeader.UI.MainMenu {
 
         protected override GameObject Construct() {
             return new Background {
+                    FlexController = {
+                        Padding = 1f,
+                        JustifyContent = Justify.Center
+                    },
+
+                    FlexItem = {
+                        Size = new() { x = 60, y = 70 }
+                    },
+
                     Children = {
                         new NewsPanel<NewsPost> {
-                                EmptyMessage = "There is no news",
-                                ConstructCell = ctx => new TextNewsPostPanel(ctx)
-                            }
-                            .AsFlexGroup(gap: 2f, constrainVertical: false)
-                            .AsFlexItem(flexGrow: 1f)
-                            .Bind(ref _newsPanel)
+                            FlexController = {
+                                Gap = 2f,
+                                ConstrainVertical = false
+                            },
+
+                            FlexItem = {
+                                FlexGrow = 1f
+                            },
+
+                            EmptyMessage = "There is no news",
+                            ConstructCell = ctx => new TextNewsPostPanel(ctx)
+                        }.Bind(ref _newsPanel)
                     }
                 }
-                .AsFlexGroup(
-                    padding: 1f,
-                    justifyContent: Justify.Center
-                )
                 .AsBackground(
                     color: Color.black.ColorWithAlpha(0.33f),
                     pixelsPerUnit: 7f
                 )
-                .AsFlexItem(size: new() { x = 60, y = 70 })
                 .Use();
         }
 

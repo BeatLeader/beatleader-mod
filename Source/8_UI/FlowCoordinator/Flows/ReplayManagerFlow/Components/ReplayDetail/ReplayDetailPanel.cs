@@ -28,6 +28,14 @@ namespace BeatLeader.UI.Hub {
 
         protected override ILayoutItem ConstructButtons() {
             return new Layout {
+                FlexController = {
+                    Gap = 2f
+                },
+
+                FlexItem = {
+                    Size = new() { y = 8f }
+                },
+
                 Children = {
                     new BeatmapDownloadDialog {
                             OnPopped = HandleDownloadBeatmapDialogClosed
@@ -40,21 +48,28 @@ namespace BeatLeader.UI.Hub {
                         .Bind(ref _replayDeletionDialog),
                     //
                     new BsTextButton {
+                        FlexItem = {
+                            FlexGrow = 1f
+                        },
+
                         Text = BLLocalization.GetTranslation("ls-delete"),
                         OnClick = HandleDeleteButtonClicked
-                    }.AsFlexItem(flexGrow: 1f),
+                    },
                     //
                     new BsPrimaryTextButton {
+                            FlexItem = {
+                                FlexGrow = 1f
+                            },
+
                             Text = BLLocalization.GetTranslation(WatchTextToken),
                             OnClick = () => _ = HandleWatchButtonClicked().RunCatching()
                         }
-                        .AsFlexItem(flexGrow: 1f)
                         .Bind(ref _watchButton)
                         .InLoadingContainer()
                         .AsFlexItem(flexGrow: 1f)
                         .Bind(ref _watchButtonContainer)
                 }
-            }.AsFlexGroup(gap: 2f).AsFlexItem(size: new() { y = 8f });
+            };
         }
 
         protected override bool AllowTagsEdit => true;

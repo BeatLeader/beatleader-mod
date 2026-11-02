@@ -19,29 +19,42 @@ namespace BeatLeader.UI.Hub {
 
         protected override GameObject Construct() {
             return new Layout {
+                    FlexItem = {
+                        Size = new() { x = 52f, y = 6f },
+                        Margin = 0.5f
+                    },
+
                     Children = {
                         new BsSegmentedControl<BeatmapDifficulty?> {
-                                Enabled = false,
-                                Items = new Dictionary<BeatmapDifficulty?, BsSegmentedControlItem>(),
-                                Key = null,
-                                OnKeyChanged = x => DifficultySelectedEvent?.Invoke(x!.Value)
-                            }
-                            .AsFlexGroup(padding: 1f)
-                            .AsFlexItem(flexGrow: 1f, flexShrink: 1f, size: new() { y = 100.pct })
-                            .Bind(ref _segmentedControl),
+                            FlexController = {
+                                Padding = 1f
+                            },
+
+                            FlexItem = {
+                                FlexGrow = 1f,
+                                FlexShrink = 1f,
+                                Size = new() { y = 100.pct }
+                            },
+
+                            Enabled = false,
+                            Items = new Dictionary<BeatmapDifficulty?, BsSegmentedControlItem>(),
+                            Key = null,
+                            OnKeyChanged = x => DifficultySelectedEvent?.Invoke(x!.Value)
+                        }.Bind(ref _segmentedControl),
 
                         new Label {
+                            FlexItem = {
+                                Position = 0f,
+                                PositionType = PositionType.Absolute
+                            },
+
                             Text = "No Difficulties",
                             Alignment = TextAlignmentOptions.Midline,
                             Color = BeatSaberStyle.SecondaryTextColor
-                        }.AsFlexItem(position: 0f).Bind(ref _emptyLabel)
+                        }.Bind(ref _emptyLabel)
                     }
                 }
                 .AsFlexGroup()
-                .AsFlexItem(
-                    size: new() { x = 52f, y = 6f },
-                    margin: 0.5f
-                )
                 .Use();
         }
 

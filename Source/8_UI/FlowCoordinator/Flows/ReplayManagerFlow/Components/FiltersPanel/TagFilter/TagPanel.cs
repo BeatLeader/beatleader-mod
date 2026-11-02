@@ -13,50 +13,54 @@ using AnimationCurve = Reactive.AnimationCurve;
 
 namespace BeatLeader.UI.Hub {
     internal class TagPanel : ReactiveComponent {
-        #region SetEditModeEnabled
+        #region IsEditing
+
+        public bool IsEditing {
+            get => _editModeEnabled;
+            set => SetEditModeEnabled(value, Animated);
+        }
 
         private bool _editModeEnabled;
 
-        public void SetEditModeEnabled(bool enabled, bool immediate) {
+        private void SetEditModeEnabled(bool enabled, bool animated) {
             _editModeEnabled = enabled;
             var targetValue = enabled ? Vector3.one : Vector3.zero;
 
             if (!enabled) {
-                SetTagSelected(_tagSelected, true);
+                IsSelected = _tagSelected;
             }
 
-            if (immediate) {
-                _deleteButton.Enabled = enabled;
-                _deleteButtonScale.SetValueImmediate(targetValue);
-            } else {
+            if (animated) {
                 if (enabled) {
                     _deleteButton.Enabled = true;
                 }
                 _deleteButtonScale.TargetValue = targetValue;
+            } else {
+                _deleteButton.Enabled = enabled;
+                _deleteButtonScale.SetValueImmediate(targetValue);
             }
         }
 
         #endregion
 
-        #region SetTagPresented
+        #region IsPresent
 
-        private bool _tagPresented;
+        public bool IsPresent {
+            get => _tagPresented;
+            set {
+                _tagPresented = value;
+                _buttonState.IsInteractable = value && Interactable;
+                var targetValue = value ? Vector3.one : Vector3.zero;
 
-        public void SetTagPresented(bool enabled, bool immediate) {
-            _tagPresented = enabled;
-            _buttonState.IsInteractable = enabled && Interactable;
-            var targetValue = enabled ? Vector3.one : Vector3.zero;
-
-            if (immediate) {
-                _panelScale.SetValueImmediate(targetValue);
-
-                if (_replayTag != null) {
-                    DisappearAnimationFinishedEvent?.Invoke(_replayTag);
+                if (Animated) {
+                    _panelScale.TargetValue = targetValue;
+                } else {
+                    _panelScale.SetValueImmediate(targetValue);
                 }
-            } else {
-                _panelScale.TargetValue = targetValue;
             }
         }
+
+        private bool _tagPresented;
 
         #endregion
 
@@ -70,6 +74,8 @@ namespace BeatLeader.UI.Hub {
             }
         }
 
+        public bool Animated { get; set; } = true;
+
         public bool AnimateMovement = true;
 
         public event Action<ReplayTag>? DisappearAnimationFinishedEvent;
@@ -80,21 +86,23 @@ namespace BeatLeader.UI.Hub {
         private bool _tagSelected;
         private bool _interactable = true;
 
-        public void SetTagSelected(bool enabled, bool silent) {
-            _buttonState.IsActive = enabled;
-            if (!silent) {
-                HandleTagButtonStateChanged(enabled);
+        public bool IsSelected {
+            get => _tagSelected;
+            set {
+                _buttonState.IsActive = value;
+                _tagSelected = value;
             }
-            _tagSelected = enabled;
         }
 
-        public void SetTag(ReplayTag tag, bool animated = false) {
-            _replayTag = tag;
+        public ReplayTag? Tag {
+            get => _replayTag;
+            set {
+                _replayTag = value;
 
-            SetEditModeEnabled(false, true);
-            SetTagSelected(false, true);
-            SetTagPresented(true, !animated);
-            RefreshVisuals();
+                SetEditModeEnabled(false, false);
+                IsSelected = false;
+                RefreshVisuals();
+            }
         }
 
         #endregion
@@ -208,7 +216,7 @@ namespace BeatLeader.UI.Hub {
 
             // Content is disconnected from the layout hierarchy, so we manually maintain the size
             var size = _button.ContentTransform.rect.size;
-            _containerModifier.Size = new() { x = size.x, y = FixedHeight };
+            this.FlexItem.Size = new() { x = size.x, y = FixedHeight };
         }
 
         protected override void OnStart() {
@@ -229,14 +237,13 @@ namespace BeatLeader.UI.Hub {
         private State<GraphicState> _buttonState = null!;
         private State<ColorSet> _buttonColors = null!;
 
-        private YogaModifier _containerModifier = null!;
         private Background _deleteButton = null!;
         private RectTransform _buttonTransform = null!;
         private Background _button = null!;
         private Label _label = null!;
 
         protected override GameObject Construct() {
-            var container = new ReactiveComponent().AsFlexItem(out _containerModifier);
+            var container = new ReactiveComponent();
 
             _deleteButtonScale = RememberAnimated(Vector3.zero, 200.ms, AnimationCurve.EaseInOut);
             _deleteButtonScale.OnFinish = x => {
@@ -245,7 +252,7 @@ namespace BeatLeader.UI.Hub {
                 }
             };
 
-            _panelScale = RememberAnimated(Vector3.one, 300.ms, AnimationCurve.EaseInOut);
+            _panelScale = RememberAnimated(Vector3.zero, 300.ms, AnimationCurve.EaseInOut);
             _panelScale.OnFinish = x => {
                 if (x == Vector3.zero) {
                     DisappearAnimationFinishedEvent?.Invoke(_replayTag!);
@@ -257,6 +264,13 @@ namespace BeatLeader.UI.Hub {
             var deleteButtonState = Remember(GraphicState.None);
 
             new Background {
+                    FlexController = {
+                        Padding = new() { left = 1f, right = 1f },
+                        AlignItems = Align.Center,
+                        ConstrainHorizontal = false,
+                        ConstrainVertical = false
+                    },
+
                     Sprite = BundleLoader.Sprites.background,
                     PixelsPerUnit = 8f,
                     Material = GameResources.UINoGlowMaterial,
@@ -265,6 +279,16 @@ namespace BeatLeader.UI.Hub {
                     Children = {
                         // Delete button
                         new Background {
+                                FlexController = {
+                                    Padding = 1f
+                                },
+
+                                FlexItem = {
+                                    Size = 3.5f,
+                                    Position = new() { top = -1.5f, right = -1.5f },
+                                    PositionType = PositionType.Absolute
+                                },
+
                                 Enabled = false,
                                 ContentTransform = {
                                     localScale = Vector3.zero
@@ -275,8 +299,12 @@ namespace BeatLeader.UI.Hub {
                                 Children = {
                                     // Minus icon
                                     new Image {
+                                        FlexItem = {
+                                            FlexGrow = 1f
+                                        },
+
                                         Sprite = BundleLoader.Sprites.minusIcon
-                                    }.AsFlexItem(flexGrow: 1f)
+                                    }
                                 }
                             }
                             .WithPointerEvents(
@@ -287,19 +315,18 @@ namespace BeatLeader.UI.Hub {
                                     HandleDeleteButtonClicked();
                                 }
                             )
-                            .AsFlexGroup(padding: 1f)
-                            .AsFlexItem(
-                                size: 3.5f,
-                                position: new() { top = -1.5f, right = -1.5f }
-                            )
                             .On(_deleteButtonScale, static (x, y) => x.ContentTransform.localScale = y, lazy: true)
                             .Bind(ref _deleteButton),
 
                         // Text
                         new Label {
+                            FlexItem = {
+                                Size = "auto"
+                            },
+
                             FontSize = 3f,
                             Alignment = TextAlignmentOptions.Capline
-                        }.AsFlexItem(size: "auto").Bind(ref _label)
+                        }.Bind(ref _label)
                     }
                 }
                 .WithPointerEvents(
@@ -307,13 +334,7 @@ namespace BeatLeader.UI.Hub {
                     onLeave: _ => HandleTagButtonHoverChanged(false),
                     onDown: _ => HandleTagButtonClicked()
                 )
-                .AsFlexGroup(
-                    padding: new() { left = 1f, right = 1f },
-                    alignItems: Align.Center,
-                    constrainHorizontal: false,
-                    constrainVertical: false
-                )
-                .On(_panelScale, static (x, y) => x.ContentTransform.localScale = y, lazy: true)
+                .On(_panelScale, static (x, y) => x.ContentTransform.localScale = y)
                 .Bind(ref _button)
                 .Bind(ref _buttonTransform)
                 .Use(container.ContentTransform);
@@ -324,7 +345,7 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override void OnInitialize() {
-            this.AsFlexItem(size: new() { y = 5f });
+            this.FlexItem.Size = new() { y = 5f };
             ReplayMetadataManager.TagUpdatedEvent += HandleTagUpdated;
         }
 

@@ -1,6 +1,7 @@
 ﻿using BeatLeader.Models;
 using Reactive;
 using Reactive.BeatSaber.Components;
+using Reactive.Compiler;
 using Reactive.Components;
 using Reactive.Yoga;
 using UnityEngine;
@@ -19,12 +20,16 @@ namespace BeatLeader.UI.Replayer {
             _speedSlider.Setup(timeController);
         }
 
-        public void SetShown(bool shown, bool immediate) {
-            var value = shown ? Height : 0f;
-            if (immediate) {
-                _contentAnim.SetValueImmediate(value);
-            } else {
-                _contentAnim.TargetValue = value;
+        public bool IsPresent {
+            get => _contentAnim.TargetValue > 0f;
+            set {
+                var height = value ? Height : 0f;
+
+                if (Content.activeInHierarchy) {
+                    _contentAnim.TargetValue = height;
+                } else {
+                    _contentAnim.SetValueImmediate(height);
+                }
             }
         }
 
@@ -32,31 +37,39 @@ namespace BeatLeader.UI.Replayer {
             _contentAnim = RememberAnimated(0f, 150f.ms, AnimationCurve.EaseOut);
 
             return new Background {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    JustifyContent = Justify.FlexStart
+                },
+
+                FlexItem = {
+                    sSize = _contentAnim.Map(x => new YogaVector { y = x }).InLazy()
+                },
+
                 Children = {
                     new Layout {
+                        FlexController = {
+                            FlexDirection = FlexDirection.Column,
+                            JustifyContent = Justify.Center,
+                            Padding = new() { top = 1f, bottom = 1f, left = 2f, right = 2f }
+                        },
+
+                        FlexItem = {
+                            Size = "100%"
+                        },
+
                         ContentTransform = {
                             sizeDelta = new(0f, Height)
                         },
                         Children = {
                             new SpeedSlider().Bind(ref _speedSlider)
                         }
-                    }.AsFlexItem(size: "100%").AsFlexGroup(
-                        direction: FlexDirection.Column,
-                        justifyContent: Justify.Center,
-                        padding: new() { top = 1f, bottom = 1f, left = 2f, right = 2f }
-                    )
+                    }
                 }
-            }.AsFlexItem().AsFlexGroup(
-                direction: FlexDirection.Column,
-                justifyContent: Justify.FlexStart
-            ).AsBackground(
+            }.AsBackground(
                 color: new(0.15f, 0.15f, 0.15f, 1f),
                 sprite: BundleLoader.Sprites.backgroundRightBottom,
                 pixelsPerUnit: 7f
-            ).On(
-                _contentAnim,
-                static (x, height) => x.FlexItem.Size = new() { y = height },
-                lazy: true
             ).WithNativeComponent(out Mask _).Use();
         }
     }

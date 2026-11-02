@@ -25,28 +25,37 @@ namespace BeatLeader.UI.MainMenu {
 
         protected override GameObject Construct() {
             return new Background {
+                    FlexController = {
+                        Padding = 1f,
+                        FlexDirection = FlexDirection.Column
+                    },
+
+                    FlexItem = {
+                        Size = new() { x = 70 },
+                        FlexGrow = 1f
+                    },
+
                     Children = {
                         new NewsHeader {
                             Text = "BeatLeader Events"
-                        }.AsFlexItem(),
+                        },
 
                         new NewsPanel<PlatformEvent> {
+                            FlexItem = {
+                                FlexGrow = 1f
+                            },
+
                             EmptyMessage = "No events",
                             ConstructCell = ctx => new EventPreviewPanel(ctx) {
                                 OnClick = x => OnEventSelected?.Invoke(x)
                             }
-                        }.AsFlexItem(flexGrow: 1f).Bind(ref _newsPanel)
+                        }.Bind(ref _newsPanel)
                     }
                 }
-                .AsFlexGroup(
-                    padding: 1f,
-                    direction: FlexDirection.Column
-                )
                 .AsBackground(
                     color: Color.black.ColorWithAlpha(0.33f),
                     pixelsPerUnit: 7f
                 )
-                .AsFlexItem(size: new() { x = 70 }, flexGrow: 1f)
                 .Use();
         }
 

@@ -53,8 +53,17 @@ namespace BeatLeader.UI.Replayer {
             _scrollContext = new ScrollContext();
 
             return new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    Gap = 1f
+                },
+
                 Children = {
                     new BsSegmentedControl<int> {
+                            FlexItem = {
+                                FlexBasis = 6f
+                            },
+
                             Items = new Dictionary<int, BsSegmentedControlItem> {
                                 [0] = new("Main Player", null),
                                 [1] = new("Other Players", null)
@@ -64,24 +73,36 @@ namespace BeatLeader.UI.Replayer {
                             Colors = segmentedControlColors,
                             OnKeyChanged = HandleSegmentedControlKeyChanged
                         }
-                        .AsFlexItem(basis: 6f)
                         .With(x => x.Enabled = false)
                         .Bind(ref _segmentedControl),
 
                     new Layout {
+                        FlexController = {
+                            Gap = 1f
+                        },
+
+                        FlexItem = {
+                            FlexGrow = 1f
+                        },
+
                         Children = {
                             new ScrollArea {
-                                    ScrollContext = _scrollContext,
-                                    ScrollContent = new KeyedContainer<int> {
-                                            Key = 0,
-                                            Views = new Dictionary<int, IReactiveComponent>()
-                                        }
-                                        .AsFlexGroup(justifyContent: Justify.FlexStart, constrainVertical: false)
-                                        .AsFlexItem()
-                                        .Bind(ref _keyedContainer),
-                                    LineSize = 1f
-                                }
-                                .AsFlexItem(flexGrow: 1f),
+                                FlexItem = {
+                                    FlexGrow = 1f
+                                },
+
+                                ScrollContext = _scrollContext,
+                                ScrollContent = new KeyedContainer<int> {
+                                    FlexController = {
+                                        JustifyContent = Justify.FlexStart,
+                                        ConstrainVertical = false
+                                    },
+
+                                    Key = 0,
+                                    Views = new Dictionary<int, IReactiveComponent>()
+                                }.Bind(ref _keyedContainer),
+                                LineSize = 1f
+                            },
 
                             new Scrollbar {
                                 ScrollContext = _scrollContext,
@@ -89,9 +110,9 @@ namespace BeatLeader.UI.Replayer {
                                 WithinLayoutIfDisabled = false
                             }
                         }
-                    }.AsFlexGroup(gap: 1f).AsFlexItem(flexGrow: 1f)
+                    }
                 }
-            }.AsFlexGroup(direction: FlexDirection.Column, gap: 1f).Use();
+            }.Use();
         }
 
         private void HandleSegmentedControlKeyChanged(int key) {
@@ -137,6 +158,16 @@ namespace BeatLeader.UI.Replayer {
 
         private Layout CreateBasicView(BasicBodySettings settings, ILayoutItem? additionalComponent) {
             return new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    AlignItems = Align.Stretch,
+                    Gap = 2f
+                },
+
+                FlexItem = {
+                    Size = new() { x = "100%" }
+                },
+
                 Children = {
                     CreateContainer(
                         CreateToggle(
@@ -180,13 +211,7 @@ namespace BeatLeader.UI.Replayer {
                         )
                     )
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Column,
-                alignItems: Align.Stretch,
-                gap: 2f
-            ).AsFlexItem(
-                size: new() { x = "100%" }
-            ).With(
+            }.With(
                 x => {
                     if (additionalComponent != null) {
                         x.Children.Add(additionalComponent);
@@ -196,17 +221,18 @@ namespace BeatLeader.UI.Replayer {
         }
 
         private static Background CreateContainer(params ILayoutItem[] components) {
-            var image = new Background()
-                .AsBackground(
+            var image = new Background {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    AlignItems = Align.Stretch,
+                    Padding = 2f,
+                    Gap = 1f
+                }
+            }.AsBackground(
                     sprite: BundleLoader.Sprites.background,
                     color: new(0.1f, 0.1f, 0.1f, 1f),
                     pixelsPerUnit: 7f
-                ).AsFlexGroup(
-                    direction: FlexDirection.Column,
-                    alignItems: Align.Stretch,
-                    padding: 2f,
-                    gap: 1f
-                ).AsFlexItem();
+                );
 
             image.Children.AddRange(components);
 

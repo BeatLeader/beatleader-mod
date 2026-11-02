@@ -46,8 +46,22 @@ namespace BeatLeader.UI.Hub {
                 _progress.AddCallback(this, static (x, y) => x.Pulse(y), lazy: true);
 
                 return new Layout {
+                    FlexItem = {
+                        Size = new() { y = 10f }
+                    },
+
                     Children = {
                         new Background {
+                            FlexController = {
+                                Padding = 1f,
+                                Gap = 1f
+                            },
+
+                            FlexItem = {
+                                FlexGrow = 1f,
+                                Margin = new() { right = 1f, left = 1f }
+                            },
+
                             Sprite = BundleLoader.Sprites.background,
                             sColor = RememberDerived(
                                 _progress, _accentColor,
@@ -72,38 +86,46 @@ namespace BeatLeader.UI.Hub {
                                 }.Bind(ref _rankText),
 
                                 //avatar
-                                new ReeWrapperV2<PlayerAvatar>()
-                                    .AsFlexItem(aspectRatio: 1f)
-                                    .BindRee(ref _playerAvatar),
+                                new ReeWrapperV2<PlayerAvatar> {
+                                    FlexItem = {
+                                        AspectRatio = 1f
+                                    }
+                                }.BindRee(ref _playerAvatar),
 
                                 //texts
                                 new Layout {
+                                    FlexItem = {
+                                        FlexGrow = 1f,
+                                        Margin = new() { left = 2f, right = 2f }
+                                    },
+
                                     Children = {
                                         //player name
                                         new Label {
-                                                FontSize = 5f,
-                                                Overflow = TextOverflowModes.Ellipsis,
-                                                Alignment = TextAlignmentOptions.Left,
-                                                FontStyle = FontStyles.Italic
-                                            }
-                                            .AsFlexItem(flexGrow: 1f)
-                                            .Bind(ref _playerNameText),
+                                            FlexItem = {
+                                                FlexGrow = 1f
+                                            },
+
+                                            FontSize = 5f,
+                                            Overflow = TextOverflowModes.Ellipsis,
+                                            Alignment = TextAlignmentOptions.Left,
+                                            FontStyle = FontStyles.Italic
+                                        }.Bind(ref _playerNameText),
 
                                         //replay date
                                         new Label {
-                                                Color = UIStyle.SecondaryTextColor,
-                                                FontSize = 4f,
-                                                Overflow = TextOverflowModes.Ellipsis,
-                                                Alignment = TextAlignmentOptions.Right,
-                                                FontStyle = FontStyles.Italic
-                                            }
-                                            .AsFlexItem(flexGrow: 1f)
-                                            .Bind(ref _dateText),
+                                            FlexItem = {
+                                                FlexGrow = 1f
+                                            },
+
+                                            Color = UIStyle.SecondaryTextColor,
+                                            FontSize = 4f,
+                                            Overflow = TextOverflowModes.Ellipsis,
+                                            Alignment = TextAlignmentOptions.Right,
+                                            FontStyle = FontStyles.Italic
+                                        }.Bind(ref _dateText),
                                     }
-                                }.AsFlexGroup().AsFlexItem(
-                                    flexGrow: 1f,
-                                    margin: new() { left = 2f, right = 2f }
-                                ),
+                                }.AsFlexGroup(),
 
                                 //remove button
                                 new BsImageButton {
@@ -129,15 +151,9 @@ namespace BeatLeader.UI.Hub {
                                     sEnabled = _list._canMutateLobby
                                 }
                             }
-                        }.AsFlexGroup(
-                            padding: 1f,
-                            gap: 1f
-                        ).AsFlexItem(
-                            flexGrow: 1f,
-                            margin: new() { right = 1f, left = 1f }
-                        )
+                        }
                     }
-                }.AsFlexGroup().AsFlexItem(size: new() { y = 10f }).Use();
+                }.AsFlexGroup().Use();
             }
 
             #endregion
@@ -284,21 +300,29 @@ namespace BeatLeader.UI.Hub {
             var scrollContext = new ScrollContext();
 
             return new Layout {
+                FlexController = {
+                    Gap = 1f
+                },
+
                 Children = {
                     new Table<Opponent, Cell> {
+                        FlexItem = {
+                            FlexGrow = 1f
+                        },
+
                         ScrollContext = scrollContext,
                         SelectionMode = SelectionMode.None,
                         Items = Array.Empty<Opponent>(),
                         ConstructCell = ctx => new Cell(ctx, this)
-                    }.AsFlexItem(flexGrow: 1f).Bind(ref _table),
+                    }.Bind(ref _table),
 
                     new Scrollbar {
                         ScrollContext = scrollContext,
                         HideIfNothingToScroll = true,
                         WithinLayoutIfDisabled = false
-                    }.AsFlexItem()
+                    }
                 }
-            }.AsFlexGroup(gap: 1f).Use();
+            }.Use();
         }
 
         private void RefreshItems() {

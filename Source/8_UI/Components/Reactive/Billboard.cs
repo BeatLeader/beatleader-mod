@@ -77,7 +77,6 @@ public class Billboard : ReactiveComponent {
     #region Construct
 
     private Layout _inner = null!;
-    private YogaModifier _outerModifier = null!;
 
     private AnimatedState<float> _innerPosX = null!;
     private AnimatedState<float> _outerWidth = null!;
@@ -87,27 +86,30 @@ public class Billboard : ReactiveComponent {
         _outerWidth = RememberAnimated(0f, 300.ms, AnimationCurve.EaseInOut);
 
         return new Layout {
-                ContentTransform = {
-                    pivot = new(0f, 0f)
-                },
+            FlexItem = {
+                sSize = _outerWidth.Map(x => new YogaVector { x = x }).InLazy()
+            },
 
-                Children = {
-                    new Layout {
-                            ContentTransform = {
-                                anchorMin = new(0f, 0f),
-                                anchorMax = new(0f, 1f),
-                                pivot = new(0f, 0f),
-                                slocalPosition = _innerPosX.Map(x => new Vector3(x, 0f)).InLazy()
-                            }
-                        }
-                        .AsFlexGroup(direction: FlexDirection.Row, constrainHorizontal: false)
-                        .Bind(ref _inner)
-                }
+            ContentTransform = {
+                pivot = new(0f, 0f)
+            },
+
+            Children = {
+                new Layout {
+                    FlexController = {
+                        FlexDirection = FlexDirection.Row,
+                        ConstrainHorizontal = false
+                    },
+
+                    ContentTransform = {
+                        anchorMin = new(0f, 0f),
+                        anchorMax = new(0f, 1f),
+                        pivot = new(0f, 0f),
+                        slocalPosition = _innerPosX.Map(x => new Vector3(x, 0f)).InLazy()
+                    }
+                }.Bind(ref _inner)
             }
-            .AsRectMask()
-            .AsFlexItem(modifier: out _outerModifier)
-            .On(_outerWidth, (_, y) => _outerModifier.Size = new() { x = y }, lazy: true)
-            .Use();
+        }.AsRectMask().Use();
     }
 
     #endregion

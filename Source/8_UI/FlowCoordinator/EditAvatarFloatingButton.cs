@@ -37,28 +37,46 @@ namespace BeatLeader.UI.Hub {
             _alpha = RememberAnimated(0f, 10.fact);
 
             return new BsAeroButton {
+                FlexController = {
+                    JustifyContent = Justify.Center,
+                    Padding = 2f,
+                    ConstrainHorizontal = false
+                },
+
+                FlexItem = {
+                    Size = new() { y = 14f }
+                },
+
                 OnClick = () => OnClick?.Invoke(),
                 ConstructContent = (color, skew) => new Layout {
+                    FlexController = {
+                        Gap = 2f
+                    },
+
                     Children = {
                         new Image {
+                            FlexItem = {
+                                AspectRatio = 1f
+                            },
+
                             Sprite = BundleLoader.Sprites.editIcon,
                             sColor = color.In(),
                             sSkew = skew.In()
-                        }.AsFlexItem(aspectRatio: 1f),
+                        },
                         //
                         new Label {
+                            FlexItem = {
+                                Size = new() { x = "auto" }
+                            },
+
                             Text = "Edit Avatar",
                             FontSize = 6f,
                             sColor = color.In(),
                             sFontStyle = skew.Map(x => x > 0f ? FontStyles.Italic : FontStyles.Normal)
-                        }.AsFlexItem(size: new() { x = "auto" })
+                        }
                     }
-                }.AsFlexGroup(gap: 2f)
-            }.WithHoverScale(0.02f, 0.024f).WithAlpha(_alpha).AsFlexGroup(
-                justifyContent: Justify.Center,
-                padding: 2f,
-                constrainHorizontal: false
-            ).AsFlexItem(size: new() { y = 14f }).Bind(ref _button).Use();
+                }
+            }.WithHoverScale(0.02f, 0.024f).WithAlpha(_alpha).Bind(ref _button).Use();
         }
 
         protected override void OnInitialize() {
@@ -71,14 +89,16 @@ namespace BeatLeader.UI.Hub {
 
         #region Animation
 
-        public void Present() {
-            Enabled = true;
-            _alpha.SetValueImmediate(0f);
-            _alpha.TargetValue = 1f;
-        }
+        public bool IsPresent {
+            get => Enabled;
+            set {
+                Enabled = value;
 
-        public void Hide() {
-            Enabled = false;
+                if (value) {
+                    _alpha.SetValueImmediate(0f);
+                    _alpha.TargetValue = 1f;
+                }
+            }
         }
 
         #endregion

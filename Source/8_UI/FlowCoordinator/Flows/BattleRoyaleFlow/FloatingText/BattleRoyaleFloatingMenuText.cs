@@ -10,15 +10,12 @@ namespace BeatLeader.UI.Hub {
     internal class BattleRoyaleFloatingMenuText : ReactiveComponent {
         #region Animation
 
+        public bool IsPresent {
+            get => _alpha.TargetValue > 0f;
+            set => _alpha.TargetValue = value ? 1f : 0f;
+        }
+
         private AnimatedState<float> _alpha = null!;
-
-        public void Present() {
-            _alpha.TargetValue = 1f;
-        }
-
-        public void Hide() {
-            _alpha.TargetValue = 0f;
-        }
 
         #endregion
 

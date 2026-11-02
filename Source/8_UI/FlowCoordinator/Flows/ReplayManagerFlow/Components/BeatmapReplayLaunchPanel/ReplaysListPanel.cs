@@ -16,17 +16,26 @@ namespace BeatLeader.UI.Hub {
 
         protected override GameObject Construct() {
             return new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column
+                },
+
                 Children = {
-                    new ReplaysList()
-                        .AsFlexItem(flexGrow: 1f)
+                    new ReplaysList {
+                        FlexItem = {
+                            FlexGrow = 1f
+                        }
+                    }
                         // ReSharper disable once InconsistentlySynchronizedField
                         .Bind(ref _replaysList),
 
-                    new ReplaysListSettingsPanel()
-                        .AsFlexItem(basis: 4f)
-                        .Bind(ref _settingsPanel)
+                    new ReplaysListSettingsPanel {
+                        FlexItem = {
+                            FlexBasis = 4f
+                        }
+                    }.Bind(ref _settingsPanel)
                 }
-            }.AsFlexGroup(direction: FlexDirection.Column).Use();
+            }.Use();
         }
 
         protected override void OnInitialize() {

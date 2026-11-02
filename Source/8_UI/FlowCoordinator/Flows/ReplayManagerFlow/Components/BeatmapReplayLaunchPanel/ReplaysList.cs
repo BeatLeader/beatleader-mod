@@ -146,7 +146,9 @@ namespace BeatLeader.UI.Hub {
                     var panel = _spawnedTags[index];
                     panel.Interactable = false;
                     panel.AnimateMovement = false;
-                    panel.SetTag(tag);
+                    panel.Animated = false;
+                    panel.Tag = tag;
+                    panel.IsPresent = true;
 
                     panel.FixedHeight = 4f;
                     if (panel.LayoutDriver != _tagsContainer) {
@@ -197,15 +199,18 @@ namespace BeatLeader.UI.Hub {
                     ref Label variable
                 ) {
                     return new Label {
+                        FlexItem = {
+                            Size = new() { y = "100%", x = $"{size}%" },
+                            Position = frame,
+                            PositionType = PositionType.Absolute
+                        },
+
                         Overflow = overflow,
                         Alignment = alignment,
                         FontStyle = FontStyles.Italic,
                         FontSize = fontSize,
                         Color = color
-                    }.AsFlexItem(
-                        size: new() { y = "100%", x = $"{size}%" },
-                        position: frame
-                    ).Bind(ref variable);
+                    }.Bind(ref variable);
                 }
 
                 _graphicState = Remember(GraphicState.None);
@@ -217,8 +222,17 @@ namespace BeatLeader.UI.Hub {
                 );
 
                 return new Layout {
+                    FlexItem = {
+                        Size = new() { y = CellHeight }
+                    },
+
                     Children = {
                         new Background {
+                                FlexItem = {
+                                    FlexGrow = 1f,
+                                    Margin = new() { right = 1f }
+                                },
+
                                 Sprite = BundleLoader.Sprites.background,
                                 PixelsPerUnit = 10f,
                                 Material = GameResources.UINoGlowAdditiveMaterial,
@@ -229,28 +243,42 @@ namespace BeatLeader.UI.Hub {
                                 Children = {
                                     //top left
                                     new Layout {
+                                        FlexController = {
+                                            AlignItems = Align.Stretch
+                                        },
+
+                                        FlexItem = {
+                                            Size = new() { y = "100%", x = "70%" },
+                                            Position = new() { top = 0, left = 0.6f },
+                                            PositionType = PositionType.Absolute
+                                        },
+
                                         Children = {
                                             new Label {
+                                                FlexItem = {
+                                                    Size = new() { x = "auto" }
+                                                },
+
                                                 Overflow = TextOverflowModes.Ellipsis,
                                                 Alignment = TextAlignmentOptions.TopLeft,
                                                 FontStyle = FontStyles.Italic,
                                                 FontSize = 4f,
                                                 Color = textColor
-                                            }.AsFlexItem(size: new() { x = "auto" }).Bind(ref _topLeftLabel),
+                                            }.Bind(ref _topLeftLabel),
 
-                                            new Layout()
-                                                .AsFlexGroup(
-                                                    justifyContent: Justify.FlexStart,
-                                                    padding: new() { top = 0.7f, left = 0.7f },
-                                                    gap: new() { x = 0.5f }
-                                                )
-                                                .AsFlexItem(flexGrow: 1f)
-                                                .Bind(ref _tagsContainer)
+                                            new Layout {
+                                                FlexController = {
+                                                    JustifyContent = Justify.FlexStart,
+                                                    Padding = new() { top = 0.7f, left = 0.7f },
+                                                    Gap = new() { x = 0.5f }
+                                                },
+
+                                                FlexItem = {
+                                                    FlexGrow = 1f
+                                                }
+                                            }.Bind(ref _tagsContainer)
                                         }
-                                    }.AsFlexGroup(alignItems: Align.Stretch).AsFlexItem(
-                                        size: new() { y = "100%", x = "70%" },
-                                        position: new() { top = 0, left = 0.6f }
-                                    ),
+                                    },
 
                                     //bottom left
                                     CellLabel(
@@ -293,14 +321,8 @@ namespace BeatLeader.UI.Hub {
                                 }
                             )
                             .AsFlexGroup()
-                            .AsFlexItem(
-                                flexGrow: 1f,
-                                margin: new() { right = 1f }
-                            )
                     }
-                }.AsFlexGroup().WithSizeDelta(0f, CellHeight).AsFlexItem(
-                    size: new() { y = CellHeight }
-                ).Use();
+                }.AsFlexGroup().WithSizeDelta(0f, CellHeight).Use();
             }
 
             #endregion
@@ -529,6 +551,10 @@ namespace BeatLeader.UI.Hub {
             return new Layout {
                 Children = {
                     new Table<IReplayHeader, Cell> {
+                        FlexItem = {
+                            FlexGrow = 1f
+                        },
+
                         ScrollContext = _scrollContext,
                         Items = Array.Empty<IReplayHeader>(),
                         ConstructCell = ctx => {
@@ -537,9 +563,14 @@ namespace BeatLeader.UI.Hub {
                             return cell;
                         },
                         OnSelectedItemsChanged = x => OnSelectedItemsChanged?.Invoke(x)
-                    }.AsFlexItem(flexGrow: 1f).Bind(ref _table),
+                    }.Bind(ref _table),
 
                     new Label {
+                        FlexItem = {
+                            Position = 0f,
+                            PositionType = PositionType.Absolute
+                        },
+
                         Text = "The monkey left you on your own!",
                         FontSize = 3.2f,
                         FontSizeMin = 1f,
@@ -548,7 +579,7 @@ namespace BeatLeader.UI.Hub {
                         EnableWrapping = true,
                         RaycastTarget = false,
                         sEnabled = _filteredItems.Map(static x => x.Count == 0)
-                    }.AsFlexItem(position: 0f)
+                    }
                 }
             }.AsFlexGroup().Use();
         }

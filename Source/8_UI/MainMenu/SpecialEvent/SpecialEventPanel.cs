@@ -46,6 +46,17 @@ namespace BeatLeader.UI.MainMenu {
             _spinnerAlpha = RememberAnimated(0f, 200.ms, AnimationCurve.EaseInOut);
 
             return new Background {
+                    FlexController = {
+                        FlexDirection = FlexDirection.Column,
+                        JustifyContent = Justify.Center,
+                        Padding = 1.pt
+                    },
+
+                    FlexItem = {
+                        Flex = 1f,
+                        Size = new() { x = 52.pt }
+                    },
+
                     Children = {
                         new NewsHeader {
                                 sText = _event.Map(x => x.eventDescription.name).InLazy()
@@ -67,22 +78,21 @@ namespace BeatLeader.UI.MainMenu {
                             .On(_event, (x, y) => x.SetData(y), lazy: true),
 
                         new Spinner {
-                                Image = {
-                                    RaycastTarget = false
-                                }
+                            FlexItem = {
+                                Position = new() { left = 0.pt, right = 0.pt },
+                                PositionType = PositionType.Absolute,
+                                Size = new() { y = 15.pt },
+                                Margin = YogaFrame.Auto
+                            },
+
+                            Image = {
+                                RaycastTarget = false
                             }
-                            .WithAlpha(_spinnerAlpha)
-                            .AsFlexItem(
-                                position: new() { left = 0.pt, right = 0.pt },
-                                size: new() { y = 15.pt },
-                                margin: YogaFrame.Auto
-                            )
+                        }.WithAlpha(_spinnerAlpha)
                     }
                 }
                 .AsBackground(color: Color.black.ColorWithAlpha(0.5f))
                 .AsRectMask()
-                .AsFlexGroup(direction: FlexDirection.Column, justifyContent: Justify.Center, padding: 1.pt)
-                .AsFlexItem(flex: 1f, size: new() { x = 52.pt })
                 .Use();
         }
 

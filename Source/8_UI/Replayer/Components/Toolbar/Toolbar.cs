@@ -85,11 +85,18 @@ namespace BeatLeader.UI.Replayer {
             _settingsButtonState = Remember(GraphicState.None);
 
             return new Layout {
+                FlexController = {
+                    Gap = 1f
+                },
+
                 Children = {
                     new ExitButton {
+                            FlexItem = {
+                                FlexGrow = 1f
+                            },
+
                             OnClick = HandleExitButtonClicked
                         }
-                        .AsFlexItem(flexGrow: 1f)
                         .InBackground(
                             color: new(0.1f, 0.1f, 0.1f, 1f),
                             pixelsPerUnit: 7f
@@ -98,6 +105,15 @@ namespace BeatLeader.UI.Replayer {
                         .AsFlexItem(basis: 10f),
                     //toolbar
                     new Background {
+                        FlexController = {
+                            Padding = new() { top = 2f, bottom = 2f, left = 1f, right = 1.5f },
+                            Gap = 1f
+                        },
+
+                        FlexItem = {
+                            FlexGrow = 1f
+                        },
+
                         Children = {
                             //play button
                             CreateGlowingButton(
@@ -109,19 +125,23 @@ namespace BeatLeader.UI.Replayer {
                                 margin: new() { left = 1f, right = 1f }
                             ),
                             //timeline
-                            new Timeline().Bind(ref _timeline).AsFlexItem(
-                                flexGrow: 1f,
-                                alignSelf: Align.Center
-                            ),
+                            new Timeline {
+                                FlexItem = {
+                                    FlexGrow = 1f,
+                                    AlignSelf = Align.Center
+                                }
+                            }.Bind(ref _timeline),
                             //text
                             new Label {
+                                FlexItem = {
+                                    Size = "auto",
+                                    MinSize = new() { x = 12 },
+                                    AlignSelf = Align.Center
+                                },
+
                                 FontSize = 3.5f,
                                 Alignment = TextAlignmentOptions.Center
-                            }.Bind(ref _timeText).AsFlexItem(
-                                size: "auto",
-                                minSize: new() { x = 12 },
-                                alignSelf: Align.Center
-                            ),
+                            }.Bind(ref _timeText),
                             //settings button
                             CreateGlowingButton(
                                 BundleLoader.SettingsIcon,
@@ -135,12 +155,9 @@ namespace BeatLeader.UI.Replayer {
                     }.AsBackground(
                         color: new(0.1f, 0.1f, 0.1f, 1f),
                         pixelsPerUnit: 7f
-                    ).AsFlexGroup(
-                        padding: new() { top = 2f, bottom = 2f, left = 1f, right = 1.5f },
-                        gap: 1f
-                    ).AsFlexItem(flexGrow: 1f)
+                    )
                 }
-            }.AsFlexGroup(gap: 1f).Use();
+            }.Use();
         }
 
         #endregion
@@ -210,8 +227,7 @@ namespace BeatLeader.UI.Replayer {
         #region SettingsPanel
 
         public interface ISettingsPanel {
-            void Present();
-            void Dismiss();
+            bool IsPresent { get; set; }
         }
 
         #endregion
@@ -229,11 +245,7 @@ namespace BeatLeader.UI.Replayer {
         private void HandleSettingsButtonClicked() {
             var presented = !_settingsButtonState.IsActive;
             _settingsButtonState.IsActive = presented;
-            if (presented) {
-                _settingsPanel!.Present();
-            } else {
-                _settingsPanel!.Dismiss();
-            }
+            _settingsPanel!.IsPresent = presented;
         }
 
         private void HandleExitButtonClicked() {

@@ -52,60 +52,75 @@ namespace BeatLeader.UI.MainMenu {
             _requestState.AddCallback(x => transitionAlpha.TargetValue = x is Finished or Failed ? 1f : 0f, lazy: true);
 
             return new Layout {
+                FlexController = {
+                    JustifyContent = Justify.Center
+                },
+
                 Children = {
                     new Spinner {
-                            Image = {
-                                RaycastTarget = false,
-                                sColor = transitionAlpha.Map(x => Color.white.ColorWithAlpha(1f - x))
-                            }
+                        FlexItem = {
+                            Size = 8f,
+                            AlignSelf = Align.Center,
+                            PositionType = PositionType.Absolute
+                        },
+
+                        Image = {
+                            RaycastTarget = false,
+                            sColor = transitionAlpha.Map(x => Color.white.ColorWithAlpha(1f - x))
                         }
-                        .AsFlexItem(
-                            size: 8f,
-                            alignSelf: Align.Center,
-                            positionType: PositionType.Absolute
-                        ),
+                    },
 
                     new Layout {
+                            FlexController = {
+                                Gap = 1f,
+                                JustifyContent = Justify.Center
+                            },
+
+                            FlexItem = {
+                                FlexGrow = 1f
+                            },
+
                             Children = {
                                 new Label {
-                                        RichText = true,
-                                        sEnabled = showMessage,
-                                        sText = _requestState.Map(x => x is Failed ? "<color=#ff8888>Failed to load" : EmptyMessage)
-                                    }
-                                    .AsFlexItem(
-                                        alignSelf: Align.Center,
-                                        positionType: PositionType.Absolute
-                                    ),
+                                    FlexItem = {
+                                        AlignSelf = Align.Center,
+                                        PositionType = PositionType.Absolute
+                                    },
+
+                                    RichText = true,
+                                    sEnabled = showMessage,
+                                    sText = _requestState.Map(x => x is Failed ? "<color=#ff8888>Failed to load" : EmptyMessage)
+                                },
 
                                 new ScrollArea {
-                                        ScrollContext = scrollContext,
-                                        LineSize = 1f,
-                                        ScrollContent =
-                                            new Repeater<TItem, IReactiveComponent> {
-                                                    sItems = _list,
-                                                    ConstructCell = x => ConstructCell(x)
-                                                }
-                                                .AsFlexGroup(
-                                                    direction: FlexDirection.Column,
-                                                    constrainVertical: false
-                                                )
-                                                .Bind(ref _repeater),
-                                    }
-                                    .AsFlexItem(flexGrow: 1),
+                                    FlexItem = {
+                                        FlexGrow = 1
+                                    },
+
+                                    ScrollContext = scrollContext,
+                                    LineSize = 1f,
+                                    ScrollContent =
+                                        new Repeater<TItem, IReactiveComponent> {
+                                            FlexController = {
+                                                FlexDirection = FlexDirection.Column,
+                                                ConstrainVertical = false
+                                            },
+
+                                            sItems = _list,
+                                            ConstructCell = x => ConstructCell(x)
+                                        }.Bind(ref _repeater),
+                                },
 
                                 new Scrollbar {
-                                        ScrollContext = scrollContext,
-                                        HideIfNothingToScroll = true
-                                    }
-                                    .AsFlexItem()
+                                    ScrollContext = scrollContext,
+                                    HideIfNothingToScroll = true
+                                }
                             }
                         }
                         .WithNativeComponent(out CanvasGroup group)
                         .On(transitionAlpha, (_, y) => group.alpha = y)
-                        .AsFlexItem(flexGrow: 1f)
-                        .AsFlexGroup(gap: 1f, justifyContent: Justify.Center)
                 }
-            }.AsFlexGroup(justifyContent: Justify.Center).Use();
+            }.Use();
         }
 
         #endregion

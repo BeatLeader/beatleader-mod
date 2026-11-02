@@ -22,6 +22,18 @@ namespace BeatLeader.UI.MainMenu {
 
         protected override GameObject Construct() {
             return new Background {
+                    FlexController = {
+                        FlexDirection = FlexDirection.Row,
+                        JustifyContent = Justify.Center,
+                        AlignItems = Align.Center,
+                        Padding = new() { left = 1, right = 1 }
+                    },
+
+                    FlexItem = {
+                        Size = new() { y = 5 },
+                        Margin = new() { bottom = 0.5f }
+                    },
+
                     Sprite = BundleLoader.Sprites.background,
                     PixelsPerUnit = 10f,
                     Children = {
@@ -29,20 +41,11 @@ namespace BeatLeader.UI.MainMenu {
                             FontSize = 3.5f,
                             FontStyle = FontStyles.Italic,
                             Alignment = TextAlignmentOptions.Capline
-                        }.AsFlexItem().Bind(ref _textLabel)
+                        }.Bind(ref _textLabel)
                     }
-                }.AsFlexGroup(
-                    direction: FlexDirection.Row,
-                    justifyContent: Justify.Center,
-                    alignItems: Align.Center,
-                    padding: new() { left = 1, right = 1 }
-                )
+                }
                 .Bind(ref _bg)
-                .AsBackground(color: Color.black.ColorWithAlpha(0.5f))
-                .AsFlexItem(
-                    size: new() { y = 5 },
-                    margin: new() { bottom = 0.5f }
-                ).Use();
+                .AsBackground(color: Color.black.ColorWithAlpha(0.5f)).Use();
         }
     }
 }

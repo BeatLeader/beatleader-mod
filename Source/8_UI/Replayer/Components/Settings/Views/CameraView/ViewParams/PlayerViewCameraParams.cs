@@ -49,6 +49,12 @@ namespace BeatLeader.UI.Replayer {
 
         protected override GameObject Construct() {
             return new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    JustifyContent = Justify.FlexStart,
+                    Gap = 2f
+                },
+
                 Children = {
                     new BsSlider {
                         MinValue = 0.0f,
@@ -74,11 +80,7 @@ namespace BeatLeader.UI.Replayer {
                         OnToggleStateChanged = HandleKeepStraightChanged
                     }.Bind(ref _keepStraightToggle).InNamedRail("Keep Straight (Lock X)"),
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Column,
-                justifyContent: Justify.FlexStart,
-                gap: 2f
-            ).Use();
+            }.Use();
         }
 
         #endregion

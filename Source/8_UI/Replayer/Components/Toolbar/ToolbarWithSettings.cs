@@ -11,13 +11,15 @@ namespace BeatLeader.UI.Replayer {
 
         private AnimatedState<float> _animatedValue = null!;
 
-        public void Present() {
-            _settingsPanel.Enabled = true;
-            _animatedValue.TargetValue = 1f;
-        }
+        public bool IsPresent {
+            get => _animatedValue.TargetValue > 0f;
+            set {
+                if (value) {
+                    _settingsPanel.Enabled = true;
+                }
 
-        public void Dismiss() {
-            _animatedValue.TargetValue = 0f;
+                _animatedValue.TargetValue = value ? 1f : 0f;
+            }
         }
 
         private void RefreshAnimation(float progress) {
@@ -80,28 +82,39 @@ namespace BeatLeader.UI.Replayer {
             _animatedValue.OnFinish += x => _settingsPanel.Enabled = x != 0f;
 
             return new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    Gap = 1f
+                },
+
                 Children = {
                     //settings container
                     new Layout {
-                            ContentTransform = {
-                                pivot = new(0.5f, 0f)
-                            },
-                            Children = {
-                                //settings
-                                new ReplayerSettingsPanel {
-                                    Enabled = false,
-                                    ContentTransform = {
-                                        pivot = new(0.5f, 0f)
-                                    }
-                                }.WithRectExpand().Bind(ref _settingsPanel)
-                            }
+                        FlexItem = {
+                            FlexGrow = 1f
+                        },
+
+                        ContentTransform = {
+                            pivot = new(0.5f, 0f)
+                        },
+                        Children = {
+                            //settings
+                            new ReplayerSettingsPanel {
+                                Enabled = false,
+                                ContentTransform = {
+                                    pivot = new(0.5f, 0f)
+                                }
+                            }.WithRectExpand().Bind(ref _settingsPanel)
                         }
-                        .WithNativeComponent(out RectMask2D _)
-                        .AsFlexItem(flexGrow: 1f),
+                    }.WithNativeComponent(out RectMask2D _),
                     //toolbar
-                    new Toolbar().AsFlexItem(size: new() { y = 10f }).Bind(ref _toolbar)
+                    new Toolbar {
+                        FlexItem = {
+                            Size = new() { y = 10f }
+                        }
+                    }.Bind(ref _toolbar)
                 }
-            }.AsFlexGroup(direction: FlexDirection.Column, gap: 1f).Use();
+            }.Use();
         }
 
         #endregion

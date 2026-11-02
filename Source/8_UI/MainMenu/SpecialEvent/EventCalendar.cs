@@ -104,11 +104,12 @@ namespace BeatLeader.UI.MainMenu {
         }
 
         protected override GameObject Construct() {
-            return new Layout()
-                .AsFlexGroup(gap: 1.pt, wrap: Wrap.Wrap)
-                .AsFlexItem()
-                .Bind(ref _content)
-                .Use();
+            return new Layout {
+                FlexController = {
+                    Gap = 1.pt,
+                    FlexWrap = Wrap.Wrap
+                }
+            }.Bind(ref _content).Use();
         }
 
         #endregion

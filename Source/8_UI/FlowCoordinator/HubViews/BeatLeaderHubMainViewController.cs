@@ -32,6 +32,16 @@ namespace BeatLeader.UI.Hub {
             Action? beforePresent = null
         ) {
             return new BsAeroButton {
+                FlexController = {
+                    Padding = new() { left = 2f, right = 2f, top = iconMargin }
+                },
+
+                FlexItem = {
+                    Size = 30f,
+                    Position = position,
+                    PositionType = PositionType.Absolute
+                },
+
                 Skew = 0f,
                 sColors = colorSet.State.Map(UIStyle.AeroButtonColors),
                 OnClick = () => {
@@ -43,54 +53,80 @@ namespace BeatLeader.UI.Hub {
                     );
                 },
                 ConstructContent = (color, _) => new Layout {
+                    FlexController = {
+                        FlexDirection = FlexDirection.Column,
+                        Gap = gap
+                    },
+
+                    FlexItem = {
+                        FlexGrow = 1f
+                    },
+
                     Children = {
                         // Icon
                         new Image {
+                            FlexItem = {
+                                Flex = 1f
+                            },
+
                             Sprite = icon,
                             PreserveAspect = true,
                             sColor = color.In()
-                        }.AsFlexItem(flex: 1f),
+                        },
 
                         // Label
                         new Label {
                             Text = text,
                             FontSize = 4.5f,
                             sColor = color.In()
-                        }.AsFlexItem()
+                        }
                     }
-                }.AsFlexGroup(
-                    direction: FlexDirection.Column,
-                    gap: gap
-                ).AsFlexItem(flexGrow: 1f)
-            }.WithHoverScale(1f, 1.2f).AsFlexGroup(
-                padding: new() { left = 2f, right = 2f, top = iconMargin }
-            ).AsFlexItem(size: 30f, position: position);
+                }
+            }.WithHoverScale(1f, 1.2f);
         }
 
         private void Awake() {
             var menuButtonsTheme = _beatLeaderHubTheme.MenuButtonsTheme;
 
             new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    AlignItems = Align.Center,
+                    JustifyContent = Justify.SpaceAround
+                },
+
                 Children = {
                     new QuickMiniProfile {
-                            JustifyContent = Justify.Center
-                        }
-                        .AsFlexItem(size: new() { y = 24f, x = 50f })
-                        .Bind(ref _quickMiniProfile),
+                        FlexItem = {
+                            Size = new() { y = 24f, x = 50f }
+                        },
+
+                        JustifyContent = Justify.Center
+                    }.Bind(ref _quickMiniProfile),
 
                     // Welcome label
                     new Label {
+                            FlexItem = {
+                                Size = "auto"
+                            },
+
                             Text = "Welcome to the Beat Leader Hub!",
                             FontSize = 6f
                         }
-                        .AsFlexItem(size: "auto")
                         //background
                         .InBlurBackground()
-                        .AsFlexGroup(padding: new() { left = 2f, top = 1f, right = 2f, bottom = 1f })
-                        .AsFlexItem(),
+                        .AsFlexGroup(padding: new() { left = 2f, top = 1f, right = 2f, bottom = 1f }),
 
                     // Buttons (use absolute pos for correct overlap)
                     new Layout {
+                        FlexController = {
+                            JustifyContent = Justify.SpaceAround
+                        },
+
+                        FlexItem = {
+                            Size = new() { y = 30f, x = 96f }
+                        },
+
                         Children = {
                             CreateActionButton(
                                 text: "Battle Royale",
@@ -123,13 +159,9 @@ namespace BeatLeader.UI.Hub {
                                 _settingsFlowCoordinator
                             )
                         }
-                    }.AsFlexGroup(justifyContent: Justify.SpaceAround).AsFlexItem(size: new() { y = 30f, x = 96f })
+                    }
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Column,
-                alignItems: Align.Center,
-                justifyContent: Justify.SpaceAround
-            ).WithRectExpand().Use(transform);
+            }.WithRectExpand().Use(transform);
 
             OnInitialize();
         }

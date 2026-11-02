@@ -10,6 +10,11 @@ namespace BeatLeader.UI.Hub {
 
         private void Awake() {
             new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    JustifyContent = Justify.SpaceAround
+                },
+
                 Children = {
                     //header
                     new BattleRoyaleViewHeader {
@@ -20,12 +25,9 @@ namespace BeatLeader.UI.Hub {
                         Text = "Unfortunately Monke didn't know what to put in this section. " +
                             "If you think that you do, you can tell us about it on our Discord!",
                         EnableWrapping = true
-                    }.AsFlexItem()
+                    }
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Column,
-                justifyContent: Justify.SpaceAround
-            ).Use(transform);
+            }.Use(transform);
         }
 
         #endregion

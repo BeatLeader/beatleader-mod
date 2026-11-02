@@ -54,46 +54,68 @@ namespace BeatLeader.UI.Hub {
             _scale = RememberAnimated(Vector3.zero, 10.fact);
 
             return new Background {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    Padding = new() { top = 1f, bottom = 0.3f, left = 2f, right = 2f },
+                    AlignItems = Align.Center,
+                    Gap = 0.5f,
+                    ConstrainHorizontal = false,
+                    ConstrainVertical = false
+                },
+
+                FlexItem = {
+                    Size = "auto"
+                },
+
                 ContentTransform = {
                     slocalScale = _scale
                 },
 
                 Children = {
                     new Layout {
+                        FlexController = {
+                            Gap = 1f
+                        },
+
+                        FlexItem = {
+                            Size = new() { y = 4f }
+                        },
+
                         Children = {
                             new Label {
+                                FlexItem = {
+                                    Size = "auto"
+                                },
+
                                 FontSize = 3f
-                            }.AsFlexItem(size: "auto").Bind(ref _rankLabel),
+                            }.Bind(ref _rankLabel),
                             //
-                            new ReeWrapperV2<PlayerAvatar>()
-                                .AsFlexItem(aspectRatio: 1f)
-                                .BindRee(ref _playerAvatar),
+                            new ReeWrapperV2<PlayerAvatar> {
+                                FlexItem = {
+                                    AspectRatio = 1f
+                                }
+                            }.BindRee(ref _playerAvatar),
                             //
                             new Label {
+                                FlexItem = {
+                                    Size = "auto"
+                                },
+
                                 FontSize = 3f
-                            }.AsFlexItem(size: "auto").Bind(ref _nameLabel)
+                            }.Bind(ref _nameLabel)
                         }
-                    }.AsFlexGroup(gap: 1f).AsFlexItem(size: new() { y = 4f }),
+                    },
                     //date
                     new Label {
+                        FlexItem = {
+                            Size = "auto"
+                        },
+
                         Color = UIStyle.SecondaryTextColor,
                         FontSize = 2.8f
-                    }.AsFlexItem(size: "auto").Bind(ref _dateLabel)
+                    }.Bind(ref _dateLabel)
                 }
-            }.With(
-                x => {
-                    x.AsBlurBackground();
-                    x.AsFlexGroup(
-                        direction: FlexDirection.Column,
-                        padding: new() { top = 1f, bottom = 0.3f, left = 2f, right = 2f },
-                        alignItems: Align.Center,
-                        gap: 0.5f,
-                        constrainHorizontal: false,
-                        constrainVertical: false
-                    );
-                    x.AsFlexItem(size: "auto");
-                }
-            ).Use();
+            }.AsBlurBackground().Use();
         }
 
         protected override void OnInitialize() {

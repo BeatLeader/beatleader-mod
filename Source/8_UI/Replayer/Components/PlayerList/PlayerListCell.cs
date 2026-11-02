@@ -23,6 +23,10 @@ namespace BeatLeader.UI.Replayer {
 
         protected override GameObject Construct() {
             return new Background {
+                    FlexItem = {
+                        Size = new() { y = CELL_SIZE }
+                    },
+
                     ContentTransform = {
                         pivot = new(1f, 0f)
                     },
@@ -30,47 +34,66 @@ namespace BeatLeader.UI.Replayer {
                     PixelsPerUnit = 5f,
                     Children = {
                         new QuickMiniProfile {
-                                UseAlternativeBlur = true
-                            }
-                            .Bind(ref _miniProfile)
-                            .AsFlexItem(flexGrow: 1f, minSize: new() { x = 38f }),
+                            FlexItem = {
+                                FlexGrow = 1f,
+                                MinSize = new() { x = 38f }
+                            },
+
+                            UseAlternativeBlur = true
+                        }.Bind(ref _miniProfile),
                         //overview
                         new Layout {
+                            FlexController = {
+                                FlexDirection = FlexDirection.Column,
+                                AlignItems = Align.Center,
+                                Padding = 1f,
+                                Gap = 1f
+                            },
+
+                            FlexItem = {
+                                MinSize = new() { x = 22f },
+                                Margin = new() { right = 2f }
+                            },
+
                             Children = {
                                 //score background
                                 new Background {
+                                    FlexController = {
+                                        FlexDirection = FlexDirection.Column,
+                                        AlignItems = Align.Center,
+                                        Padding = new() {
+                                            left = 2f,
+                                            top = 1f,
+                                            right = 2f,
+                                            bottom = 1f
+                                        }
+                                    },
+
+                                    FlexItem = {
+                                        FlexGrow = 1f
+                                    },
+
                                     Sprite = BundleLoader.Sprites.background,
                                     Children = {
                                         //score label
                                         new Label {
+                                            FlexItem = {
+                                                Size = "auto"
+                                            },
+
                                             Text = "0",
                                             FontSize = 4f
-                                        }.Bind(ref _scoreText).AsFlexItem(size: "auto")
+                                        }.Bind(ref _scoreText)
                                     }
-                                }.AsFlexGroup(
-                                    direction: FlexDirection.Column,
-                                    alignItems: Align.Center,
-                                    padding: new() {
-                                        left = 2f,
-                                        top = 1f,
-                                        right = 2f,
-                                        bottom = 1f
-                                    }
-                                ).Bind(ref _scoreBackground).AsFlexItem(flexGrow: 1f),
+                                }.Bind(ref _scoreBackground),
                                 //replay overview
-                                new QuickReplayOverview()
-                                    .Bind(ref _replayOverview)
-                                    .AsFlexItem(size: new() { y = 5f, x = 12f })
+                                new QuickReplayOverview {
+                                    FlexItem = {
+                                        Size = new() { y = 5f, x = 12f }
+                                    }
+                                }.Bind(ref _replayOverview)
                             }
-                        }.AsFlexGroup(
-                            direction: FlexDirection.Column,
-                            alignItems: Align.Center,
-                            padding: 1f,
-                            gap: 1f
-                        ).AsFlexItem(
-                            minSize: new() { x = 22f },
-                            margin: new() { right = 2f }
-                        )
+                        }
                     }
                 }.AsFlexGroup()
                 .WithPointerEvents(
@@ -80,7 +103,6 @@ namespace BeatLeader.UI.Replayer {
                     }
                 )
                 .Bind(ref _backgroundImage)
-                .AsFlexItem(size: new() { y = CELL_SIZE })
                 .Use();
         }
 

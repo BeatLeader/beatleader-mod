@@ -52,6 +52,11 @@ namespace BeatLeader.UI.Hub {
 
         protected override GameObject Construct() {
             return new Layout {
+                FlexController = {
+                    Padding = new() { top = 1f, bottom = 1f },
+                    JustifyContent = Justify.Center
+                },
+
                 Children = {
                     new TagSelectorModal {
                             OnPushed = HandleTagSelectorOpened,
@@ -61,24 +66,23 @@ namespace BeatLeader.UI.Hub {
                         .Bind(ref _tagSelectorModal),
                     //text area
                     new BsInputField {
-                            Context = _textAreaContext,
-                            Placeholder = "Choose Tags",
-                            Icon = GameResources.Sprites.EditIcon
-                        }
-                        .AsFlexItem(flexGrow: 1f)
-                        .Bind(ref _textArea)
+                        FlexItem = {
+                            FlexGrow = 1f
+                        },
+
+                        Context = _textAreaContext,
+                        Placeholder = "Choose Tags",
+                        Icon = GameResources.Sprites.EditIcon
+                    }.Bind(ref _textArea)
                 }
-            }.AsFlexGroup(
-                padding: new() { top = 1f, bottom = 1f },
-                justifyContent: Justify.Center
-            ).Use();
+            }.Use();
         }
 
         protected override void OnInitialize() {
-            this.AsFlexItem(size: new() { x = 52f, y = 10f });
+            this.FlexItem.Size = new() { x = 52f, y = 10f };
 
             _tagSelectorModal.PlacementAnchor = _textArea.ContentTransform;
-            _tagSelectorModal.Component.AsFlexItem(size: new() { x = 50.pt, y = 40.pt });
+            _tagSelectorModal.Component.FlexItem.Size = new() { x = 50.pt, y = 40.pt };
             this.On(_textAreaContext, static (x, y) => x.HandleTextAreaContextUpdated(y), lazy: true);
         }
 

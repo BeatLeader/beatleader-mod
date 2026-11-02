@@ -70,39 +70,66 @@ namespace BeatLeader.UI.Hub {
                 _stage = Remember(DeletionStage.Warning1);
 
                 return new Background {
+                    FlexController = {
+                        FlexDirection = FlexDirection.Column,
+                        Padding = 1f
+                    },
+
+                    FlexItem = {
+                        Size = new() { x = 58f, y = 24f }
+                    },
+
                     Children = {
                         new Label {
-                                EnableWrapping = true,
-                                sText = _stage.Map(GetMessage)
-                            }
-                            .AsFlexItem(flexGrow: 1f, size: new() { y = "auto" }),
+                            FlexItem = {
+                                FlexGrow = 1f,
+                                Size = new() { y = "auto" }
+                            },
+
+                            EnableWrapping = true,
+                            sText = _stage.Map(GetMessage)
+                        },
 
                         new Layout {
+                            FlexController = {
+                                Padding = 1f,
+                                Gap = 1f
+                            },
+
+                            FlexItem = {
+                                Size = new() { y = 8f }
+                            },
+
                             Children = {
                                 //ok button
                                 new BsPrimaryTextButton {
-                                        Text = "OK",
-                                        OnClick = HandleOkButtonClicked,
-                                        Skew = 0f,
-                                        sColors = _stage.Map(x => x is DeletionStage.Warning2 ? redPrimaryButtonColors : BeatSaberStyle.BsPrimaryButtonColors)
-                                    }
-                                    .AsFlexItem(flexGrow: 1f, size: new() { y = YogaValue.Auto }),
+                                    FlexItem = {
+                                        FlexGrow = 1f,
+                                        Size = new() { y = YogaValue.Auto }
+                                    },
+
+                                    Text = "OK",
+                                    OnClick = HandleOkButtonClicked,
+                                    Skew = 0f,
+                                    sColors = _stage.Map(x => x is DeletionStage.Warning2 ? redPrimaryButtonColors : BeatSaberStyle.BsPrimaryButtonColors)
+                                },
 
                                 //cancel button
                                 new BsTextButton {
-                                        Text = "Cancel",
-                                        OnClick = () => IsPushed = false,
-                                        Skew = 0f,
-                                        sEnabled = _stage.Map(x => x is not DeletionStage.Finish)
-                                    }
-                                    .AsFlexItem(flexGrow: 1f, size: new() { y = YogaValue.Auto })
+                                    FlexItem = {
+                                        FlexGrow = 1f,
+                                        Size = new() { y = YogaValue.Auto }
+                                    },
+
+                                    Text = "Cancel",
+                                    OnClick = () => IsPushed = false,
+                                    Skew = 0f,
+                                    sEnabled = _stage.Map(x => x is not DeletionStage.Finish)
+                                }
                             }
-                        }.AsFlexGroup(padding: 1f, gap: 1f).AsFlexItem(size: new() { y = 8f })
+                        }
                     }
-                }.AsBlurBackground().AsFlexGroup(
-                    direction: FlexDirection.Column,
-                    padding: 1f
-                ).AsFlexItem(size: new() { x = 58f, y = 24f });
+                }.AsBlurBackground();
             }
 
             protected override void OnInitialize() {
@@ -172,6 +199,13 @@ namespace BeatLeader.UI.Hub {
 
         protected override GameObject Construct() {
             return new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    JustifyContent = Justify.FlexStart,
+                    AlignItems = Align.Stretch,
+                    Gap = 1f
+                },
+
                 Children = {
                     //fail toggle
                     new BsToggle {
@@ -206,25 +240,21 @@ namespace BeatLeader.UI.Hub {
 
                     //delete all button
                     new BsPrimaryTextButton {
-                            Text = "Delete All Replays",
-                            Colors = redPrimaryButtonColors,
-                            OnClick = () => _deletionModal.IsPushed = true
-                        }
-                        .AsFlexItem(
-                            size: new() { x = 30f, y = 7f },
-                            alignSelf: Align.Center
-                        ),
+                        FlexItem = {
+                            Size = new() { x = 30f, y = 7f },
+                            AlignSelf = Align.Center
+                        },
+
+                        Text = "Delete All Replays",
+                        Colors = redPrimaryButtonColors,
+                        OnClick = () => _deletionModal.IsPushed = true
+                    },
 
                     new DeletionModal()
                         .WithPlacement(RelativePlacement.Center)
                         .Bind(ref _deletionModal)
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Column,
-                justifyContent: Justify.FlexStart,
-                alignItems: Align.Stretch,
-                gap: 1f
-            ).Use();
+            }.Use();
         }
 
         protected override void OnInitialize() {

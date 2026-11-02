@@ -113,40 +113,79 @@ namespace BeatLeader.Components {
             }
 
             return new Layout {
+                FlexController = {
+                    Padding = new() { bottom = 1f }
+                },
+
+                FlexItem = {
+                    Size = new() { y = 9.5f.pt }
+                },
+
                 Children = {
                     new Background {
+                        FlexController = {
+                            Padding = 1f,
+                            JustifyContent = Justify.FlexStart
+                        },
+
+                        FlexItem = {
+                            FlexGrow = 1f
+                        },
+
                         Sprite = BundleLoader.Sprites.background,
                         PixelsPerUnit = 8f,
                         sColor = context.Map(static x => x.Selected ? selectedColor : baseColor),
                         Children = {
                             //
                             new Layout {
+                                FlexItem = {
+                                    FlexGrow = 1f
+                                },
+
                                 Children = {
                                     new Label {
+                                        FlexItem = {
+                                            FlexGrow = 1f
+                                        },
+
                                         FontSize = 3.5f,
                                         Alignment = TextAlignmentOptions.MidlineLeft,
                                         sText = context.Map(static x => x.Item.ComponentName),
                                         sColor = textColor
-                                    }.AsFlexItem(flexGrow: 1f),
+                                    },
 
                                     new Label {
+                                        FlexItem = {
+                                            MinSize = new(2, YogaValue.Undefined),
+                                            Margin = new() { right = 1f }
+                                        },
+
                                         FontSize = 2.6f,
                                         Alignment = TextAlignmentOptions.TopRight,
                                         sText = layoutData.Map(static x => x.layer.ToString()),
                                         sColor = textColor
-                                    }.AsFlexItem(
-                                        minSize: new(2, YogaValue.Undefined),
-                                        margin: new() { right = 1f }
-                                    )
+                                    }
                                 }
-                            }.AsFlexGroup().AsFlexItem(flexGrow: 1f),
+                            }.AsFlexGroup(),
                             //
                             new Background {
+                                FlexController = {
+                                    Padding = 1f
+                                },
+
+                                FlexItem = {
+                                    AspectRatio = 1f
+                                },
+
                                 Sprite = BundleLoader.Sprites.background,
                                 PixelsPerUnit = 8f,
                                 Color = new(0.03f, 0.03f, 0.03f),
                                 Children = {
                                     new Image {
+                                        FlexItem = {
+                                            FlexGrow = 1f
+                                        },
+
                                         Sprite = BundleLoader.EyeIcon,
                                         PreserveAspect = true,
                                         sColor = visibilityState.MapColorSet(visibilityButtonColors)
@@ -160,23 +199,16 @@ namespace BeatLeader.Components {
                                     ).On(
                                         layoutData,
                                         (_, x) => visibilityState.IsActive = x.visible
-                                    ).AsFlexItem(flexGrow: 1f)
+                                    )
                                 }
-                            }.AsFlexGroup(padding: 1f).AsFlexItem(aspectRatio: 1f)
+                            }
                             //
                         }
-                    }.AsFlexGroup(
-                        padding: 1f,
-                        justifyContent: Justify.FlexStart
-                    ).AsFlexItem(flexGrow: 1f).WithPointerEvents(
+                    }.WithPointerEvents(
                         onDown: _ => context.Selected = true
                     )
                 }
-            }.AsFlexGroup(
-                padding: new() { bottom = 1f }
-            ).AsFlexItem(
-                size: new() { y = 9.5f.pt }
-            );
+            };
         }
 
         #endregion

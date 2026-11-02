@@ -68,12 +68,11 @@ namespace BeatLeader.UI.Hub {
         private CanvasGroup _canvasGroup = null!;
 
         protected override GameObject Construct() {
-            return new Background()
-                .AsFlexGroup(justifyContent: Justify.Center)
-                .AsBlurBackground()
-                .Bind(ref _backgroundImage)
-                .WithNativeComponent(out _canvasGroup)
-                .Use();
+            return new Background {
+                FlexController = {
+                    JustifyContent = Justify.Center
+                }
+            }.AsBlurBackground().Bind(ref _backgroundImage).WithNativeComponent(out _canvasGroup).Use();
         }
 
         protected override void OnInitialize() {

@@ -123,7 +123,9 @@ namespace BeatLeader.UI.Hub {
             }
 
             panel.Interactable = false;
-            panel.SetTag(tag, animated);
+            panel.Animated = animated;
+            panel.Tag = tag;
+            panel.IsPresent = true;
 
             _tagsContainer.Children.Add(panel);
         }
@@ -134,7 +136,8 @@ namespace BeatLeader.UI.Hub {
             }
 
             panel.DisappearAnimationFinishedEvent += HandleTagDisappearAnimationFinished;
-            panel.SetTagPresented(false, !animated);
+            panel.Animated = animated;
+            panel.IsPresent = false;
         }
 
         private void RefreshTagsLabel() {
@@ -160,6 +163,10 @@ namespace BeatLeader.UI.Hub {
             var editButtonState = Remember(GraphicState.None);
 
             return new Layout {
+                FlexController = {
+                    Gap = 0.5f
+                },
+
                 Children = {
                     new TagSelectorModal {
                             OnPushed = HandleTagSelectorOpened,
@@ -169,42 +176,60 @@ namespace BeatLeader.UI.Hub {
                         .Bind(ref _tagSelectorModal),
 
                     new Background {
+                            FlexController = {
+                                JustifyContent = Justify.SpaceAround
+                            },
+
+                            FlexItem = {
+                                FlexGrow = 1f
+                            },
+
                             Sprite = BundleLoader.Sprites.backgroundLeft,
                             Children = {
                                 //tags container
-                                new Layout()
-                                    .AsFlexGroup(
-                                        gap: 1f,
-                                        alignItems: Align.Center,
-                                        justifyContent: Justify.SpaceAround,
-                                        padding: new() { left = 1f }
-                                    )
-                                    .AsFlexItem(flexGrow: 1f)
-                                    .Bind(ref _tagsContainer),
+                                new Layout {
+                                    FlexController = {
+                                        Gap = 1f,
+                                        AlignItems = Align.Center,
+                                        JustifyContent = Justify.SpaceAround,
+                                        Padding = new() { left = 1f }
+                                    },
+
+                                    FlexItem = {
+                                        FlexGrow = 1f
+                                    }
+                                }.Bind(ref _tagsContainer),
                                 //tags label
                                 new Label {
-                                        Color = UIStyle.SecondaryTextColor,
-                                        FontSize = 3.5f,
-                                        Alignment = TextAlignmentOptions.Capline
-                                    }
-                                    .AsFlexItem(margin: new() { left = 1f, right = 1f })
-                                    .Bind(ref _tagsLabel)
+                                    FlexItem = {
+                                        Margin = new() { left = 1f, right = 1f }
+                                    },
+
+                                    Color = UIStyle.SecondaryTextColor,
+                                    FontSize = 3.5f,
+                                    Alignment = TextAlignmentOptions.Capline
+                                }.Bind(ref _tagsLabel)
                             }
                         }
                         .AsBlurBackground()
-                        .AsFlexGroup(justifyContent: Justify.SpaceAround)
-                        .AsFlexItem(flexGrow: 1f)
                         .Bind(ref _contentContainer),
                     //
                     new Background {
+                            FlexController = {
+                                Padding = 1f
+                            },
+
                             Sprite = BundleLoader.Sprites.backgroundRight,
                             Children = {
                                 new Image {
-                                        Sprite = BundleLoader.Sprites.editIcon,
-                                        Material = BundleLoader.Materials.uiAdditiveGlowMaterial,
-                                        sColor = editButtonState.MapColorSet(UIStyle.GlowingButtonColorSet)
-                                    }
-                                    .WithPointerEvents(
+                                    FlexItem = {
+                                        Size = 3f
+                                    },
+
+                                    Sprite = BundleLoader.Sprites.editIcon,
+                                    Material = BundleLoader.Materials.uiAdditiveGlowMaterial,
+                                    sColor = editButtonState.MapColorSet(UIStyle.GlowingButtonColorSet)
+                                }.WithPointerEvents(
                                         onEnter: _ => editButtonState.IsHovered = true,
                                         onLeave: _ => editButtonState.IsHovered = false,
                                         onDown: _ => {
@@ -212,20 +237,17 @@ namespace BeatLeader.UI.Hub {
                                             _tagSelectorModal.IsPushed = true;
                                         }
                                     )
-                                    .AsFlexItem(size: 3f)
                             }
                         }
                         .AsBlurBackground()
-                        .AsFlexGroup(padding: 1f)
-                        .AsFlexItem()
                         .Bind(ref _editButtonContainer)
                 }
-            }.WithNativeComponent(out _containerGroup).AsFlexGroup(gap: 0.5f).Use();
+            }.WithNativeComponent(out _containerGroup).Use();
         }
 
         protected override void OnInitialize() {
             _tagSelectorModal.PlacementAnchor = ContentTransform;
-            _tagSelectorModal.Component.AsFlexItem(size: new() { x = 50.pt, y = 36.pt });
+            _tagSelectorModal.Component.FlexItem.Size = new() { x = 50.pt, y = 36.pt };
         }
 
         protected override void OnDestroy() {

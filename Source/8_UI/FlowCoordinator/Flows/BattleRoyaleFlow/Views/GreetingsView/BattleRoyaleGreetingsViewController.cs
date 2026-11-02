@@ -97,6 +97,11 @@ namespace BeatLeader.UI.Hub {
                 _graphicState = Remember(GraphicState.None);
 
                 return new Background {
+                        FlexController = {
+                            JustifyContent = Justify.Center,
+                            AlignItems = Align.Stretch
+                        },
+
                         Sprite = BundleLoader.Sprites.background,
                         Material = GameResources.UINoGlowMaterial,
                         PixelsPerUnit = 10f,
@@ -104,9 +109,13 @@ namespace BeatLeader.UI.Hub {
                         sColor = _graphicState.MapColorSet(UIStyle.ControlColorSet),
                         Children = {
                             new Label {
+                                FlexItem = {
+                                    Size = "auto"
+                                },
+
                                 FontStyle = FontStyles.Italic,
                                 Color = UIStyle.SecondaryTextColor
-                            }.AsFlexItem(size: "auto").Bind(ref _emptyLabel),
+                            }.Bind(ref _emptyLabel),
                         }
                     }
                     .WithPointerEvents(
@@ -120,7 +129,6 @@ namespace BeatLeader.UI.Hub {
                             OnClick?.Invoke();
                         }
                     )
-                    .AsFlexGroup(justifyContent: Justify.Center, alignItems: Align.Stretch)
                     .Bind(ref _backgroundButton)
                     .Use();
             }
@@ -138,50 +146,60 @@ namespace BeatLeader.UI.Hub {
 
         private void Construct() {
             new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    JustifyContent = Justify.Center,
+                    AlignItems = Align.Center,
+                    Gap = 2f
+                },
+
                 Children = {
                     new ClickablePanel {
-                            EmptyText = "NO LEVEL SELECTED",
-                            OnClick = PresentLevelSelectionFlow,
+                        FlexItem = {
+                            Size = new() { x = 88f, y = 16f }
+                        },
 
-                            Component = new BeatmapPreviewPanel {
-                                LayoutModifier = new YogaModifier {
-                                    Size = YogaVector.Auto,
-                                    FlexGrow = 1f
-                                },
+                        EmptyText = "NO LEVEL SELECTED",
+                        OnClick = PresentLevelSelectionFlow,
 
-                                ShowDifficultyInsteadOfTime = true,
-                                Skew = UIStyle.Skew
-                            }.Bind(ref _beatmapPreviewPanel)
-                        }
-                        .AsFlexItem(size: new() { x = 88f, y = 16f })
-                        .Bind(ref _beatmapPanel),
+                        Component = new BeatmapPreviewPanel {
+                            LayoutModifier = new YogaModifier {
+                                Size = YogaVector.Auto,
+                                FlexGrow = 1f
+                            },
+
+                            ShowDifficultyInsteadOfTime = true,
+                            Skew = UIStyle.Skew
+                        }.Bind(ref _beatmapPreviewPanel)
+                    }.Bind(ref _beatmapPanel),
 
                     new ClickablePanel {
-                            EmptyText = "NO REPLAYS",
-                            Interactable = false,
-                            OnClick = PresentReplaySelectionView,
-                            Component = new ReplaysPreviewPanel()
-                                .AsFlexItem(flexGrow: 1f)
-                                .Bind(ref _replaysPreviewPanel)
-                        }
-                        .AsFlexItem(size: new() { x = 80f, y = 10f })
-                        .Bind(ref _replaysPanel),
+                        FlexItem = {
+                            Size = new() { x = 80f, y = 10f }
+                        },
+
+                        EmptyText = "NO REPLAYS",
+                        Interactable = false,
+                        OnClick = PresentReplaySelectionView,
+                        Component = new ReplaysPreviewPanel {
+                            FlexItem = {
+                                FlexGrow = 1f
+                            }
+                        }.Bind(ref _replaysPreviewPanel)
+                    }.Bind(ref _replaysPanel),
 
                     new BsPrimaryTextButton {
-                            Text = "BATTLE",
-                            Skew = UIStyle.Skew,
-                            Interactable = false,
-                            OnClick = () => _battleRoyaleHost.LaunchBattle()
-                        }
-                        .AsFlexItem(size: new() { x = 30f, y = 8f })
-                        .Bind(ref _battleButton)
+                        FlexItem = {
+                            Size = new() { x = 30f, y = 8f }
+                        },
+
+                        Text = "BATTLE",
+                        Skew = UIStyle.Skew,
+                        Interactable = false,
+                        OnClick = () => _battleRoyaleHost.LaunchBattle()
+                    }.Bind(ref _battleButton)
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Column,
-                justifyContent: Justify.Center,
-                alignItems: Align.Center,
-                gap: 2f
-            ).Use(transform);
+            }.Use(transform);
         }
 
         private void RefreshReplaysPanel() {

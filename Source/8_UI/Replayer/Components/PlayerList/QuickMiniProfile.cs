@@ -14,21 +14,21 @@ namespace BeatLeader.UI {
         #region Layout
 
         public Justify JustifyContent {
-            get => _layoutController.JustifyContent;
+            get => _root.FlexController.JustifyContent;
             set {
                 switch (value) {
                     case Justify.FlexStart:
-                        _railsLayoutModifier.FlexGrow = 1;
-                        _railsLayoutModifier.Size = new() { x = YogaValue.Undefined };
+                        _rails.FlexItem.FlexGrow = 1;
+                        _rails.FlexItem.Size = new() { x = YogaValue.Undefined };
                         break;
                     case Justify.Center:
-                        _railsLayoutModifier.FlexGrow = 0;
-                        _railsLayoutModifier.Size = new() { x = "auto" };
+                        _rails.FlexItem.FlexGrow = 0;
+                        _rails.FlexItem.Size = new() { x = "auto" };
                         break;
                     default:
                         throw new Exception("Only FlexStart and Center are supported");
                 }
-                _layoutController.JustifyContent = value;
+                _root.FlexController.JustifyContent = value;
             }
         }
 
@@ -78,8 +78,8 @@ namespace BeatLeader.UI {
         private Label _playerNameLabel = null!;
         private Label _playerGlobalRankLabel = null!;
         private Label _playerPpLabel = null!;
-        private YogaLayoutController _layoutController = null!;
-        private YogaModifier _railsLayoutModifier = null!;
+        private Layout _root = null!;
+        private Layout _rails = null!;
         private Image _nameFitterBackground = null!;
         private Image _rankFitterBackground = null!;
         private Image _ppFitterBackground = null!;
@@ -89,16 +89,17 @@ namespace BeatLeader.UI {
                 out Image background,
                 params ILayoutItem[] children
             ) {
-                var layout = new Background()
-                    .Export(out background)
-                    .AsBlurBackground(pixelsPerUnit: 12f)
-                    .AsFlexGroup(
-                        padding: new() { left = 1f, right = 1f },
-                        gap: new() { x = 1f }
-                    ).AsFlexItem(
-                        size: "auto",
-                        maxSize: "100%"
-                    );
+                var layout = new Background {
+                    FlexController = {
+                        Padding = new() { left = 1f, right = 1f },
+                        Gap = new() { x = 1f }
+                    },
+
+                    FlexItem = {
+                        Size = "auto",
+                        MaxSize = "100%"
+                    }
+                }.Export(out background).AsBlurBackground(pixelsPerUnit: 12f);
                 layout.Children.AddRange(children);
                 return layout;
             }
@@ -106,37 +107,59 @@ namespace BeatLeader.UI {
             static ReactiveComponent CreateRail(
                 params ILayoutItem[] children
             ) {
-                var layout = new Layout()
-                    .AsFlexGroup(
-                        justifyContent: Justify.FlexStart,
-                        gap: new() { x = 0.5f }
-                    );
+                var layout = new Layout {
+                    FlexController = {
+                        JustifyContent = Justify.FlexStart,
+                        Gap = new() { x = 0.5f }
+                    }
+                };
                 layout.Children.AddRange(children);
                 return layout;
             }
 
             return new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Row,
+                    Gap = new() { x = 2f },
+                    Padding = 1f
+                },
+
                 Children = {
                     //avatar
-                    new ReeWrapperV2<PlayerAvatar>()
-                        .AsFlexItem(aspectRatio: 1f)
-                        .BindRee(ref _playerAvatar),
+                    new ReeWrapperV2<PlayerAvatar> {
+                        FlexItem = {
+                            AspectRatio = 1f
+                        }
+                    }.BindRee(ref _playerAvatar),
                     //infos
                     new Layout {
+                        FlexController = {
+                            FlexDirection = FlexDirection.Column,
+                            JustifyContent = Justify.Center,
+                            AlignItems = Align.FlexStart,
+                            Gap = new() { y = 1f }
+                        },
+
                         Children = {
                             //player & country
                             CreateRail(
                                 CreateFitter(
                                     out _nameFitterBackground,
                                     //flag
-                                    new ReeWrapperV2<CountryFlag>()
-                                        .AsFlexItem(minSize: new() { x = 4f })
-                                        .BindRee(ref _playerCountryFlag),
+                                    new ReeWrapperV2<CountryFlag> {
+                                        FlexItem = {
+                                            MinSize = new() { x = 4f }
+                                        }
+                                    }.BindRee(ref _playerCountryFlag),
                                     //name text
                                     new Label {
+                                        FlexItem = {
+                                            Size = "auto"
+                                        },
+
                                         Overflow = TextOverflowModes.Ellipsis,
                                         FontSize = 3
-                                    }.AsFlexItem(size: "auto").Bind(ref _playerNameLabel)
+                                    }.Bind(ref _playerNameLabel)
                                 )
                             ).AsFlexItem(size: new() { y = "auto" }),
                             //rank & pp
@@ -146,32 +169,30 @@ namespace BeatLeader.UI {
                                     out _rankFitterBackground,
                                     //rank text
                                     new Label {
+                                        FlexItem = {
+                                            Size = "auto"
+                                        },
+
                                         FontSize = 3
-                                    }.AsFlexItem(size: "auto").Bind(ref _playerGlobalRankLabel)
+                                    }.Bind(ref _playerGlobalRankLabel)
                                 ),
                                 //pp container
                                 CreateFitter(
                                     out _ppFitterBackground,
                                     //pp text
                                     new Label {
+                                        FlexItem = {
+                                            Size = "auto"
+                                        },
+
                                         FontSize = 3
-                                    }.AsFlexItem(size: "auto").Bind(ref _playerPpLabel)
+                                    }.Bind(ref _playerPpLabel)
                                 )
                             ).AsFlexItem(size: new() { y = "auto" })
                         }
-                    }.AsFlexGroup(
-                        direction: FlexDirection.Column,
-                        justifyContent: Justify.Center,
-                        alignItems: Align.FlexStart,
-                        gap: new() { y = 1f }
-                    ).AsFlexItem(modifier: out _railsLayoutModifier)
+                    }.Bind(ref _rails)
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Row,
-                gap: new() { x = 2f },
-                padding: 1f,
-                layoutController: out _layoutController
-            ).Use();
+            }.Bind(ref _root).Use();
         }
 
         protected override void OnInitialize() {

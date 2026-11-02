@@ -118,38 +118,56 @@ namespace BeatLeader.Components {
                 Children = {
                     //handle
                     new Background {
+                        FlexController = {
+                            JustifyContent = Justify.FlexStart
+                        },
+
+                        FlexItem = {
+                            FlexBasis = 4f
+                        },
+
                         Sprite = BundleLoader.Sprites.backgroundTop,
                         PixelsPerUnit = 7f,
                         sColor = _windowHandleState.MapColorSet(windowHandleColors),
                         Children = {
                             new Label {
+                                FlexItem = {
+                                    Size = new() { x = "auto" },
+                                    Margin = new() { left = 2f }
+                                },
+
                                 Text = "Layout Editor",
                                 FontSize = 3f,
                                 Color = Color.black
-                            }.AsFlexItem(
-                                size: new() { x = "auto" },
-                                margin: new() { left = 2f }
-                            )
+                            }
                         }
                     }.WithPointerEvents(
                         onEnter: _ => _windowHandleState.IsHovered = true,
                         onLeave: _ => _windowHandleState.IsHovered = false,
                         onDown: HandleWindowHandlePointerDown,
                         onUp: _ => _windowHandleState.IsActive = false
-                    ).AsFlexGroup(
-                        justifyContent: Justify.FlexStart
-                    ).AsFlexItem(basis: 4f),
+                    ),
 
                     //list
                     new Layout {
+                        FlexController = {
+                            Padding = 1f
+                        },
+
+                        FlexItem = {
+                            FlexGrow = 1f
+                        },
+
                         Children = {
                             new LayoutEditorComponentsList {
-                                    OnComponentSelected = HandleListComponentSelected
-                                }
-                                .Bind(ref _layoutEditorComponentsList)
-                                .AsFlexItem(flexGrow: 1f),
+                                FlexItem = {
+                                    FlexGrow = 1f
+                                },
+
+                                OnComponentSelected = HandleListComponentSelected
+                            }.Bind(ref _layoutEditorComponentsList),
                         }
-                    }.AsFlexGroup(padding: 1f).AsFlexItem(flexGrow: 1f),
+                    },
 
                     //buttons
                     new Background {
@@ -169,56 +187,80 @@ namespace BeatLeader.Components {
                         Children = {
                             //layer buttons
                             new Layout {
+                                FlexController = {
+                                    FlexDirection = FlexDirection.Column,
+                                    Gap = 0.5f
+                                },
+
+                                FlexItem = {
+                                    FlexGrow = 1f
+                                },
+
                                 Children = {
                                     //layer up button
                                     new BsTextButton {
-                                            Text = "Up",
-                                            Skew = 0f,
-                                            OnClick = () => ModifySelectedComponentLayer(1)
-                                        }
-                                        .AsFlexItem(basis: 6f)
-                                        .Bind(ref _layerUpButton),
+                                        FlexItem = {
+                                            FlexBasis = 6f
+                                        },
+
+                                        Text = "Up",
+                                        Skew = 0f,
+                                        OnClick = () => ModifySelectedComponentLayer(1)
+                                    }.Bind(ref _layerUpButton),
 
                                     //layer down button
                                     new BsTextButton {
-                                            Text = "Down",
-                                            Skew = 0f,
-                                            OnClick = () => ModifySelectedComponentLayer(-1)
-                                        }
-                                        .AsFlexItem(basis: 6f)
-                                        .Bind(ref _layerDownButton),
+                                        FlexItem = {
+                                            FlexBasis = 6f
+                                        },
+
+                                        Text = "Down",
+                                        Skew = 0f,
+                                        OnClick = () => ModifySelectedComponentLayer(-1)
+                                    }.Bind(ref _layerDownButton),
                                 }
-                            }.AsFlexGroup(
-                                direction: FlexDirection.Column,
-                                gap: 0.5f
-                            ).AsFlexItem(flexGrow: 1f),
+                            },
                             //exit & apply buttons
                             new Layout {
+                                FlexController = {
+                                    FlexDirection = FlexDirection.Column,
+                                    Padding = new() { left = 2f },
+                                    Gap = 0.5f
+                                },
+
+                                FlexItem = {
+                                    FlexGrow = 2f
+                                },
+
                                 Children = {
                                     //cancel button
                                     new BsTextButton {
+                                        FlexItem = {
+                                            FlexBasis = 6f
+                                        },
+
                                         Text = "Cancel",
                                         Skew = 0f,
                                         OnClick = () => {
                                             _editor!.CancelChanges();
                                             _editor!.Mode = _editor.PreviousMode;
                                         }
-                                    }.AsFlexItem(basis: 6f),
+                                    },
 
                                     //apply button
                                     new BsPrimaryTextButton {
+                                        FlexItem = {
+                                            FlexBasis = 6f
+                                        },
+
                                         Text = "Apply",
                                         Skew = 0f,
                                         OnClick = () => {
                                             _editor!.Mode = _editor.PreviousMode;
                                         }
-                                    }.AsFlexItem(basis: 6f)
+                                    }
                                 }
-                            }.AsFlexGroup(
-                                direction: FlexDirection.Column,
-                                padding: new() { left = 2f },
-                                gap: 0.5f
-                            ).AsFlexItem(flexGrow: 2f)
+                            }
                         }
                     }
                 }

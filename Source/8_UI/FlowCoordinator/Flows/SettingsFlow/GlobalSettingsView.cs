@@ -71,6 +71,12 @@ namespace BeatLeader.UI.Hub {
 
         protected override GameObject Construct() {
             return new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    JustifyContent = Justify.FlexStart,
+                    Gap = 1f
+                },
+
                 Children = {
                     new BsToggle {
                             Toggled = BeatLeaderMenuButtonManager.MenuButtonEnabled,
@@ -107,20 +113,17 @@ namespace BeatLeader.UI.Hub {
                         .InNamedRail("Server"),
                     //
                     new BsToggle {
-                            Toggled = ConfigFileData.Instance.ExperienceBarEnabled,
-                            OnToggleStateChanged = HandleEnableExperienceBar
-                        }
-                        .InNamedRail("Experience Bar"),
+                        Toggled = ConfigFileData.Instance.ExperienceBarEnabled,
+                        OnToggleStateChanged = HandleEnableExperienceBar
+                    }.InNamedRail("Experience Bar"),
                     //
-                    new ReloadNotice()
-                        .AsFlexItem(margin: new() { top = 4f })
-                        .Bind(ref _reloadNotice)
+                    new ReloadNotice {
+                        FlexItem = {
+                            Margin = new() { top = 4f }
+                        }
+                    }.Bind(ref _reloadNotice)
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Column,
-                justifyContent: Justify.FlexStart,
-                gap: 1f
-            ).Use();
+            }.Use();
         }
 
         protected override void OnInitialize() {

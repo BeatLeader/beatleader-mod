@@ -29,6 +29,17 @@ namespace BeatLeader.UI.MainMenu {
             };
 
             return new Background {
+                    FlexController = {
+                        FlexDirection = FlexDirection.Row,
+                        Gap = 1f,
+                        Padding = new() { left = 1.5f, top = 1f, right = 2f, bottom = 1f },
+                        AlignItems = Align.Center
+                    },
+
+                    FlexItem = {
+                        Margin = new() { left = 1f, right = 1f }
+                    },
+
                     Sprite = BeatSaberResources.Sprites.background,
                     PixelsPerUnit = 10,
                     Skew = UIStyle.Skew,
@@ -36,12 +47,14 @@ namespace BeatLeader.UI.MainMenu {
 
                     Children = {
                         new WebImage {
-                                Sprite = BundleLoader.UnknownIcon,
-                                Material = BundleLoader.RoundTextureMaterial,
-                                Skew = UIStyle.Skew
-                            }
-                            .AsFlexItem(size: new() { x = 8, y = 8 })
-                            .On(
+                            FlexItem = {
+                                Size = new() { x = 8, y = 8 }
+                            },
+
+                            Sprite = BundleLoader.UnknownIcon,
+                            Material = BundleLoader.RoundTextureMaterial,
+                            Skew = UIStyle.Skew
+                        }.On(
                                 _context,
                                 (img, ctx) => {
                                     var coverImage = ctx.Item.song.coverImage;
@@ -57,34 +70,48 @@ namespace BeatLeader.UI.MainMenu {
                             ),
 
                         new Layout {
-                                Children = {
-                                    new Label {
-                                            FontSize = 3f,
-                                            FontStyle = FontStyles.Italic,
-                                            Overflow = TextOverflowModes.Ellipsis,
-                                            Alignment = TextAlignmentOptions.CaplineLeft,
-                                            sText = _context.Map(x => x.Item.song.name)
-                                        }
-                                        .AsFlexItem(),
+                            FlexController = {
+                                FlexDirection = FlexDirection.Column
+                            },
 
-                                    new Label {
-                                            FontSize = 2.5f,
-                                            FontStyle = FontStyles.Italic,
-                                            Overflow = TextOverflowModes.Ellipsis,
-                                            Alignment = TextAlignmentOptions.TopLeft,
-                                            Color = new Color(0.53f, 0.53f, 0.53f),
-                                            sText = _context.Map(x => x.Item.song.mapper)
-                                        }
-                                        .AsFlexItem(margin: new() { left = -0.6f })
+                            FlexItem = {
+                                Margin = new() { left = 1 },
+                                FlexGrow = 1,
+                                FlexShrink = 1
+                            },
+
+                            Children = {
+                                new Label {
+                                    FontSize = 3f,
+                                    FontStyle = FontStyles.Italic,
+                                    Overflow = TextOverflowModes.Ellipsis,
+                                    Alignment = TextAlignmentOptions.CaplineLeft,
+                                    sText = _context.Map(x => x.Item.song.name)
+                                },
+
+                                new Label {
+                                    FlexItem = {
+                                        Margin = new() { left = -0.6f }
+                                    },
+
+                                    FontSize = 2.5f,
+                                    FontStyle = FontStyles.Italic,
+                                    Overflow = TextOverflowModes.Ellipsis,
+                                    Alignment = TextAlignmentOptions.TopLeft,
+                                    Color = new Color(0.53f, 0.53f, 0.53f),
+                                    sText = _context.Map(x => x.Item.song.mapper)
                                 }
                             }
-                            .AsFlexGroup(direction: FlexDirection.Column)
-                            .AsFlexItem(margin: new() { left = 1 }, flexGrow: 1, flexShrink: 1),
+                        },
 
                         new BsTextButton {
+                            FlexItem = {
+                                Size = new() { x = 12, y = 8 }
+                            },
+
                             Text = "Play",
                             OnClick = () => ButtonAction?.Invoke(_context.Item)
-                        }.AsFlexItem(size: new() { x = 12, y = 8 })
+                        }
                     }
                 }
                 .WithPointerEvents(
@@ -95,13 +122,6 @@ namespace BeatLeader.UI.MainMenu {
                         BackgroundAction?.Invoke(_context.Item);
                     }
                 )
-                .AsFlexGroup(
-                    direction: FlexDirection.Row,
-                    gap: 1f,
-                    padding: new() { left = 1.5f, top = 1f, right = 2f, bottom = 1f },
-                    alignItems: Align.Center
-                )
-                .AsFlexItem(margin: new() { left = 1f, right = 1f })
                 .Use();
         }
     }

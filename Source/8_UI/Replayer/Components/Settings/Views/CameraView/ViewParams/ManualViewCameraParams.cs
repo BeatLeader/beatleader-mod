@@ -63,6 +63,12 @@ namespace BeatLeader.UI.Replayer {
             }
 
             return new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    JustifyContent = Justify.FlexStart,
+                    Gap = 2f
+                },
+
                 Children = {
                     //
                     CreateAxisSlider("X", 0, ref _xSlider),
@@ -81,18 +87,12 @@ namespace BeatLeader.UI.Replayer {
                     }.Bind(ref _rotationSlider).InNamedRail("Rotation"),
                     //
                     new BsTextButton {
-                            Text = "Reset",
-                            Skew = 0f,
-                            OnClick = HandlePositionReset
-                        }
-                        .AsFlexItem()
-                        .InNamedRail("Reset Pose"),
+                        Text = "Reset",
+                        Skew = 0f,
+                        OnClick = HandlePositionReset
+                    }.InNamedRail("Reset Pose"),
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Column,
-                justifyContent: Justify.FlexStart,
-                gap: 2f
-            ).Use();
+            }.Use();
         }
 
         #endregion

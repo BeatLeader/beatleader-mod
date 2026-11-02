@@ -31,16 +31,13 @@ namespace BeatLeader.UI.Replayer {
 
         #region Hide & Present
 
-        public void Present() {
-            _panelScale.TargetValue = Vector3.one;
-            _canvasAlpha.TargetValue = 0.8f;
-            _screen!.BlockRaycasts = true;
-        }
-
-        public void Hide() {
-            _panelScale.TargetValue = Vector3.zero;
-            _canvasAlpha.TargetValue = 1f;
-            _screen!.BlockRaycasts = false;
+        public bool IsPresent {
+            get => _panelScale.TargetValue != Vector3.zero;
+            set {
+                _panelScale.TargetValue = value ? Vector3.one : Vector3.zero;
+                _canvasAlpha.TargetValue = value ? 0.8f : 1f;
+                _screen!.BlockRaycasts = value;
+            }
         }
 
         #endregion
@@ -68,12 +65,28 @@ namespace BeatLeader.UI.Replayer {
             );
 
             return new Layout {
+                    FlexController = {
+                        ConstrainHorizontal = false,
+                        ConstrainVertical = false
+                    },
+
                     ContentTransform = {
                         pivot = new(0.5f, 1f),
                         slocalScale = _panelScale.InLazy()
                     },
                     Children = {
                         new Background {
+                            FlexController = {
+                                FlexDirection = FlexDirection.Column,
+                                Padding = new() { top = 1f, bottom = 1f, right = 2f, left = 2f },
+                                Gap = 1f
+                            },
+
+                            FlexItem = {
+                                FlexGrow = 1f,
+                                Margin = new() { top = 1f }
+                            },
+
                             ContentTransform = {
                                 pivot = new(0.5f, 1f)
                             },
@@ -86,36 +99,28 @@ namespace BeatLeader.UI.Replayer {
                                     .InNamedRail("Enable Radius"),
                                 //radius slider
                                 new BsSlider {
+                                    FlexItem = {
+                                        Size = new() { x = 36f, y = 6f }
+                                    },
+
                                     MinValue = 40f,
                                     MaxValue = 120f,
                                     ValueStep = 10f,
                                     OnValueChanged = HandleRadiusChanged
-                                }.AsFlexItem(
-                                    size: new() { x = 36f, y = 6f }
-                                ).Bind(ref _radiusSlider).InNamedRail("Radius"),
+                                }.Bind(ref _radiusSlider).InNamedRail("Radius"),
                                 //ok button
                                 new BsPrimaryTextButton {
                                     Text = "OK",
                                     Skew = 0f,
                                     OnClick = () => CloseButtonClicked?.Invoke()
-                                }.AsFlexItem()
+                                }
                             }
                         }.AsBackground(
                             color: new(0.1f, 0.1f, 0.1f, 1f),
                             pixelsPerUnit: 7f
-                        ).AsFlexGroup(
-                            direction: FlexDirection.Column,
-                            padding: new() { top = 1f, bottom = 1f, right = 2f, left = 2f },
-                            gap: 1f
-                        ).AsFlexItem(
-                            flexGrow: 1f,
-                            margin: new() { top = 1f }
                         )
                     }
-                }.AsFlexGroup(
-                    constrainHorizontal: false,
-                    constrainVertical: false
-                )
+                }
                 .WithNativeComponent(out CanvasGroup group)
                 .WithNativeComponent(out FloatingScreen _)
                 .With(_ => group.ignoreParentGroups = true)

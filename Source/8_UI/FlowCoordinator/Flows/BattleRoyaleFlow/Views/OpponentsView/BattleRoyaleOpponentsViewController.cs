@@ -21,17 +21,24 @@ namespace BeatLeader.UI.Hub {
 
         private void Awake() {
             var layout = new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column
+                },
+
                 Children = {
                     //header
                     new BattleRoyaleViewHeader {
                         Text = "Battle Opponents"
                     },
                     //list
-                    new BattleRoyaleOpponentsList()
-                        .AsFlexItem(flexGrow: 1f, margin: new() { top = 10f })
-                        .Bind(ref _opponentsList)
+                    new BattleRoyaleOpponentsList {
+                        FlexItem = {
+                            FlexGrow = 1f,
+                            Margin = new() { top = 10f }
+                        }
+                    }.Bind(ref _opponentsList)
                 }
-            }.AsFlexGroup(direction: FlexDirection.Column);
+            };
 
             _alpha = StateUtils.RememberAnimatedFloat(layout, 0f, 20.fact);
             layout.WithAlpha(_alpha).Use(transform);

@@ -28,7 +28,7 @@ namespace BeatLeader.UI.Replayer {
             var settings = launchData.Settings;
 
             _quickSettingsPanel.Setup(timeController);
-            _quickSettingsPanel.SetShown(settings.UISettings.QuickSettingsEnabled, true);
+            _quickSettingsPanel.IsPresent = settings.UISettings.QuickSettingsEnabled;
 
             var cameraContr = launchData.DisableBuiltinCamera ? null : cameraController;
             _cameraView.Setup(cameraContr, settings.CameraSettings);
@@ -67,6 +67,10 @@ namespace BeatLeader.UI.Replayer {
                 Children = {
                     //view selector
                     new Layout {
+                            FlexController = {
+                                FlexDirection = FlexDirection.Column
+                            },
+
                             Children = {
                                 CreateViewButton("Camera", BundleLoader.CameraIcon),
                                 CreateViewButton("Avatar", BundleLoader.AvatarIcon),
@@ -74,7 +78,6 @@ namespace BeatLeader.UI.Replayer {
                                 CreateViewButton("Other", BundleLoader.OtherIcon)
                             }
                         }
-                        .AsFlexGroup(direction: FlexDirection.Column)
                         .WithRectExpand()
                         .InBackground(
                             sprite: BundleLoader.Sprites.backgroundLeft,
@@ -84,6 +87,15 @@ namespace BeatLeader.UI.Replayer {
                         .AsFlexItem(basis: 12f),
                     //view container
                     new Background {
+                        FlexController = {
+                            FlexDirection = FlexDirection.Column,
+                            JustifyContent = Justify.FlexStart
+                        },
+
+                        FlexItem = {
+                            Flex = 1f
+                        },
+
                         ContentTransform = {
                             anchorMin = new Vector2(0f, 0f),
                             anchorMax = new Vector2(1f, 0f)
@@ -91,38 +103,47 @@ namespace BeatLeader.UI.Replayer {
                         Children = {
                             //actual view
                             new KeyedContainer<string> {
+                                    FlexItem = {
+                                        FlexGrow = 1f,
+                                        Margin = 2f
+                                    },
+
                                     Views = new Dictionary<string, IReactiveComponent> {
                                         ["Camera"] = new SettingsCameraView {
+                                            FlexItem = {
+                                                Size = 100.pct
+                                            },
+
                                             CameraViewParams = {
                                                 new PlayerViewCameraParams().WithRectExpand(),
                                                 new FlyingViewCameraParams().WithRectExpand(),
                                                 new ManualViewCameraParams().WithRectExpand()
                                             }
-                                        }.AsFlexItem(size: 100.pct).Bind(ref _cameraView),
+                                        }.Bind(ref _cameraView),
 
-                                        ["UI"] = new SettingsUIView()
-                                            .AsFlexItem(size: 100.pct)
-                                            .Bind(ref _uiView),
+                                        ["UI"] = new SettingsUIView {
+                                            FlexItem = {
+                                                Size = 100.pct
+                                            }
+                                        }.Bind(ref _uiView),
 
-                                        ["Other"] = new SettingsOtherView()
-                                            .AsFlexItem(size: 100.pct)
-                                            .Bind(ref _otherView)
+                                        ["Other"] = new SettingsOtherView {
+                                            FlexItem = {
+                                                Size = 100.pct
+                                            }
+                                        }.Bind(ref _otherView)
                                     },
                                     sKey = _selectedView
                                 }
-                                .AsFlexItem(flexGrow: 1f, margin: 2f)
                                 .AsFlexGroup()
                                 .Bind(ref _selectorContainer),
 
                             //pop-up with quick settings
                             new QuickSettingsPanel().Bind(ref _quickSettingsPanel)
                         }
-                    }.AsFlexItem(flex: 1f).AsBackground(
+                    }.AsBackground(
                         sprite: BundleLoader.Sprites.backgroundRight,
                         pixelsPerUnit: 7f
-                    ).AsFlexGroup(
-                        direction: FlexDirection.Column,
-                        justifyContent: Justify.FlexStart
                     ).Bind(ref _backgroundImage)
                 }
             }.WithRectExpand().AsFlexGroup().Use();
@@ -142,15 +163,28 @@ namespace BeatLeader.UI.Replayer {
             var color = state.MapColorSet(UIStyle.GlowingButtonColorSet);
 
             return new Background {
+                    FlexController = {
+                        FlexDirection = FlexDirection.Column,
+                        JustifyContent = Justify.Center,
+                        Padding = 1f
+                    },
+
+                    FlexItem = {
+                        Flex = 1f
+                    },
+
                     Color = Color.clear,
                     Children = {
                         new Image {
+                                FlexItem = {
+                                    Flex = 1f
+                                },
+
                                 Sprite = icon,
                                 Material = BundleLoader.UIAdditiveGlowMaterial,
                                 PreserveAspect = true,
                                 sColor = color
                             }
-                            .AsFlexItem(flex: 1f)
                             .In<Layout>()
                             .AsFlexGroup(padding: 1f)
                             .AsFlexItem(
@@ -159,20 +193,17 @@ namespace BeatLeader.UI.Replayer {
                             ),
                         //
                         new Label {
-                                Text = key,
-                                Material = BundleLoader.UIAdditiveGlowMaterial,
-                                FontSize = 3.6f,
-                                sColor = color
-                            }
-                            .AsFlexItem(basis: 4f)
+                            FlexItem = {
+                                FlexBasis = 4f
+                            },
+
+                            Text = key,
+                            Material = BundleLoader.UIAdditiveGlowMaterial,
+                            FontSize = 3.6f,
+                            sColor = color
+                        }
                     }
                 }
-                .AsFlexGroup(
-                    direction: FlexDirection.Column,
-                    justifyContent: Justify.Center,
-                    padding: 1f
-                )
-                .AsFlexItem(flex: 1f)
                 .WithPointerEvents(
                     onEnter: _ => state.IsHovered = true,
                     onLeave: _ => state.IsHovered = false,

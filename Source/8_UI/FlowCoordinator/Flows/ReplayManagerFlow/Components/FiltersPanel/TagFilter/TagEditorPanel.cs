@@ -39,24 +39,33 @@ namespace BeatLeader.UI.Hub {
             _validity = _nameContext.Map(static x => x.Text != null && ReplayMetadataManager.ValidateTagName(x.Text).Ok);
 
             return new Layout {
+                FlexController = {
+                    Gap = 1f
+                },
+
+                FlexItem = {
+                    Size = new() { y = 8f }
+                },
+
                 Children = {
                     new BsInputField {
-                            Context = _nameContext,
-                            Placeholder = "Enter Name",
-                            Icon = GameResources.Sprites.EditIcon
-                        }
-                        .AsFlexItem(flexGrow: 1f, flexShrink: 1f)
-                        .Bind(ref _inputField),
+                        FlexItem = {
+                            FlexGrow = 1f,
+                            FlexShrink = 1f
+                        },
+
+                        Context = _nameContext,
+                        Placeholder = "Enter Name",
+                        Icon = GameResources.Sprites.EditIcon
+                    }.Bind(ref _inputField),
 
                     new BsKeyboardModal {
                         Context = _nameContext
                     }.Bind(ref _keyboardModal),
 
                     new BsColorPicker {
-                            Context = _colorContext
-                        }
-                        .AsFlexItem()
-                        .Bind(ref _colorPicker),
+                        Context = _colorContext
+                    }.Bind(ref _colorPicker),
 
                     new BsColorCircleModal {
                         Context = _colorContext,
@@ -68,7 +77,7 @@ namespace BeatLeader.UI.Hub {
                         }
                     }.Bind(ref _colorModal)
                 }
-            }.AsFlexGroup(gap: 1f).AsFlexItem(size: new() { y = 8f }).Use();
+            }.Use();
         }
 
         protected override void OnInitialize() {

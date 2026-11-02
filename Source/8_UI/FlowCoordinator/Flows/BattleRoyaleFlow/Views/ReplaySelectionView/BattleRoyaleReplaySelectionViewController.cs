@@ -22,26 +22,32 @@ namespace BeatLeader.UI.Hub {
 
         private void Awake() {
             new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    JustifyContent = Justify.Center,
+                    Gap = 2f
+                },
+
                 Children = {
                     new ListFiltersPanel<IReplayHeader> {
+                        FlexItem = {
+                            Size = new() { x = 100f, y = 8f },
+                            AlignSelf = Align.Center
+                        },
+
                         SearchContract = x => [x.ReplayInfo.PlayerName, x.ReplayInfo.SongName],
                         Filters = {
                             new TagFilter()
                         }
-                    }.AsFlexItem(
-                        size: new() { x = 100f, y = 8f },
-                        alignSelf: Align.Center
-                    ).Export(out var filtersPanel),
+                    }.Export(out var filtersPanel),
                     //
-                    new BeatmapReplayLaunchPanel()
-                        .AsFlexItem(basis: 68f)
-                        .Bind(ref _replayLaunchPanel)
+                    new BeatmapReplayLaunchPanel {
+                        FlexItem = {
+                            FlexBasis = 68f
+                        }
+                    }.Bind(ref _replayLaunchPanel)
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Column,
-                justifyContent: Justify.Center,
-                gap: 2f
-            ).WithRectExpand().Use(transform);
+            }.WithRectExpand().Use(transform);
 
             var detailPanel = new BattleRoyaleDetailPanel();
             _replayLaunchPanel.Setup(null);

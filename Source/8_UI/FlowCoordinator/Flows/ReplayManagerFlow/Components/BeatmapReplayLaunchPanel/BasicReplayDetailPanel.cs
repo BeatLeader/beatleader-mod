@@ -26,28 +26,34 @@ namespace BeatLeader.UI.Hub {
                 Children = {
                     //actual content
                     new Layout {
+                        FlexController = {
+                            FlexDirection = FlexDirection.Column,
+                            Gap = new() { y = 0.5f }
+                        },
+
                         Children = {
-                            new QuickMiniProfile()
-                                .AsFlexItem(size: new() { y = 16f })
-                                .Bind(ref _miniProfile),
+                            new QuickMiniProfile {
+                                FlexItem = {
+                                    Size = new() { y = 16f }
+                                }
+                            }.Bind(ref _miniProfile),
                             //
-                            new TagsStrip()
-                                .AsFlexItem(size: new() { y = 5f })
-                                .Bind(ref _tagsStrip),
+                            new TagsStrip {
+                                FlexItem = {
+                                    Size = new() { y = 5f }
+                                }
+                            }.Bind(ref _tagsStrip),
                             //
-                            new ReplayStatisticsPanel()
-                                .AsFlexItem(
-                                    size: new() { y = 37f },
-                                    margin: new() { bottom = 1f }
-                                )
-                                .Bind(ref _replayStatisticsPanel),
+                            new ReplayStatisticsPanel {
+                                FlexItem = {
+                                    Size = new() { y = 37f },
+                                    Margin = new() { bottom = 1f }
+                                }
+                            }.Bind(ref _replayStatisticsPanel),
                             //
                             ConstructButtons()
                         }
-                    }.AsFlexGroup(
-                        direction: FlexDirection.Column,
-                        gap: new() { y = 0.5f }
-                    ).WithAlpha(_detailsAlpha).WithRectExpand(),
+                    }.WithAlpha(_detailsAlpha).WithRectExpand(),
                     //empty label
                     new Label {
                         Text = "Select a replay to let Monke think on it",

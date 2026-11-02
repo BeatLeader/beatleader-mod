@@ -15,11 +15,13 @@ namespace BeatLeader.UI.Hub {
 
         protected override ILayoutItem ConstructButtons() {
             return new BsPrimaryTextButton {
-                    Text = BLLocalization.GetTranslation("ls-watch-replay-short"),
-                    OnClick = HandleSelectButtonClicked
-                }
-                .AsFlexItem(size: new() { y = 8f })
-                .Bind(ref _selectButton);
+                FlexItem = {
+                    Size = new() { y = 8f }
+                },
+
+                Text = BLLocalization.GetTranslation("ls-watch-replay-short"),
+                OnClick = HandleSelectButtonClicked
+            }.Bind(ref _selectButton);
         }
 
         #endregion

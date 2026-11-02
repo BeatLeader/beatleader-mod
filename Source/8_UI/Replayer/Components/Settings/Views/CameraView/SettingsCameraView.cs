@@ -51,13 +51,15 @@ namespace BeatLeader.UI.Replayer {
             _viewContainer.Views = viewParams;
 
             _viewSelectorRail.Component = new BsListControl<ICameraView> {
-                    Items = views.Select(static x => new BsListControlItem<ICameraView>(x, x.Name, null)).ToArray(),
-                    Key = cameraController.SelectedView,
-                    Skew = 0f,
-                    OnKeyChanged = HandleViewSelectorKeyChanged
-                }
-                .AsFlexItem(size: new() { x = 40f, y = 6f })
-                .Bind(ref _viewSelector);
+                FlexItem = {
+                    Size = new() { x = 40f, y = 6f }
+                },
+
+                Items = views.Select(static x => new BsListControlItem<ICameraView>(x, x.Name, null)).ToArray(),
+                Key = cameraController.SelectedView,
+                Skew = 0f,
+                OnKeyChanged = HandleViewSelectorKeyChanged
+            }.Bind(ref _viewSelector);
 
             ShowCameraParams(cameraController.SelectedView);
         }
@@ -116,17 +118,29 @@ namespace BeatLeader.UI.Replayer {
 
         protected override GameObject Construct() {
             return new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    Gap = 2f
+                },
+
                 Children = {
                     new Label {
+                        FlexItem = {
+                            AlignSelf = Align.Center
+                        },
+
                         Text = "Camera controls are not available while using an external camera",
                         Enabled = false
-                    }.Bind(ref _unavailableLabel).AsFlexItem(alignSelf: Align.Center),
+                    }.Bind(ref _unavailableLabel),
                     //
                     new BsSlider {
+                            FlexItem = {
+                                Size = new() { x = 40f, y = 6f }
+                            },
+
                             ValueStep = 5f,
                             OnValueChanged = HandleFOVSliderValueChanged
                         }
-                        .AsFlexItem(size: new() { x = 40f, y = 6f })
                         .Bind(ref _fovSlider)
                         .InNamedRail("Camera FOV"),
                     //
@@ -135,6 +149,10 @@ namespace BeatLeader.UI.Replayer {
                     }.Bind(ref _viewSelectorRail),
                     //
                     new KeyedContainer<ICameraView> {
+                            FlexItem = {
+                                FlexGrow = 1f
+                            },
+
                             DummyView = new Label {
                                 Text = "Monke has nothing to show here",
                                 RaycastTarget = false
@@ -142,16 +160,12 @@ namespace BeatLeader.UI.Replayer {
                             Views = new Dictionary<ICameraView, IReactiveComponent>(),
                             Key = null
                         }
-                        .AsFlexItem(flexGrow: 1f)
                         .Bind(ref _viewContainer)
                         .InBackground(color: (Color.white * 0.1f).ColorWithAlpha(1f))
                         .AsFlexGroup(padding: 2f)
                         .AsFlexItem(flexGrow: 1f)
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Column,
-                gap: 2f
-            ).Bind(ref _container).Use();
+            }.Bind(ref _container).Use();
         }
 
         #endregion

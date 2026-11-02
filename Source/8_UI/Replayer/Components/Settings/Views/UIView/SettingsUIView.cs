@@ -87,7 +87,6 @@ namespace BeatLeader.UI.Replayer {
                 var toggle = _markerTogglesPool.Spawn();
 
                 toggle.Setup(timeline, marker);
-                toggle.AsFlexItem();
 
                 _timelineTogglesContainer.Children.Add(toggle);
             }
@@ -124,21 +123,32 @@ namespace BeatLeader.UI.Replayer {
         }
 
         private static Background CreateContainer(params ILayoutItem[] children) {
-            return new Background()
-                .With(x => x.Children.AddRange(children))
-                .AsBackground(
-                    color: new(0.1f, 0.1f, 0.1f, 1f),
-                    pixelsPerUnit: 7f
-                ).AsFlexGroup(
-                    direction: FlexDirection.Column,
-                    padding: 2f,
-                    justifyContent: Justify.FlexStart,
-                    gap: 1f
-                ).AsFlexItem();
+            return new Background {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    Padding = 2f,
+                    JustifyContent = Justify.FlexStart,
+                    Gap = 1f
+                }
+            }.With(x => x.Children.AddRange(children)).AsBackground(
+                color: new(0.1f, 0.1f, 0.1f, 1f),
+                pixelsPerUnit: 7f
+            );
         }
 
         private Layout CreateContent() {
             return new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    JustifyContent = Justify.FlexStart,
+                    Gap = 2f,
+                    ConstrainVertical = false
+                },
+
+                FlexItem = {
+                    Size = new() { x = 100.pct }
+                },
+
                 Children = {
                     CreateContainer(
                         // Layout editor
@@ -170,7 +180,7 @@ namespace BeatLeader.UI.Replayer {
                         new BsToggle {
                             OnToggleStateChanged = x => {
                                 if (_loadingSettings) return;
-                                _quickSettingsPanel!.SetShown(x, false);
+                                _quickSettingsPanel!.IsPresent = x;
                                 _settings!.QuickSettingsEnabled = x;
                             }
                         }.Bind(ref _quickSettingsToggle).InNamedRail("Show quick settings")
@@ -179,34 +189,35 @@ namespace BeatLeader.UI.Replayer {
                     // Timeline toggles
                     CreateContainer().Bind(ref _timelineTogglesContainer),
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Column,
-                justifyContent: Justify.FlexStart,
-                gap: 2f,
-                constrainVertical: false
-            ).AsFlexItem(
-                size: new() { x = 100.pct }
-            );
+            };
         }
 
         protected override GameObject Construct() {
             var scrollContext = new ScrollContext();
 
             return new Layout {
+                FlexController = {
+                    Gap = 1f
+                },
+
                 Children = {
                     new ScrollArea {
+                        FlexItem = {
+                            FlexGrow = 1f
+                        },
+
                         ScrollContext = scrollContext,
                         ScrollContent = CreateContent(),
                         LineSize = 1f
-                    }.AsFlexItem(flexGrow: 1f),
+                    },
 
                     new Scrollbar {
                         ScrollContext = scrollContext,
                         HideIfNothingToScroll = true,
                         WithinLayoutIfDisabled = false
-                    }.AsFlexItem()
+                    }
                 }
-            }.AsFlexGroup(gap: 1f).AsFlexItem().Use();
+            }.Use();
         }
 
         protected override void OnInitialize() {

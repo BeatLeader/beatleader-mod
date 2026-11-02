@@ -43,29 +43,38 @@ namespace BeatLeader.UI.MainMenu {
 
         protected override GameObject Construct() {
             return new Background {
+                    FlexController = {
+                        Padding = 0.5f,
+                        FlexDirection = FlexDirection.Column
+                    },
+
+                    FlexItem = {
+                        Size = new() { x = 70 },
+                        FlexGrow = 1f
+                    },
+
                     Children = {
                         new NewsHeader {
                             Text = "Trending Maps"
-                        }.AsFlexItem(),
+                        },
 
                         new NewsPanel<TrendingMapData> {
+                            FlexItem = {
+                                FlexGrow = 1f
+                            },
+
                             EmptyMessage = "No trending maps",
                             ConstructCell = ctx => new MapPreviewPanel(ctx) {
                                 ButtonAction = item => MapDownloadDialog.OpenSongOrDownloadDialog(item.song, ContentTransform),
                                 BackgroundAction = item => MapPreviewDialog.OpenSongOrDownloadDialog(item, ContentTransform)
                             }
-                        }.AsFlexItem(flexGrow: 1f).Bind(ref _newsPanel)
+                        }.Bind(ref _newsPanel)
                     }
                 }
-                .AsFlexGroup(
-                    padding: 0.5f,
-                    direction: FlexDirection.Column
-                )
                 .AsBackground(
                     color: Color.black.ColorWithAlpha(0.33f),
                     pixelsPerUnit: 7f
                 )
-                .AsFlexItem(size: new() { x = 70 }, flexGrow: 1f)
                 .Use();
         }
 

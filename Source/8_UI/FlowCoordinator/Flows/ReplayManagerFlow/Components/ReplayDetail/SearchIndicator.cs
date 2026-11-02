@@ -13,7 +13,7 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override void OnInitialize() {
-            this.AsFlexItem(size: 6f);
+            this.FlexItem.Size = 6f;
         }
 
         #endregion

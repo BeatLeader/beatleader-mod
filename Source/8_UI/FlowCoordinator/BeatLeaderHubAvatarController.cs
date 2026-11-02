@@ -117,12 +117,12 @@ namespace BeatLeader.UI.Hub {
             var screenPos = _screenTransform.position;
             transform.position = new Vector3(screenPos.x - 2f, 0f, screenPos.z - 1f);
             transform.eulerAngles = new(0f, 135f, 0f);
-            _editAvatarButton.Present();
+            _editAvatarButton.IsPresent = true;
         }
 
         private void Dismiss() {
             _avatarController.Hide();
-            _editAvatarButton.Hide();
+            _editAvatarButton.IsPresent = false;
         }
 
         #endregion

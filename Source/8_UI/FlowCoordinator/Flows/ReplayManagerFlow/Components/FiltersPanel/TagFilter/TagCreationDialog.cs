@@ -14,13 +14,13 @@ namespace BeatLeader.UI.Hub {
             Title = "Create Tag";
 
             Children.Add(
-                new TagEditorPanel()
-                    .AsFlexItem(
-                        flexGrow: 1f,
-                        size: new() { x = 42.pt, y = 8.pt },
-                        margin: new() { top = 2f, left = 2f, right = 2f, bottom = 1f }
-                    )
-                    .Bind(ref _tagEditorPanel)
+                new TagEditorPanel {
+                    FlexItem = {
+                        FlexGrow = 1f,
+                        Size = new() { x = 42.pt, y = 8.pt },
+                        Margin = new() { top = 2f, left = 2f, right = 2f, bottom = 1f }
+                    }
+                }.Bind(ref _tagEditorPanel)
             );
 
             _tagEditorPanel.Validity.AddCallback(this, static (x, y) => x.OkButton.Interactable = y);

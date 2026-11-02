@@ -52,37 +52,61 @@ namespace BeatLeader.UI.Hub {
 
         protected override GameObject Construct() {
             return new Background {
+                FlexController = {
+                    Padding = 1f,
+                    Gap = 1f
+                },
+
                 Children = {
                     //cover
                     new Image {
+                            FlexItem = {
+                                AspectRatio = 1f
+                            },
+
                             Material = GameResources.UINoGlowRoundEdgeMaterial
                         }
-                        .AsFlexItem(aspectRatio: 1f)
                         .Bind(ref _cover)
                         .InLoadingContainer()
                         .AsFlexItem(aspectRatio: 1f)
                         .Bind(ref _coverContainer),
                     //labels
                     new Layout {
+                        FlexController = {
+                            FlexDirection = FlexDirection.Column
+                        },
+
+                        FlexItem = {
+                            FlexGrow = 1f
+                        },
+
                         Children = {
                             //author label
                             new Label {
+                                FlexItem = {
+                                    FlexGrow = 1f
+                                },
+
                                 Alignment = TextAlignmentOptions.MidlineLeft
-                            }.AsFlexItem(flexGrow: 1f).Bind(ref _authorLabel),
+                            }.Bind(ref _authorLabel),
                             //bsr label
                             new Label {
+                                FlexItem = {
+                                    FlexGrow = 1f
+                                },
+
                                 Alignment = TextAlignmentOptions.MidlineLeft
-                            }.AsFlexItem(flexGrow: 1f).Bind(ref _bsrLabel)
+                            }.Bind(ref _bsrLabel)
                         }
-                    }.AsFlexGroup(direction: FlexDirection.Column).AsFlexItem(flexGrow: 1f)
+                    }
                 }
             }.AsBlurBackground(
                 color: Color.white.ColorWithAlpha(0.9f)
-            ).AsFlexGroup(padding: 1f, gap: 1f).Use();
+            ).Use();
         }
 
         protected override void OnInitialize() {
-            this.AsFlexItem(size: new() { y = 12f });
+            this.FlexItem.Size = new() { y = 12f };
         }
 
         #endregion

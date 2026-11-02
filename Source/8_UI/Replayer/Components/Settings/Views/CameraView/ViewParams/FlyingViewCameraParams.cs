@@ -31,6 +31,12 @@ namespace BeatLeader.UI.Replayer {
 
         protected override GameObject Construct() {
             return new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    JustifyContent = Justify.FlexStart,
+                    Gap = 2f
+                },
+
                 Children = {
                     new BsSlider {
                         MinValue = 1f,
@@ -41,23 +47,25 @@ namespace BeatLeader.UI.Replayer {
                     }.Bind(ref _speedSlider).InNamedRail("Speed"),
                     //
                     new BsTextButton {
-                            Text = "Reset",
-                            Skew = 0f,
-                            OnClick = HandlePositionReset
-                        }
-                        .AsFlexItem(size: new() { x = 12f })
-                        .InNamedRail("Reset Position"),
+                        FlexItem = {
+                            Size = new() { x = 12f }
+                        },
+
+                        Text = "Reset",
+                        Skew = 0f,
+                        OnClick = HandlePositionReset
+                    }.InNamedRail("Reset Position"),
                     //hint
                     new Label {
+                        FlexItem = {
+                            Margin = new() { top = 2f }
+                        },
+
                         Text = "\u24d8 Notice: Free view starts working only once you press C!",
                         Alignment = TextAlignmentOptions.Center
-                    }.AsFlexItem(margin: new() { top = 2f })
+                    }
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Column,
-                justifyContent: Justify.FlexStart,
-                gap: 2f
-            ).Use();
+            }.Use();
         }
 
         #endregion

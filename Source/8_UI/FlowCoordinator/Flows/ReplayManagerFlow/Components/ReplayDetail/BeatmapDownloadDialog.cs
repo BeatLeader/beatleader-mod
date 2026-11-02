@@ -97,37 +97,56 @@ namespace BeatLeader.UI.Hub {
 
         private ILayoutItem CreateContent() {
             return new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    JustifyContent = Justify.Center,
+                    Gap = 1f
+                },
+
+                FlexItem = {
+                    FlexGrow = 1f,
+                    Size = new() { x = 64.pt, y = 20f }
+                },
+
                 Children = {
                     new Label {
-                            EnableWrapping = true
-                        }
-                        .AsFlexItem(size: new() { y = "auto" })
-                        .Bind(ref _titleLabel),
+                        FlexItem = {
+                            Size = new() { y = "auto" }
+                        },
+
+                        EnableWrapping = true
+                    }.Bind(ref _titleLabel),
                     //
                     new Layout {
+                        FlexItem = {
+                            Size = new() { y = 10f }
+                        },
+
                         Children = {
                             new SearchIndicator {
+                                FlexItem = {
+                                    Margin = new() { top = 2f }
+                                },
+
                                 Radius = 2f
-                            }.AsFlexItem(margin: new() { top = 2f })
+                            }
                         }
-                    }.AsFlexGroup().AsFlexItem(size: new() { y = 10f }).Bind(ref _searchIndicatorContainer),
+                    }.AsFlexGroup().Bind(ref _searchIndicatorContainer),
                     //
-                    new MapDetailPreviewPanel()
-                        .AsFlexItem(margin: new() { left = 1f, right = 1f })
-                        .Bind(ref _mapDetailPanel),
+                    new MapDetailPreviewPanel {
+                        FlexItem = {
+                            Margin = new() { left = 1f, right = 1f }
+                        }
+                    }.Bind(ref _mapDetailPanel),
                     //
-                    new Spinner()
-                        .AsFlexItem(size: 8f, alignSelf: Align.Center)
-                        .Bind(ref _spinner)
+                    new Spinner {
+                        FlexItem = {
+                            Size = 8f,
+                            AlignSelf = Align.Center
+                        }
+                    }.Bind(ref _spinner)
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Column,
-                justifyContent: Justify.Center,
-                gap: 1f
-            ).AsFlexItem(
-                flexGrow: 1f,
-                size: new() { x = 64.pt, y = 20f }
-            );
+            };
         }
 
         #endregion

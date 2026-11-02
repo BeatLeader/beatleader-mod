@@ -108,8 +108,17 @@ namespace BeatLeader.UI.Hub {
             var graphicState = Remember(GraphicState.None);
 
             return new Layout {
+                FlexController = {
+                    Padding = new() { top = 1f, bottom = 1f }
+                },
+
                 Children = {
                     new Background {
+                            FlexItem = {
+                                FlexGrow = 1f,
+                                Margin = new() { left = 1f, right = 1f }
+                            },
+
                             Color = Color.white,
                             Sprite = BundleLoader.Sprites.background,
                             PixelsPerUnit = 12f,
@@ -119,10 +128,13 @@ namespace BeatLeader.UI.Hub {
                             Skew = UIStyle.Skew,
                             Children = {
                                 new BeatmapPreviewPanel {
-                                        Skew = UIStyle.Skew
-                                    }
-                                    .AsFlexItem(flexGrow: 1f, margin: new() { right = 1f })
-                                    .Bind(ref _beatmapPreviewPanel)
+                                    FlexItem = {
+                                        FlexGrow = 1f,
+                                        Margin = new() { right = 1f }
+                                    },
+
+                                    Skew = UIStyle.Skew
+                                }.Bind(ref _beatmapPreviewPanel)
                             }
                         }
                         .WithPointerEvents(
@@ -134,17 +146,13 @@ namespace BeatLeader.UI.Hub {
                             }
                         )
                         .AsFlexGroup()
-                        .AsFlexItem(
-                            flexGrow: 1f,
-                            margin: new() { left = 1f, right = 1f }
-                        )
                 }
-            }.AsFlexGroup(padding: new() { top = 1f, bottom = 1f }).Use();
+            }.Use();
         }
 
         protected override void OnInitialize() {
             SetBeatmapLevel(previewBeatmapLevel);
-            this.AsFlexItem(size: new() { x = 52f, y = 12f });
+            this.FlexItem.Size = new() { x = 52f, y = 12f };
         }
 
         #endregion

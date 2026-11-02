@@ -89,12 +89,18 @@ namespace BeatLeader.UI.Hub {
                 _context.AddCallback(this, static (x, y) => x.HandleContextUpdated(y), lazy: true);
 
                 return new Layout {
+                    FlexController = {
+                        AlignItems = Align.Stretch
+                    },
+
                     Children = {
                         new BsColorPicker {
-                                Context = _context
-                            }
-                            .AsFlexItem(size: new() { y = YogaValue.Auto })
-                            .Export(out var picker),
+                            FlexItem = {
+                                Size = new() { y = YogaValue.Auto }
+                            },
+
+                            Context = _context
+                        }.Export(out var picker),
 
                         new BsColorCircleModal {
                             Context = _context,
@@ -104,7 +110,7 @@ namespace BeatLeader.UI.Hub {
                             PlacementData = new() { Placement = RelativePlacement.Center }
                         }
                     }
-                }.AsFlexGroup(alignItems: Align.Stretch).Use();
+                }.Use();
             }
 
             private void HandleContextUpdated(BsColorPickerContext context) {
@@ -132,28 +138,33 @@ namespace BeatLeader.UI.Hub {
         protected override GameObject Construct() {
             static ReactiveComponent CreateContainer(string name, params ILayoutItem[] children) {
                 return new Layout {
-                        Children = {
-                            new Label {
-                                    Text = name,
-                                    FontSize = 5f
-                                }
-                                .AsFlexItem(size: new() { y = "auto" })
+                    FlexController = {
+                        FlexDirection = FlexDirection.Column,
+                        Gap = 1f,
+                        Padding = new() { left = 2f, bottom = 2f, right = 2f, top = 1f }
+                    },
+
+                    Children = {
+                        new Label {
+                            FlexItem = {
+                                Size = new() { y = "auto" }
+                            },
+
+                            Text = name,
+                            FontSize = 5f
                         }
                     }
-                    .With(x => x.Children.AddRange(children))
-                    .AsFlexGroup(
-                        direction: FlexDirection.Column,
-                        gap: 1f,
-                        padding: new() { left = 2f, bottom = 2f, right = 2f, top = 1f }
-                    )
-                    .AsFlexItem();
+                }.With(x => x.Children.AddRange(children));
             }
 
             static ReactiveComponent CreateColorPicker(string name, Action<Color> callback, ref ColorPickerControl picker) {
                 return new ColorPickerControl {
+                        FlexItem = {
+                            Size = new() { y = 6f }
+                        },
+
                         OnColorChanged = callback
                     }
-                    .AsFlexItem(size: new() { y = 6f })
                     .Bind(ref picker)
                     .InNamedRail(name);
             }
@@ -162,11 +173,27 @@ namespace BeatLeader.UI.Hub {
 
             return
                 new Layout {
+                    FlexController = {
+                        Gap = 1f
+                    },
+
                     Children = {
                         new ScrollArea {
+                            FlexItem = {
+                                FlexGrow = 1f
+                            },
+
                             ScrollContext = scrollContext,
                             LineSize = 1f,
                             ScrollContent = new Layout {
+                                FlexController = {
+                                    FlexDirection = FlexDirection.Column,
+                                    JustifyContent = Justify.FlexStart,
+                                    AlignItems = Align.Stretch,
+                                    Gap = 1f,
+                                    ConstrainVertical = false
+                                },
+
                                 Children = {
                                     CreateContainer(
                                         "Hub Buttons",
@@ -216,24 +243,15 @@ namespace BeatLeader.UI.Hub {
                                             .InNamedRail("Bold")
                                     )
                                 }
-                            }.AsFlexGroup(
-                                direction: FlexDirection.Column,
-                                justifyContent: Justify.FlexStart,
-                                alignItems: Align.Stretch,
-                                gap: 1f,
-                                constrainVertical: false
-                            ),
-                        }.AsFlexItem(flexGrow: 1f),
+                            },
+                        },
 
                         new Scrollbar {
                             ScrollContext = scrollContext,
                             HideIfNothingToScroll = true
-                        }.AsFlexItem()
+                        }
                     }
-                }
-                .AsFlexGroup(gap: 1f)
-                .AsFlexItem()
-                .Use();
+                }.Use();
         }
 
         #endregion

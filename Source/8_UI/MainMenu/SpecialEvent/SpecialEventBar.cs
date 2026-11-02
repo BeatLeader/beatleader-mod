@@ -4,6 +4,7 @@ using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
 using Reactive;
 using Reactive.BeatSaber.Components;
+using Reactive.Compiler;
 using Reactive.Yoga;
 using TMPro;
 using UnityEngine;
@@ -45,119 +46,145 @@ internal class SpecialEventBar : ReactiveComponent {
         var bgAlpha = RememberAnimated(0f, 150.ms, AnimationCurve.EaseInOut);
 
         var content = new Background {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    Padding = 1f
+                },
+
+                FlexItem = {
+                    MinSize = 100.pct,
+                    Size = new() { x = 100.pct },
+                    Position = new() { bottom = 0.pt },
+                    PositionType = PositionType.Absolute
+                },
+
                 Children = {
-                    new Image()
-                        .AsBlurBackground(pixelsPerUnit: 10f)
-                        .On(bgAlpha, (x, y) => x.Color = x.Color.ColorWithAlpha(y))
-                        .AsFlexItem(position: 0.pt),
+                    new Image {
+                        FlexItem = {
+                            Position = 0.pt,
+                            PositionType = PositionType.Absolute
+                        }
+                    }.AsBlurBackground(pixelsPerUnit: 10f).On(bgAlpha, (x, y) => x.Color = x.Color.ColorWithAlpha(y)),
 
                     // Bar
                     new Layout {
+                        FlexController = {
+                            JustifyContent = Justify.Center,
+                            AlignItems = Align.Stretch,
+                            Gap = 2.pt
+                        },
+
+                        FlexItem = {
+                            Size = new() { x = 100.pct, y = 8.pt }
+                        },
+
                         Children = {
                             new BsTextButton {
+                                    FlexItem = {
+                                        Size = new() { y = 90.pct, x = 8f },
+                                        Position = new() { left = 0.pt },
+                                        PositionType = PositionType.Absolute,
+                                        AlignSelf = Align.Center
+                                    },
+
                                     Text = "←",
                                     ShowUnderline = false,
                                     Skew = 0f,
                                     OnClick = () => OnBackClick?.Invoke()
                                 }
                                 .WithNativeComponent(out CanvasGroup backButtonGroup)
-                                .On(itemsAlpha, (_, y) => backButtonGroup.alpha = y, lazy: true)
-                                .AsFlexItem(
-                                    size: new() { y = 90.pct, x = 8f },
-                                    position: new() { left = 0.pt },
-                                    alignSelf: Align.Center
-                                ),
+                                .On(itemsAlpha, (_, y) => backButtonGroup.alpha = y, lazy: true),
 
                             new BsTextButton {
                                     Text = " Play ",
                                     OnClick = () => OnPlayClick?.Invoke()
                                 }
                                 .WithNativeComponent(out CanvasGroup playButtonGroup)
-                                .On(itemsAlpha, (_, y) => playButtonGroup.alpha = y, lazy: true)
-                                .AsFlexItem(),
+                                .On(itemsAlpha, (_, y) => playButtonGroup.alpha = y, lazy: true),
 
                             // Calendar button
                             new Layout {
+                                FlexItem = {
+                                    Size = new() { x = initialCalendarButtonWidth.pt, y = 90.pct },
+                                    Position = new() { left = 0.pt },
+                                    PositionType = PositionType.Absolute,
+                                    AlignSelf = Align.Center
+                                },
+
                                 Children = {
                                     new BsTextButton {
-                                            Text = "💿",
-                                            ShowUnderline = false,
-                                            Skew = 0f,
-                                            sEnabled = calendarOpened,
+                                        FlexItem = {
+                                            Position = new() { left = 0.pt },
+                                            PositionType = PositionType.Absolute,
+                                            sSize = calendarButtonWidth.Map(x => new YogaVector { x = x.pt, y = 100.pct })
+                                        },
 
-                                            OnClick = () => {
-                                                ReeModalSystem.OpenModal<EventDetailsDialog>(ContentTransform, _event.Value.eventDescription);
-                                            }
+                                        Text = "💿",
+                                        ShowUnderline = false,
+                                        Skew = 0f,
+                                        sEnabled = calendarOpened,
+
+                                        OnClick = () => {
+                                            ReeModalSystem.OpenModal<EventDetailsDialog>(ContentTransform, _event.Value.eventDescription);
                                         }
-                                        .AsFlexItem(
-                                            position: new() { left = 0.pt },
-                                            modifier: out var playlistButtonModifier
-                                        )
-                                        .On(
-                                            calendarButtonWidth,
-                                            (_, y) => playlistButtonModifier.Size = new() { x = y.pt, y = 100.pct }
-                                        )
+                                    }
                                 }
-                            }.AsFlexGroup().AsFlexItem(
-                                size: new() { x = initialCalendarButtonWidth.pt, y = 90.pct },
-                                position: new() { left = 0.pt },
-                                alignSelf: Align.Center
-                            ),
+                            }.AsFlexGroup(),
 
                             new Layout {
+                                FlexItem = {
+                                    Size = new() { x = initialCalendarButtonWidth.pt, y = 90.pct },
+                                    Position = new() { right = 0.pt },
+                                    PositionType = PositionType.Absolute,
+                                    AlignSelf = Align.Center
+                                },
+
                                 Children = {
                                     new BsTextButton {
-                                            sText = calendarOpened.Map(x => x ? "❌" : "📅"),
-                                            ShowUnderline = false,
-                                            Skew = 0f,
+                                        FlexItem = {
+                                            Position = new() { right = 0.pt },
+                                            PositionType = PositionType.Absolute,
+                                            sSize = calendarButtonWidth.Map(x => new YogaVector { x = x.pt, y = 100.pct })
+                                        },
 
-                                            OnClick = () => {
-                                                calendarOpened.Value = !calendarOpened;
-                                                calendarButtonWidth.TargetValue = calendarOpened ? _bar.ContentTransform.rect.width / 2f - 2f : initialCalendarButtonWidth;
+                                        sText = calendarOpened.Map(x => x ? "❌" : "📅"),
+                                        ShowUnderline = false,
+                                        Skew = 0f,
 
-                                                if (!calendarOpened) {
-                                                    calendarHeight.TargetValue = 0f;
-                                                }
+                                        OnClick = () => {
+                                            calendarOpened.Value = !calendarOpened;
+                                            calendarButtonWidth.TargetValue = calendarOpened ? _bar.ContentTransform.rect.width / 2f - 2f : initialCalendarButtonWidth;
 
-                                                itemsAlpha.TargetValue = calendarOpened ? 0f : 1f;
-                                                bgAlpha.TargetValue = calendarOpened ? 1f : 0f;
+                                            if (!calendarOpened) {
+                                                calendarHeight.TargetValue = 0f;
                                             }
+
+                                            itemsAlpha.TargetValue = calendarOpened ? 0f : 1f;
+                                            bgAlpha.TargetValue = calendarOpened ? 1f : 0f;
                                         }
-                                        .AsFlexItem(
-                                            position: new() { right = 0.pt },
-                                            modifier: out var buttonModifier
-                                        )
-                                        .On(
-                                            calendarButtonWidth,
-                                            (_, y) => buttonModifier.Size = new() { x = y.pt, y = 100.pct }
-                                        )
+                                    }
                                 }
-                            }.AsFlexGroup().AsFlexItem(
-                                size: new() { x = initialCalendarButtonWidth.pt, y = 90.pct },
-                                position: new() { right = 0.pt },
-                                alignSelf: Align.Center
-                            )
+                            }.AsFlexGroup()
                         }
-                    }.AsFlexGroup(
-                        justifyContent: Justify.Center,
-                        alignItems: Align.Stretch,
-                        gap: 2.pt
-                    ).AsFlexItem(
-                        size: new() { x = 100.pct, y = 8.pt }
-                    ),
+                    },
 
                     // Calendar
                     new Layout {
+                            FlexItem = {
+                                sSize = calendarHeight.Map(x => new YogaVector { y = x.pt }).InLazy()
+                            },
+
                             WithinLayoutIfDisabled = true,
                             Children = {
                                 new EventCalendar {
+                                        FlexItem = {
+                                            Position = new() { left = 0.pt, top = 0.pt, right = 0.pt },
+                                            PositionType = PositionType.Absolute,
+                                            Margin = new() { top = 1.pt, bottom = 2.pt }
+                                        },
+
                                         OnDayChanged = x => OnDayChanged?.Invoke(x),
                                     }
-                                    .AsFlexItem(
-                                        position: new() { left = 0.pt, top = 0.pt, right = 0.pt },
-                                        positionType: PositionType.Absolute,
-                                        margin: new() { top = 1.pt, bottom = 2.pt }
-                                    )
                                     .On(_event, (x, y) => x.SetData(y), lazy: true)
                                     .With(
                                         x => x.LayoutAppliedEvent += _ => {
@@ -170,23 +197,22 @@ internal class SpecialEventBar : ReactiveComponent {
                             sEnabled = calendarOpened
                         }
                         .AsFlexGroup()
-                        .AsFlexItem(modifier: out var calendarModifier)
                         .AsRectMask()
-                        .On(calendarHeight, (_, y) => calendarModifier.Size = new() { y = y.pt }, lazy: true)
                 }
             }
             .AsBackground(color: Color.black.ColorWithAlpha(0.5f))
-            .AsFlexGroup(direction: FlexDirection.Column, padding: 1f)
-            .AsFlexItem(minSize: 100.pct, size: new() { x = 100.pct }, position: new() { bottom = 0.pt })
             .Bind(ref _bar);
 
         return new Layout {
+                FlexItem = {
+                    Size = new() { y = 10.pt }
+                },
+
                 Children = {
                     content
                 }
             }
             .AsFlexGroup()
-            .AsFlexItem(size: new() { y = 10.pt })
             .Use();
     }
 

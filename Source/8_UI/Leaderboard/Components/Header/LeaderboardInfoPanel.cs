@@ -44,34 +44,50 @@ namespace BeatLeader.Components {
             var graphicState = Remember(GraphicState.None);
 
             return new Image {
-                    Sprite = sprite,
-                    Material = BundleLoader.UIAdditiveGlowMaterial,
-                    sColor = graphicState.MapColorSet(UIStyle.GlowingButtonColorSet)
-                }
-                .WithPointerEvents(
+                FlexItem = {
+                    Size = 4f
+                },
+
+                Sprite = sprite,
+                Material = BundleLoader.UIAdditiveGlowMaterial,
+                sColor = graphicState.MapColorSet(UIStyle.GlowingButtonColorSet)
+            }.WithPointerEvents(
                     onEnter: _ => graphicState.IsHovered = true,
                     onLeave: _ => graphicState.IsHovered = false,
                     onDown: _ => {
                         global::Reactive.BeatSaber.GameResources.ButtonClickSignal.Raise();
                         callback();
                     }
-                )
-                .AsFlexItem(size: 4f);
+                );
         }
 
         protected override GameObject Construct() {
             return new PushContainer {
                 OpenedView = new Layout {
+                    FlexController = {
+                        AlignItems = Align.Center,
+                        Padding = new() { left = 1f, right = 2f },
+                        Gap = 1f
+                    },
+
                     IgnoreLayout = true,
                     Children = {
                         new Layout {
+                            FlexController = {
+                                JustifyContent = Justify.FlexStart
+                            },
+
+                            FlexItem = {
+                                FlexGrow = 1f
+                            },
+
                             Children = {
                                 CreateHeaderButton(
                                     BundleLoader.Sprites.homeIcon,
                                     LeaderboardEvents.NotifyMenuButtonWasPressed
                                 ).Bind(ref _menuButton),
                             }
-                        }.AsFlexItem(flexGrow: 1f).AsFlexGroup(justifyContent: Justify.FlexStart),
+                        },
 
                         new Layout {
                             IgnoreLayout = true,
@@ -101,6 +117,15 @@ namespace BeatLeader.Components {
                         ),
 
                         new Layout {
+                            FlexController = {
+                                JustifyContent = Justify.FlexEnd,
+                                Gap = 1f
+                            },
+
+                            FlexItem = {
+                                FlexGrow = 1f
+                            },
+
                             Children = {
                                 CreateHeaderButton(
                                     BundleLoader.BattleRoyaleIcon,
@@ -122,32 +147,34 @@ namespace BeatLeader.Components {
                                     LeaderboardEvents.NotifyLeaderboardSettingsButtonWasPressed
                                 )
                             }
-                        }.AsFlexItem(flexGrow: 1f).AsFlexGroup(justifyContent: Justify.FlexEnd, gap: 1f)
+                        }
                     }
-                }.AsFlexGroup(
-                    alignItems: Align.Center,
-                    padding: new() { left = 1f, right = 2f },
-                    gap: 1f
-                ).WithRectExpand(),
+                }.WithRectExpand(),
 
                 ClosedView = new Layout {
+                    FlexController = {
+                        AlignItems = Align.Center,
+                        Padding = new() { left = 1f, right = 2f },
+                        JustifyContent = Justify.SpaceBetween
+                    },
+
                     IgnoreLayout = true,
                     Children = {
                         new BsTextButton {
                             Text = "Cancel",
                             ShowUnderline = false,
                             OnClick = () => SetBattleRoyaleEnabled(false)
-                        }.AsFlexItem(),
+                        },
 
                         new Label {
                             FontSize = 5f
-                        }.AsFlexItem().Bind(ref _replaysLabel),
+                        }.Bind(ref _replaysLabel),
 
                         new BsTextButton {
                             Text = "Proceed",
                             ShowUnderline = false,
                             OnClick = PresentDownloadModal
-                        }.AsFlexItem().Bind(ref _proceedButton),
+                        }.Bind(ref _proceedButton),
 
                         new DownloadScoresModal {
                                 DownloadingFinishedCallback = OnScoreDownloadingFinished
@@ -155,11 +182,7 @@ namespace BeatLeader.Components {
                             .WithPlacement(RelativePlacement.Center)
                             .Bind(ref _downloadModal)
                     }
-                }.AsFlexGroup(
-                    alignItems: Align.Center,
-                    padding: new() { left = 1f, right = 2f },
-                    justifyContent: Justify.SpaceBetween
-                ).WithRectExpand(),
+                }.WithRectExpand(),
 
                 Opened = true,
                 BackgroundImage = {

@@ -191,37 +191,49 @@ namespace BeatLeader.Components {
 
         private ILayoutItem CreateContent() {
             return new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    JustifyContent = Justify.Center,
+                    AlignItems = Align.Stretch,
+                    Padding = new() { left = 3f, right = 3f },
+                    Gap = new() { y = 1f }
+                },
+
+                FlexItem = {
+                    FlexGrow = 1f,
+                    MinSize = new() { x = 52.pt, y = 16.pt }
+                },
+
                 Children = {
                     new Label {
+                        FlexItem = {
+                            AlignSelf = Align.Center
+                        },
+
                         Overflow = TextOverflowModes.Ellipsis
-                    }.AsFlexItem(alignSelf: Align.Center).Bind(ref _progressLabel),
+                    }.Bind(ref _progressLabel),
 
                     new Layout {
+                        FlexController = {
+                            FlexDirection = FlexDirection.Column,
+                            Padding = new() { bottom = 1f },
+                            Gap = new() { y = 1f }
+                        },
+
                         Children = {
                             new BsToggle()
                                 .Bind(ref _saveReplaysToggle)
                                 .InNamedRail("Save replays?")
                         }
-                    }.AsFlexGroup(
-                        direction: FlexDirection.Column,
-                        padding: new() { bottom = 1f },
-                        gap: new() { y = 1f }
-                    ).AsFlexItem().Bind(ref _saveReplaysContainer),
+                    }.Bind(ref _saveReplaysContainer),
 
-                    new ProgressBar()
-                        .AsFlexItem(margin: new() { left = 2f, right = 2f })
-                        .Bind(ref _progressBar)
+                    new ProgressBar {
+                        FlexItem = {
+                            Margin = new() { left = 2f, right = 2f }
+                        }
+                    }.Bind(ref _progressBar)
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Column,
-                justifyContent: Justify.Center,
-                alignItems: Align.Stretch,
-                padding: new() { left = 3f, right = 3f },
-                gap: new() { y = 1f }
-            ).AsFlexItem(
-                flexGrow: 1f,
-                minSize: new() { x = 52.pt, y = 16.pt }
-            );
+            };
         }
 
         protected override void OnInitialize() {

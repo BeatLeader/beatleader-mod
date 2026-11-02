@@ -72,7 +72,7 @@ namespace BeatLeader.UI.Hub {
             _avatarsContainer.Children.Clear();
             
             var lastIndex = Mathf.Min(_replays.Count, _maxAvatarCount);
-            _avatarsContainerModifier.Size = new() { x = CalculateIndent(lastIndex) };
+            _avatarsContainer.FlexItem.Size = new() { x = CalculateIndent(lastIndex) };
             
             var index = 0;
             foreach (var replay in _replays) {
@@ -81,11 +81,10 @@ namespace BeatLeader.UI.Hub {
                 }
                 
                 var wrapper = _avatarsPool.Spawn(replay);
-                wrapper.AsFlexItem(
-                    aspectRatio: 1f,
-                    size: new() { x = _avatarSize },
-                    position: new() { left = CalculateIndent(index) }
-                );
+                wrapper.FlexItem.AspectRatio = 1f;
+                wrapper.FlexItem.Size = new() { x = _avatarSize };
+                wrapper.FlexItem.Position = new() { left = CalculateIndent(index) };
+                wrapper.FlexItem.PositionType = PositionType.Absolute;
                 
                 _avatarsContainer.Children.Add(wrapper);
                 
@@ -109,34 +108,42 @@ namespace BeatLeader.UI.Hub {
 
         #region Construct
 
-        private YogaModifier _avatarsContainerModifier = null!;
         private Layout _avatarsContainer = null!;
         private Label _replaysLabel = null!;
 
         protected override GameObject Construct() {
             return new Layout {
+                FlexController = {
+                    JustifyContent = Justify.Center,
+                    AlignItems = Align.Center,
+                    Gap = 1f
+                },
+
                 Children = {
                     new Layout {
+                        FlexController = {
+                            Padding = 2f
+                        },
+
+                        FlexItem = {
+                            Size = new() { y = "100%" }
+                        },
+
                         Children = {
-                            new Layout()
-                                .AsFlexGroup()
-                                .AsFlexItem(modifier: out _avatarsContainerModifier)
-                                .Bind(ref _avatarsContainer)
+                            new Layout().AsFlexGroup().Bind(ref _avatarsContainer)
                         }
-                    }.AsFlexGroup(padding: 2f).AsFlexItem(size: new() { y = "100%" }),
+                    },
                     //
                     new Label {
-                            FontSize = 5f,
-                            FontStyle = FontStyles.Italic
-                        }
-                        .AsFlexItem(size: "auto")
-                        .Bind(ref _replaysLabel)
+                        FlexItem = {
+                            Size = "auto"
+                        },
+
+                        FontSize = 5f,
+                        FontStyle = FontStyles.Italic
+                    }.Bind(ref _replaysLabel)
                 }
-            }.AsFlexGroup(
-                justifyContent: Justify.Center,
-                alignItems: Align.Center,
-                gap: 1f
-            ).Use();
+            }.Use();
         }
 
         protected override void OnInitialize() {

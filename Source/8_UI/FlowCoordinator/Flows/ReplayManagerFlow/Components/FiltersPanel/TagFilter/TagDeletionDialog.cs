@@ -27,8 +27,13 @@ namespace BeatLeader.UI.Hub {
 
             Children.Add(
                 new Label {
+                    FlexItem = {
+                        FlexGrow = 1f,
+                        Size = new() { x = 60.pt, y = 12.pt }
+                    },
+
                     EnableWrapping = true
-                }.AsFlexItem(flexGrow: 1f, size: new() { x = 60.pt, y = 12.pt }).Bind(ref _label)
+                }.Bind(ref _label)
             );
 
             OkButton.OnClick = HandleOkButtonClicked;

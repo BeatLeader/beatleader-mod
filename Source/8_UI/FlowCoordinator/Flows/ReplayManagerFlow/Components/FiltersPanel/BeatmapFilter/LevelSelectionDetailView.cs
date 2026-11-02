@@ -39,23 +39,31 @@ namespace BeatLeader.UI.Hub {
 
         protected override GameObject Construct() {
             return new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    JustifyContent = Justify.Center,
+                    AlignItems = Align.Center,
+                    Gap = 2f
+                },
+
                 Children = {
-                    new Layout()
-                        .AsFlexItem(size: new() { x = "100%", y = 14f })
-                        .Bind(ref _levelBarContainer),
+                    new Layout {
+                        FlexItem = {
+                            Size = new() { x = "100%", y = 14f }
+                        }
+                    }.Bind(ref _levelBarContainer),
                     //
                     new BsPrimaryTextButton {
+                        FlexItem = {
+                            Size = new() { x = 24f, y = 8f }
+                        },
+
                         Text = "SELECT",
                         Skew = UIStyle.Skew,
                         OnClick = () => OnClick?.Invoke()
-                    }.AsFlexItem(size: new() { x = 24f, y = 8f })
+                    }
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Column,
-                justifyContent: Justify.Center,
-                alignItems: Align.Center,
-                gap: 2f
-            ).Use();
+            }.Use();
         }
 
         #endregion

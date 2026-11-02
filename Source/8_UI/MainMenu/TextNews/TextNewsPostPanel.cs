@@ -16,6 +16,11 @@ namespace BeatLeader.UI.MainMenu {
 
         protected override GameObject Construct() {
             return new Layout {
+                FlexController = {
+                    Gap = 1,
+                    FlexDirection = FlexDirection.Column
+                },
+
                 Children = {
                     new TextNewsPostHeaderPanel {
                         sOwner = _context.Map(x => x.Item.owner),
@@ -24,25 +29,28 @@ namespace BeatLeader.UI.MainMenu {
                     },
 
                     new Label {
-                            FontSize = 3,
-                            EnableWrapping = true,
-                            Alignment = TMPro.TextAlignmentOptions.Justified,
-                            sText = _context.Map(x => x.Item.body)
-                        }
-                        .AsFlexItem(margin: new() { left = 1.pt, right = 1.pt }),
+                        FlexItem = {
+                            Margin = new() { left = 1.pt, right = 1.pt }
+                        },
+
+                        FontSize = 3,
+                        EnableWrapping = true,
+                        Alignment = TMPro.TextAlignmentOptions.Justified,
+                        sText = _context.Map(x => x.Item.body)
+                    },
 
                     new WebImage {
-                            PreserveAspect = true,
-                            Material = GameResources.UINoGlowMaterial,
-                            sEnabled = _context.Map(x => !string.IsNullOrEmpty(x.Item.image)),
-                            sSrc = _context.Map(x => x.Item.image)
-                        }
-                        .AsFlexItem(size: new() { y = 30 })
+                        FlexItem = {
+                            Size = new() { y = 30 }
+                        },
+
+                        PreserveAspect = true,
+                        Material = GameResources.UINoGlowMaterial,
+                        sEnabled = _context.Map(x => !string.IsNullOrEmpty(x.Item.image)),
+                        sSrc = _context.Map(x => x.Item.image)
+                    }
                 }
-            }.AsFlexGroup(
-                gap: 1,
-                direction: FlexDirection.Column
-            ).AsFlexItem().Use();
+            }.Use();
         }
     }
 }

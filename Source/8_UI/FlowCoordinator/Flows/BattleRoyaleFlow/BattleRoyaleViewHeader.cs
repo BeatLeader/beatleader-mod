@@ -1,5 +1,6 @@
 ﻿using Reactive;
 using Reactive.BeatSaber.Components;
+using Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
@@ -23,10 +24,9 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override void OnInitialize() {
-            this.AsFlexItem(
-                size: new() { y = 8f, x = "100%" },
-                position: new() { top = 0f }
-            );
+            this.FlexItem.Size = new() { y = 8f, x = "100%" };
+            this.FlexItem.Position = new() { top = 0f };
+            this.FlexItem.PositionType = PositionType.Absolute;
         }
     }
 }

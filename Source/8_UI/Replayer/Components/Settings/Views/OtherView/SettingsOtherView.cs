@@ -25,6 +25,13 @@ namespace BeatLeader.UI.Replayer {
 
         protected override GameObject Construct() {
             return new Background {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    JustifyContent = Justify.FlexStart,
+                    Gap = 2f,
+                    Padding = 2f
+                },
+
                 Children = {
                     //speed
                     new SpeedSlider().Bind(ref _speedSlider),
@@ -33,12 +40,7 @@ namespace BeatLeader.UI.Replayer {
                         OnToggleStateChanged = HandleToggleStateChanged
                     }.Bind(ref _exitToggle).InNamedRail("Auto-exit on finish")
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Column,
-                justifyContent: Justify.FlexStart,
-                gap: 2f,
-                padding: 2f
-            ).AsBackground(
+            }.AsBackground(
                 color: new(0.1f, 0.1f, 0.1f, 1f)
             ).Use();
         }

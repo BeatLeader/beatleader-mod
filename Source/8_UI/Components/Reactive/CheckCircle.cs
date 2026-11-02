@@ -8,21 +8,20 @@ namespace BeatLeader.UI.Reactive.Components {
     internal class CheckCircle : ReactiveComponent {
         #region Public API
 
-        public bool Active => _active.Value;
-        public Action<bool>? OnStateChanged { get; set; }
+        public bool Active {
+            get => _active.Value;
+            set {
+                if (value == _active.Value) {
+                    return;
+                }
 
-        public void SetActive(bool active, bool notifyListeners = true, bool force = false) {
-            if (!force && active == Active) {
-                return;
-            }
-
-            _active.Value = active;
-            _hoverProgress.SetValueImmediate(0f);
-
-            if (notifyListeners) {
-                OnStateChanged?.Invoke(active);
+                _active.Value = value;
+                _hoverProgress.SetValueImmediate(0f);
+                OnStateChanged?.Invoke(value);
             }
         }
+
+        public Action<bool>? OnStateChanged { get; set; }
 
         #endregion
 
@@ -63,7 +62,7 @@ namespace BeatLeader.UI.Reactive.Components {
                 .WithPointerEvents(
                     onEnter: _ => _hoverProgress.TargetValue = 1f,
                     onLeave: _ => _hoverProgress.TargetValue = 0f,
-                    onDown: _ => SetActive(!Active)
+                    onDown: _ => Active = !Active
                 )
                 .WithHoverScale(1f, 1.2f)
                 .Use();

@@ -56,71 +56,92 @@ internal class SpecialEventMapPanel : ReactiveComponent {
         _songPreviewPlayer = Resources.FindObjectsOfTypeAll<SongPreviewPlayer>().First();
 
         return new Layout {
-                Children = {
-                    new Label {
-                            FontSize = 4.5f,
-                            EnableWrapping = true,
-                            sText = _map.Map(x => x == null ? "Oops, seems like Monke has stolen the map" : FormatUtils.GetDateOfMonthTimeString(x.startTime))
-                        }
-                        .AsFlexItem(margin: new() { top = 1.pt, bottom = 1.pt }),
+            FlexController = {
+                FlexDirection = FlexDirection.Column,
+                JustifyContent = Justify.Center,
+                AlignItems = Align.Center
+            },
 
-                    new WebImage {
-                            Material = BundleLoader.RoundTextureMaterial,
-                            sEnabled = hasMap,
-                            sSrc = _mapDetail.Map(string? (x) => x.coverImage).InLazy()
-                        }
-                        .AsFlexItem(size: 25.pt),
+            FlexItem = {
+                Flex = 1
+            },
 
-                    new Label {
-                            FontStyle = FontStyles.Italic,
-                            Overflow = TextOverflowModes.Ellipsis,
-                            FontSize = 5f,
-                            sEnabled = hasMap,
-                            sText = _mapDetail.Map(x => x.name).InLazy()
-                        }
-                        .AsFlexItem(margin: new() { left = 1.pt, right = 1.pt }),
+            Children = {
+                new Label {
+                    FlexItem = {
+                        Margin = new() { top = 1.pt, bottom = 1.pt }
+                    },
 
-                    new Label {
-                            Color = Color.white * 0.7f,
-                            FontStyle = FontStyles.Italic,
-                            Overflow = TextOverflowModes.Ellipsis,
-                            FontSize = 4f,
-                            sEnabled = hasMap,
-                            sText = _mapDetail.Map(x => x.author).InLazy()
-                        }
-                        .AsFlexItem(margin: new() { top = -1.5f, left = 1.pt, right = 1.pt }),
+                    FontSize = 4.5f,
+                    EnableWrapping = true,
+                    sText = _map.Map(x => x == null ? "Oops, seems like Monke has stolen the map" : FormatUtils.GetDateOfMonthTimeString(x.startTime))
+                },
 
-                    new Label {
-                            Color = Color.white * 0.5f,
-                            Overflow = TextOverflowModes.Ellipsis,
-                            FontSize = 3.5f
+                new WebImage {
+                    FlexItem = {
+                        Size = 25.pt
+                    },
+
+                    Material = BundleLoader.RoundTextureMaterial,
+                    sEnabled = hasMap,
+                    sSrc = _mapDetail.Map(string? (x) => x.coverImage).InLazy()
+                },
+
+                new Label {
+                    FlexItem = {
+                        Margin = new() { left = 1.pt, right = 1.pt }
+                    },
+
+                    FontStyle = FontStyles.Italic,
+                    Overflow = TextOverflowModes.Ellipsis,
+                    FontSize = 5f,
+                    sEnabled = hasMap,
+                    sText = _mapDetail.Map(x => x.name).InLazy()
+                },
+
+                new Label {
+                    FlexItem = {
+                        Margin = new() { top = -1.5f, left = 1.pt, right = 1.pt }
+                    },
+
+                    Color = Color.white * 0.7f,
+                    FontStyle = FontStyles.Italic,
+                    Overflow = TextOverflowModes.Ellipsis,
+                    FontSize = 4f,
+                    sEnabled = hasMap,
+                    sText = _mapDetail.Map(x => x.author).InLazy()
+                },
+
+                new Label {
+                    FlexItem = {
+                        Margin = new() { top = 0.5f, left = 1.pt, right = 1.pt }
+                    },
+
+                    Color = Color.white * 0.5f,
+                    Overflow = TextOverflowModes.Ellipsis,
+                    FontSize = 3.5f
+                }.On(_map, (x, y) => {
+                        if (y == null) {
+                            x.Enabled = false;
+                            return;
                         }
-                        .On(_map, (x, y) => {
-                            if (y == null) { 
-                                x.Enabled = false;
-                                return;
-                            }
-                            x.Enabled = true;
-                            if (y.points != null) {
-                                x.Text = $"#{y.points.rank} place - {y.points.points} point{(y.points.points > 1 ? "s" : "")}";
-                                if (y.IsHappening()) {
-                                    x.Color = Color.yellow * 0.85f;
-                                } else {
-                                    x.Color = Color.green * 0.85f;
-                                }
-                            } else if (y.IsHappening()) {
-                                x.Color = Color.white * 0.7f;
-                                x.Text = FormatUtils.GetRemainingTime(-FormatUtils.GetRelativeTime(y.endTime));
+                        x.Enabled = true;
+                        if (y.points != null) {
+                            x.Text = $"#{y.points.rank} place - {y.points.points} point{(y.points.points > 1 ? "s" : "")}";
+                            if (y.IsHappening()) {
+                                x.Color = Color.yellow * 0.85f;
                             } else {
-                                x.Enabled = false;
+                                x.Color = Color.green * 0.85f;
                             }
-                        }, lazy: true)
-                        .AsFlexItem(margin: new() { top = 0.5f, left = 1.pt, right = 1.pt })
-                }
+                        } else if (y.IsHappening()) {
+                            x.Color = Color.white * 0.7f;
+                            x.Text = FormatUtils.GetRemainingTime(-FormatUtils.GetRelativeTime(y.endTime));
+                        } else {
+                            x.Enabled = false;
+                        }
+                    }, lazy: true)
             }
-            .AsFlexGroup(direction: FlexDirection.Column, justifyContent: Justify.Center, alignItems: Align.Center)
-            .AsFlexItem(flex: 1)
-            .Use();
+        }.Use();
     }
 
     protected override void OnDisable() {

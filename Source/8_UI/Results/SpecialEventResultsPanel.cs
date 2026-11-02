@@ -31,56 +31,77 @@ public class SpecialEventResultsPanel : ReactiveComponent {
         _status = Remember<PlatformEventStatus?>(null);
 
         return new Layout {
-                Children = {
-                    new WebImage {
-                            Sprite = BundleLoader.UnknownIcon,
-                            Material = BundleLoader.RoundTextureMaterial,
-                            Skew = UIStyle.Skew,
-                            sSrc = _status.Map(x => x?.eventDescription.image).InLazy()
-                        }
-                        .AsFlexItem(size: 10f)
-                        .WithAlpha(_contentAlpha),
+            FlexController = {
+                Gap = 1.pt
+            },
 
-                    new Layout {
-                            Children = {
-                                new Label {
-                                    FontSize = 4f,
-                                    FontStyle = FontStyles.Italic,
-                                    Overflow = TextOverflowModes.Ellipsis,
-                                    Alignment = TextAlignmentOptions.CaplineLeft,
-                                    sText = _status.Map(x => $"{x?.eventDescription.name} day #{x?.today?.day}").InLazy()
-                                }.AsFlexItem(),
+            FlexItem = {
+                Size = new() { x = 60.pt, y = 10.pt }
+            },
 
-                                new Label {
-                                    FontSize = 3.5f,
-                                    FontStyle = FontStyles.Italic,
-                                    Overflow = TextOverflowModes.Ellipsis,
-                                    Alignment = TextAlignmentOptions.TopLeft,
-                                    RichText = true,
-                                    sText = _status.Map(
-                                        x => x?.today?.points is { } points
-                                            ? $"{points.rank} on the leaderboard - {points.points} points!"
-                                            : "No score yet"
-                                    ).InLazy()
-                                }.AsFlexItem(margin: new() { left = -0.6f })
-                            }
-                        }
-                        .WithAlpha(_contentAlpha)
-                        .AsFlexGroup(direction: FlexDirection.Column)
-                        .AsFlexItem(margin: new() { left = 1 }, flexGrow: 1, flexShrink: 1),
+            Children = {
+                new WebImage {
+                    FlexItem = {
+                        Size = 10f
+                    },
 
-                    new Spinner {
-                            Image = {
-                                RaycastTarget = false
-                            }
+                    Sprite = BundleLoader.UnknownIcon,
+                    Material = BundleLoader.RoundTextureMaterial,
+                    Skew = UIStyle.Skew,
+                    sSrc = _status.Map(x => x?.eventDescription.image).InLazy()
+                }.WithAlpha(_contentAlpha),
+
+                new Layout {
+                    FlexController = {
+                        FlexDirection = FlexDirection.Column
+                    },
+
+                    FlexItem = {
+                        Margin = new() { left = 1 },
+                        FlexGrow = 1,
+                        FlexShrink = 1
+                    },
+
+                    Children = {
+                        new Label {
+                            FontSize = 4f,
+                            FontStyle = FontStyles.Italic,
+                            Overflow = TextOverflowModes.Ellipsis,
+                            Alignment = TextAlignmentOptions.CaplineLeft,
+                            sText = _status.Map(x => $"{x?.eventDescription.name} day #{x?.today?.day}").InLazy()
+                        },
+
+                        new Label {
+                            FlexItem = {
+                                Margin = new() { left = -0.6f }
+                            },
+
+                            FontSize = 3.5f,
+                            FontStyle = FontStyles.Italic,
+                            Overflow = TextOverflowModes.Ellipsis,
+                            Alignment = TextAlignmentOptions.TopLeft,
+                            RichText = true,
+                            sText = _status.Map(
+                                x => x?.today?.points is { } points
+                                    ? $"{points.rank} on the leaderboard - {points.points} points!"
+                                    : "No score yet"
+                            ).InLazy()
                         }
-                        .WithAlpha(_contentAlpha, invert: true)
-                        .AsFlexItem(position: 0.pt)
-                }
+                    }
+                }.WithAlpha(_contentAlpha),
+
+                new Spinner {
+                    FlexItem = {
+                        Position = 0.pt,
+                        PositionType = PositionType.Absolute
+                    },
+
+                    Image = {
+                        RaycastTarget = false
+                    }
+                }.WithAlpha(_contentAlpha, invert: true)
             }
-            .AsFlexGroup(gap: 1.pt)
-            .AsFlexItem(size: new() { x = 60.pt, y = 10.pt })
-            .Use();
+        }.Use();
     }
 
     #endregion

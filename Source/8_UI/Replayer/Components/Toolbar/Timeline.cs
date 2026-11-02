@@ -280,59 +280,61 @@ namespace BeatLeader.UI.Replayer {
             );
 
             return new Background {
-                    ContentTransform = {
-                        slocalScale = _backgroundScale.Map(static x => new Vector3(1f, x))
-                    },
-                    Sprite = BundleLoader.Sprites.background,
-                    PixelsPerUnit = 12f,
-                    Material = GameResources.UINoGlowMaterial,
-                    sColor = _backgroundColor,
-                    Children = {
-                        //sliding area
-                        new Background {
-                            ContentTransform = {
-                                pivot = new(0f, 0.5f)
-                            },
-                            Sprite = BundleLoader.TransparentPixel,
-                            Children = {
-                                new Layout {
-                                    ContentTransform = {
-                                        pivot = Vector2.zero
-                                    }
-                                }.Bind(ref _groupsArea).WithRectExpand(),
-                                //handle
-                                new Image {
-                                    ContentTransform = {
-                                        anchorMin = new(0.5f, 0f),
-                                        anchorMax = new(0.5f, 1f),
-                                        sizeDelta = new(1f, 0f),
-                                        pivot = new(0f, 0.5f)
-                                    },
-                                    Sprite = BundleLoader.Sprites.background,
-                                    PixelsPerUnit = 30f,
-                                    Color = Color.white.ColorWithAlpha(0.8f)
-                                }.Bind(ref _handle)
-                            }
-                        }.WithPointerEvents(
-                            onDown: HandlePointerDown,
-                            onUp: HandlePointerUp,
-                            onUpdate: HandlePointerUpdated
-                        ).AsFlexItem(
-                            flexGrow: 1f,
-                            size: new() { y = 120.pct }
-                        ).Bind(ref _slidingArea)
-                    }
+                FlexController = {
+                    Padding = new() { left = 1f, right = 1f },
+                    Overflow = Overflow.Visible,
+                    AlignItems = Align.Center
+                },
+
+                ContentTransform = {
+                    slocalScale = _backgroundScale.Map(static x => new Vector3(1f, x))
+                },
+                Sprite = BundleLoader.Sprites.background,
+                PixelsPerUnit = 12f,
+                Material = GameResources.UINoGlowMaterial,
+                sColor = _backgroundColor,
+                Children = {
+                    //sliding area
+                    new Background {
+                        FlexItem = {
+                            FlexGrow = 1f,
+                            Size = new() { y = 120.pct }
+                        },
+
+                        ContentTransform = {
+                            pivot = new(0f, 0.5f)
+                        },
+                        Sprite = BundleLoader.TransparentPixel,
+                        Children = {
+                            new Layout {
+                                ContentTransform = {
+                                    pivot = Vector2.zero
+                                }
+                            }.Bind(ref _groupsArea).WithRectExpand(),
+                            //handle
+                            new Image {
+                                ContentTransform = {
+                                    anchorMin = new(0.5f, 0f),
+                                    anchorMax = new(0.5f, 1f),
+                                    sizeDelta = new(1f, 0f),
+                                    pivot = new(0f, 0.5f)
+                                },
+                                Sprite = BundleLoader.Sprites.background,
+                                PixelsPerUnit = 30f,
+                                Color = Color.white.ColorWithAlpha(0.8f)
+                            }.Bind(ref _handle)
+                        }
+                    }.WithPointerEvents(
+                        onDown: HandlePointerDown,
+                        onUp: HandlePointerUp,
+                        onUpdate: HandlePointerUpdated
+                    ).Bind(ref _slidingArea)
                 }
-                .AsFlexGroup(
-                    padding: new() { left = 1f, right = 1f },
-                    overflow: Overflow.Visible,
-                    alignItems: Align.Center
-                )
-                .Use();
+            }.Use();
         }
 
         protected override void OnInitialize() {
-            this.AsFlexItem(size: new() { y = 4f });
+            this.FlexItem.Size = new() { y = 4f };
         }
 
         #endregion

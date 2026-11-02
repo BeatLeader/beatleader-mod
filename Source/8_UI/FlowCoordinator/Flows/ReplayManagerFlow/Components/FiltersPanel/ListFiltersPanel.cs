@@ -62,7 +62,7 @@ namespace BeatLeader.UI.Hub {
             public bool FilterEnabled {
                 get => _enableToggle.Active;
                 set {
-                    _enableToggle.SetActive(value);
+                    _enableToggle.Active = value;
                     HandleButtonClicked(true);
                 }
             }
@@ -104,8 +104,16 @@ namespace BeatLeader.UI.Hub {
 
             protected override GameObject Construct() {
                 return new Layout {
+                    FlexController = {
+                        Gap = 1f
+                    },
+
                     Children = {
                         new PushContainer {
+                            FlexItem = {
+                                FlexGrow = 1f
+                            },
+
                             ClosedView = new Label()
                                 .WithRectExpand()
                                 .Bind(ref _placeholder),
@@ -113,23 +121,31 @@ namespace BeatLeader.UI.Hub {
                             BackgroundImage = {
                                 Color = (Color.white * 0.9f).ColorWithAlpha(1f)
                             }
-                        }.AsFlexItem(flexGrow: 1f).Bind(ref _filterContainer),
+                        }.Bind(ref _filterContainer),
                         //
                         new Background {
+                            FlexController = {
+                                AlignItems = Align.Center,
+                                Padding = 1f
+                            },
+
+                            FlexItem = {
+                                Size = "auto"
+                            },
+
                             Color = (Color.white * 0.9f).ColorWithAlpha(1f),
                             Children = {
                                 new CheckCircle {
+                                    FlexItem = {
+                                        Size = 3f
+                                    },
+
                                     OnStateChanged = _ => HandleButtonClicked(false)
-                                }.AsFlexItem(size: 3f).Bind(ref _enableToggle)
+                                }.Bind(ref _enableToggle)
                             }
-                        }.AsFlexGroup(
-                            alignItems: Align.Center,
-                            padding: 1f
-                        ).AsFlexItem(
-                            size: "auto"
-                        ).AsBlurBackground()
+                        }.AsBlurBackground()
                     }
-                }.AsFlexGroup(gap: 1f).Use();
+                }.Use();
             }
 
             #endregion
@@ -187,7 +203,6 @@ namespace BeatLeader.UI.Hub {
 
             public void AddFilter(IPanelListFilter<T> filter) {
                 var comp = _filtersPool.Spawn(filter);
-                comp.AsFlexItem();
                 comp.Setup(filter);
                 AddDependentFilter(filter.DependsOn, filter);
                 comp.FilterUpdatedEvent += HandleFilterUpdated;
@@ -221,17 +236,19 @@ namespace BeatLeader.UI.Hub {
             private Background _container = null!;
 
             protected override IReactiveComponent ConstructContent() {
-                return new Background()
-                    .AsFlexGroup(
-                        direction: FlexDirection.Column,
-                        justifyContent: Justify.FlexStart,
-                        alignItems: Align.Stretch,
-                        padding: 2f,
-                        gap: 1f
-                    )
-                    .AsBlurBackground()
-                    .AsFlexItem(size: new() { x = 64.pt, y = 60.pt })
-                    .Bind(ref _container);
+                return new Background {
+                    FlexController = {
+                        FlexDirection = FlexDirection.Column,
+                        JustifyContent = Justify.FlexStart,
+                        AlignItems = Align.Stretch,
+                        Padding = 2f,
+                        Gap = 1f
+                    },
+
+                    FlexItem = {
+                        Size = new() { x = 64.pt, y = 60.pt }
+                    }
+                }.AsBlurBackground().Bind(ref _container);
             }
 
             #endregion
@@ -280,6 +297,10 @@ namespace BeatLeader.UI.Hub {
 
         protected override GameObject Construct() {
             return new Layout {
+                FlexController = {
+                    Gap = 1f
+                },
+
                 Children = {
                     new FiltersModal {
                             OnClickOutside = () => _modal.IsPushed = false
@@ -288,11 +309,13 @@ namespace BeatLeader.UI.Hub {
                         .Bind(ref _modal),
                     //
                     new BsInputField {
-                            Context = _searchContext,
-                            Placeholder = "Search"
-                        }
-                        .AsFlexItem(flexGrow: 1f)
-                        .Bind(ref _searchInputField),
+                        FlexItem = {
+                            FlexGrow = 1f
+                        },
+
+                        Context = _searchContext,
+                        Placeholder = "Search"
+                    }.Bind(ref _searchInputField),
 
                     new BsKeyboardModal {
                         Context = _searchContext,
@@ -304,13 +327,16 @@ namespace BeatLeader.UI.Hub {
                     }.Bind(ref _searchKeyboard),
                     //filter panel
                     new BsInputField {
-                            Context = _filtersContext,
-                            Placeholder = "Filters",
-                            Icon = GameResources.Sprites.FilterIcon
-                        }
-                        .AsFlexItem(flexGrow: 1f)
+                        FlexItem = {
+                            FlexGrow = 1f
+                        },
+
+                        Context = _filtersContext,
+                        Placeholder = "Filters",
+                        Icon = GameResources.Sprites.FilterIcon
+                    }
                 }
-            }.AsFlexGroup(gap: 1f).Use();
+            }.Use();
         }
 
         #endregion

@@ -17,6 +17,7 @@ namespace BeatLeader.Replayer.Tweaking {
 
         public override void Dispose() {
             Cam2Interop.UnbindMovementProcessor();
+            NoodleExtensionsInterop.ClearObjectData();
             _playersManager.PrimaryPlayerWasChangedEvent -= HandlePrimaryPlayerChanged;
             _beatmapObjectManager.noteWasDespawnedEvent -= HandleNoteWasDespawned;
             _beatmapTimeController.EarlySongWasRewoundEvent -= HandleSongWasRewound;

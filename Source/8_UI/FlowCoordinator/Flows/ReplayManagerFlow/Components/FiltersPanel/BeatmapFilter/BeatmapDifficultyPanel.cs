@@ -18,7 +18,7 @@ namespace BeatLeader.UI.Hub {
         private Label _emptyLabel = null!;
 
         protected override GameObject Construct() {
-            return new Background {
+            return new Layout {
                     Children = {
                         new BsSegmentedControl<BeatmapDifficulty?> {
                                 Enabled = false,
@@ -27,7 +27,7 @@ namespace BeatLeader.UI.Hub {
                                 OnKeyChanged = x => DifficultySelectedEvent?.Invoke(x!.Value)
                             }
                             .AsFlexGroup(padding: 1f)
-                            .AsFlexItem(flexGrow: 1f, size: new() { y = 100.pct })
+                            .AsFlexItem(flexGrow: 1f, flexShrink: 1f, size: new() { y = 100.pct })
                             .Bind(ref _segmentedControl),
 
                         new Label {
@@ -37,7 +37,6 @@ namespace BeatLeader.UI.Hub {
                         }.AsFlexItem(position: 0f).Bind(ref _emptyLabel)
                     }
                 }
-                .AsBlurBackground(color: Color.black.ColorWithAlpha(0.55f))
                 .AsFlexGroup()
                 .AsFlexItem(
                     size: new() { x = 52f, y = 6f },

@@ -53,6 +53,7 @@ namespace BeatLeader.UI.Replayer {
             _viewSelectorRail.Component = new BsListControl<ICameraView> {
                     Items = views.Select(static x => new BsListControlItem<ICameraView>(x, x.Name, null)).ToArray(),
                     Key = cameraController.SelectedView,
+                    Skew = 0f,
                     OnKeyChanged = HandleViewSelectorKeyChanged
                 }
                 .AsFlexItem(size: new() { x = 40f, y = 6f })

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BeatLeader.Models;
 using Reactive;
+using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Yoga;
@@ -26,7 +27,7 @@ namespace BeatLeader.UI.Replayer {
 
             if (battleRoyaleEnabled) {
                 views[1] = CreateRoyaleView(bodySettings.RequireConfig<BattleRoyaleBodySettings>());
-                _segmentedControlContainer.Enabled = true;
+                _segmentedControl.Enabled = true;
             }
 
             _keyedContainer.Views = views;
@@ -36,8 +37,16 @@ namespace BeatLeader.UI.Replayer {
 
         #region Construct
 
+        private static readonly BsSegmentedControlColors segmentedControlColors = BeatSaberStyle.BsSegmentedControlColors with {
+            CellBackgroundColors = new ColorSet {
+                Color = new(0.1f, 0.1f, 0.1f, 1f),
+                HoveredColor = new(0.28f, 0.28f, 0.28f, 1f),
+                ActiveColor = new(0.19f, 0.19f, 0.19f, 1f)
+            }
+        };
+
         private ScrollContext _scrollContext = null!;
-        private Image _segmentedControlContainer = null!;
+        private BsSegmentedControl<int> _segmentedControl = null!;
         private KeyedContainer<int> _keyedContainer = null!;
 
         protected override GameObject Construct() {
@@ -51,17 +60,13 @@ namespace BeatLeader.UI.Replayer {
                                 [1] = new("Other Players", null)
                             },
                             Key = 0,
+                            Skew = 0f,
+                            Colors = segmentedControlColors,
                             OnKeyChanged = HandleSegmentedControlKeyChanged
                         }
-                        .AsFlexItem(size: 100.pct)
-                        .WithRectExpand()
-                        .InBackground(
-                            color: new(0.1f, 0.1f, 0.1f, 1f),
-                            pixelsPerUnit: 10f
-                        )
                         .AsFlexItem(basis: 6f)
                         .With(x => x.Enabled = false)
-                        .Bind(ref _segmentedControlContainer),
+                        .Bind(ref _segmentedControl),
 
                     new Layout {
                         Children = {

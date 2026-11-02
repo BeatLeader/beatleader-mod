@@ -281,13 +281,24 @@ namespace BeatLeader.UI.Hub {
 
         protected override GameObject Construct() {
             _canMutateLobby = Remember(true);
+            var scrollContext = new ScrollContext();
 
-            return new Table<Opponent, Cell> {
-                ScrollContext = new ScrollContext(),
-                SelectionMode = SelectionMode.None,
-                Items = Array.Empty<Opponent>(),
-                ConstructCell = ctx => new Cell(ctx, this)
-            }.Bind(ref _table).Use();
+            return new Layout {
+                Children = {
+                    new Table<Opponent, Cell> {
+                        ScrollContext = scrollContext,
+                        SelectionMode = SelectionMode.None,
+                        Items = Array.Empty<Opponent>(),
+                        ConstructCell = ctx => new Cell(ctx, this)
+                    }.AsFlexItem(flexGrow: 1f).Bind(ref _table),
+
+                    new Scrollbar {
+                        ScrollContext = scrollContext,
+                        HideIfNothingToScroll = true,
+                        WithinLayoutIfDisabled = false
+                    }.AsFlexItem()
+                }
+            }.AsFlexGroup(gap: 1f).Use();
         }
 
         private void RefreshItems() {

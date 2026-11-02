@@ -325,17 +325,8 @@ namespace BeatLeader.Components {
         private bool _playCanBeInteractable;
 
         private void RefreshPlayButton(PlayButtonState state) {
-            if (state is PlayButtonState.Unavailable || !_playCanBeInteractable) {
-                _playButton.interactable = false;
-                return;
-            }
-
-            _playButton.interactable = true;
-            _playButtonText.text = state switch {
-                PlayButtonState.ReadyToDownloadOrStart => "<bll>ls-watch-replay</bll>",
-                PlayButtonState.Downloading => "<bll>ls-cancel</bll>",
-                _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
-            };
+            _playButton.interactable = state is not PlayButtonState.Unavailable && _playCanBeInteractable;
+            _playButtonText.text = state is PlayButtonState.Downloading ? "<bll>ls-cancel</bll>" : "<bll>ls-watch-replay</bll>";
         }
 
         #endregion

@@ -231,8 +231,7 @@ namespace BeatLeader.UI.Hub {
                     )
                     .AsBlurBackground()
                     .AsFlexItem(size: new() { x = 64.pt, y = 60.pt })
-                    .Bind(ref _container)
-                    .InShadow();
+                    .Bind(ref _container);
             }
 
             #endregion

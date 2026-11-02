@@ -142,8 +142,7 @@ namespace BeatLeader.Components {
         Vector2 ILayoutComponentHandler.OnResize(ILayoutComponent component, Vector2 destination) {
             //modifying size
             destination = _layoutGrid.OnResize(component, destination);
-            destination = ApplyBorders(destination, component.LayoutData.size);
-            return destination;
+            return Vector2.Min(destination, AreaSize);
         }
 
         void ILayoutComponentHandler.OnSelect(ILayoutComponent component) {

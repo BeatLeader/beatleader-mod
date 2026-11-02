@@ -112,20 +112,22 @@ namespace BeatLeader.UI.Hub {
         private Vector3 _previousWorldContainerPos;
         private Vector2 _previousContainerPos;
 
-        private void RefreshPanelSlideAnimation() {
+        private void StartPanelSlideAnimation() {
             // If tag container got moved not globally
             var containerPosition = ContentTransform.anchoredPosition;
             if (containerPosition != _previousContainerPos) {
-                _buttonTransform.position = _previousWorldContainerPos;
+                _buttonTransform.position += _previousWorldContainerPos - ContentTransform.position;
             }
+            ResetInitialPosition();
+        }
 
+        private void RefreshPanelSlideAnimation() {
             // Animating
             _buttonTransform.localPosition = Vector3.Lerp(
                 _buttonTransform.localPosition,
                 Vector3.zero,
                 Time.deltaTime * _slideSpeed
             );
-            _previousContainerPos = ContentTransform.anchoredPosition;
             _previousWorldContainerPos = ContentTransform.position;
         }
 
@@ -176,6 +178,8 @@ namespace BeatLeader.UI.Hub {
             if (_needToResetPos) {
                 _needToResetPos = false;
                 ResetInitialPosition();
+            } else if (AnimateMovement) {
+                StartPanelSlideAnimation();
             }
         }
 

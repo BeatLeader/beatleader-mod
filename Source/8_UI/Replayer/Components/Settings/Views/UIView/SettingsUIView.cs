@@ -202,7 +202,8 @@ namespace BeatLeader.UI.Replayer {
 
                     new Scrollbar {
                         ScrollContext = scrollContext,
-                        HideIfNothingToScroll = true
+                        HideIfNothingToScroll = true,
+                        WithinLayoutIfDisabled = false
                     }.AsFlexItem()
                 }
             }.AsFlexGroup(gap: 1f).AsFlexItem().Use();

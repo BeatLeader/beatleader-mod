@@ -30,7 +30,6 @@ namespace BeatLeader.Components {
                 _editor!.ComponentAddedEvent += HandleComponentAdded;
                 _editor.ComponentRemovedEvent += HandleComponentRemoved;
                 RefreshComponents();
-                ContentTransform.SetParent(_handler!.AreaTransform);
             } else {
                 if (_editor != null) {
                     _editor!.ComponentAddedEvent -= HandleComponentAdded;

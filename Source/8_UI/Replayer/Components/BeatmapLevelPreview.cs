@@ -21,7 +21,7 @@ namespace BeatLeader.UI.Replayer {
                         new Label {
                             Overflow = TextOverflowModes.Ellipsis,
                             FontSize = 4f
-                        }.AsFlexItem(size: "auto").Bind(ref label)
+                        }.AsFlexItem(flexShrink: 1f, size: "auto").Bind(ref label)
                     }
                 }.AsBackground(
                     material: BundleLoader.Materials.tintedBlurredBackgroundMaterial,
@@ -68,9 +68,9 @@ namespace BeatLeader.UI.Replayer {
                     }.AsFlexGroup(
                         direction: FlexDirection.Column,
                         justifyContent: Justify.Center,
-                        alignItems: Align.FlexStart,
+                        alignItems: Align.Stretch,
                         gap: new() { y = 1f }
-                    ).AsFlexItem(flexGrow: 1f)
+                    ).AsFlexItem(flexGrow: 1f, flexShrink: 1f)
                 }
             }.AsFlexGroup(
                 padding: new() {

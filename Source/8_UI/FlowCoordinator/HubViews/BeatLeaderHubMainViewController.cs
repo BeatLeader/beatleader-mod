@@ -1,11 +1,11 @@
 using System;
 using BeatLeader.DataManager;
 using BeatLeader.Models;
-using BeatSaberMarkupLanguage;
+using BeatLeader.UI.Reactive.Components;
 using HMUI;
 using Reactive;
 using Reactive.BeatSaber.Components;
-using Reactive.Components;
+using Reactive.Compiler;
 using Reactive.Yoga;
 using UnityEngine;
 using Zenject;
@@ -20,18 +20,20 @@ namespace BeatLeader.UI.Hub {
 
         private QuickMiniProfile _quickMiniProfile = null!;
 
-        private AeroButtonLayout CreateActionButton(
+        [StateGen]
+        private BsAeroButton CreateActionButton(
             string text,
             Sprite icon,
-            IColorSet colorSet,
+            SerializableColorSet colorSet,
             YogaFrame position,
             float iconMargin,
             float gap,
             FlowCoordinator flowCoordinator,
             Action? beforePresent = null
         ) {
-            return new AeroButtonLayout {
-                Colors = colorSet,
+            return new BsAeroButton {
+                Skew = 0f,
+                sColors = colorSet.State.Map(UIStyle.AeroButtonColors),
                 OnClick = () => {
                     beforePresent?.Invoke();
 
@@ -40,23 +42,28 @@ namespace BeatLeader.UI.Hub {
                         animationDirection: AnimationDirection.Vertical
                     );
                 },
-                Children = {
-                    // Icon
-                    new Image {
-                        Sprite = icon,
-                        PreserveAspect = true
-                    }.AsFlexItem(flex: 1f),
-                    
-                    // Label
-                    new Label {
-                        Text = text,
-                        FontSize = 4.5f
-                    }.AsFlexItem()
-                }
-            }.WithScaleAnimation(1f, 1.2f).AsFlexGroup(
-                direction: FlexDirection.Column,
-                padding: new() { left = 2f, right = 2f, top = iconMargin },
-                gap: gap
+                ConstructContent = (color, _) => new Layout {
+                    Children = {
+                        // Icon
+                        new Image {
+                            Sprite = icon,
+                            PreserveAspect = true,
+                            sColor = color.In()
+                        }.AsFlexItem(flex: 1f),
+
+                        // Label
+                        new Label {
+                            Text = text,
+                            FontSize = 4.5f,
+                            sColor = color.In()
+                        }.AsFlexItem()
+                    }
+                }.AsFlexGroup(
+                    direction: FlexDirection.Column,
+                    gap: gap
+                ).AsFlexItem(flexGrow: 1f)
+            }.WithHoverScale(1f, 1.2f).AsFlexGroup(
+                padding: new() { left = 2f, right = 2f, top = iconMargin }
             ).AsFlexItem(size: 30f, position: position);
         }
 
@@ -93,9 +100,7 @@ namespace BeatLeader.UI.Hub {
                                 iconMargin: 3f,
                                 gap: 2f,
                                 _battleRoyaleFlowCoordinator,
-                                () => {
-                                    _battleRoyaleFlowCoordinator.CanMutateLobby = true;
-                                }
+                                () => _battleRoyaleFlowCoordinator.CanMutateLobby = true
                             ),
 
                             CreateActionButton(
@@ -131,7 +136,6 @@ namespace BeatLeader.UI.Hub {
 
         private async void OnInitialize() {
             _quickMiniProfile.SetPlayer(null);
-            _quickMiniProfile.JustifyContent = Justify.Center;
             //waiting for the profile load
             await ProfileManager.WaitUntilProfileLoad();
             var profile = ProfileManager.Profile ?? Player.GuestPlayer;

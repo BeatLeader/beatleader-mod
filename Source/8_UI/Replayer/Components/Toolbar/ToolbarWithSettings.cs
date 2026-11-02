@@ -1,8 +1,6 @@
 ﻿using BeatLeader.Components;
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive;
 using Reactive;
-using Reactive.Components;
 using Reactive.Yoga;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,24 +9,24 @@ namespace BeatLeader.UI.Replayer {
     internal class ToolbarWithSettings : ReactiveComponent, Toolbar.ISettingsPanel {
         #region Animation
 
-        private AnimatedValue<float> _animatedValue = null!;
+        private AnimatedState<float> _animatedValue = null!;
 
         public void Present() {
             _settingsPanel.Enabled = true;
-            _animatedValue.Value = 1f;
+            _animatedValue.TargetValue = 1f;
         }
 
         public void Dismiss() {
-            _animatedValue.Value = 0f;
+            _animatedValue.TargetValue = 0f;
         }
 
         private void RefreshAnimation(float progress) {
-            var targetPos = _settingsTransform.rect.height;
-            var pos = Mathf.Lerp(-targetPos, 0f, progress);
+            var settingsTransform = _settingsPanel.ContentTransform;
+            var pos = Mathf.Lerp(-settingsTransform.rect.height, 0f, progress);
             var scale = Mathf.Lerp(0.8f, 1f, progress);
 
-            _settingsTransform.localPosition = new(0f, pos, 0f);
-            _settingsTransform.localScale = Vector3.one * scale;
+            settingsTransform.localPosition = new(0f, pos, 0f);
+            settingsTransform.localScale = Vector3.one * scale;
         }
 
         #endregion
@@ -72,15 +70,14 @@ namespace BeatLeader.UI.Replayer {
 
         #region Construct
 
-        private RectTransform _settingsTransform = null!;
         private ReplayerSettingsPanel _settingsPanel = null!;
         private Toolbar _toolbar = null!;
 
         protected override GameObject Construct() {
-            _animatedValue = RememberAnimated(0f, 10.fact());
-            _animatedValue.ValueChangedEvent += RefreshAnimation;
+            _animatedValue = RememberAnimated(0f, 10.fact);
+            _animatedValue.AddCallback(RefreshAnimation, lazy: true);
 
-            _animatedValue.OnFinish += x => _settingsPanel.Enabled = x.Value != 0f;
+            _animatedValue.OnFinish += x => _settingsPanel.Enabled = x != 0f;
 
             return new Layout {
                 Children = {
@@ -96,7 +93,7 @@ namespace BeatLeader.UI.Replayer {
                                     ContentTransform = {
                                         pivot = new(0.5f, 0f)
                                     }
-                                }.WithRectExpand().Bind(ref _settingsTransform).Bind(ref _settingsPanel)
+                                }.WithRectExpand().Bind(ref _settingsPanel)
                             }
                         }
                         .WithNativeComponent(out RectMask2D _)

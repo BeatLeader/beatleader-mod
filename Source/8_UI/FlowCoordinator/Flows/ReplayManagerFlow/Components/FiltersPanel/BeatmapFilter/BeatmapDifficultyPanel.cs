@@ -4,6 +4,7 @@ using System.Linq;
 using Reactive;
 using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
+using Reactive.Yoga;
 using TMPro;
 using UnityEngine;
 
@@ -13,26 +14,21 @@ namespace BeatLeader.UI.Hub {
         
         public event Action<BeatmapDifficulty>? DifficultySelectedEvent;
 
-        private TextSegmentedControl<BeatmapDifficulty> _segmentedControl = null!;
+        private BsSegmentedControl<BeatmapDifficulty?> _segmentedControl = null!;
         private Label _emptyLabel = null!;
 
         protected override GameObject Construct() {
             return new Background {
                     Children = {
-                        new TextSegmentedControl<BeatmapDifficulty> {
-                            WhenKeySelected = x => DifficultySelectedEvent?.Invoke(x),
-                            WhenCellSpawned = (_, cell) => {
-                                cell.Colors = BeatSaberStyle.TextColorSet.With(
-                                    color: Color.white.ColorWithAlpha(0.9f),
-                                    hoveredColor: Color.white
-                                );
-
-                                cell.Alignment = TextAlignmentOptions.Capline;
-                                cell.FontSize = 3.5f;
-                                cell.EnableAutoSizing = false;
-                                cell.FontStyle |= FontStyles.Italic;
+                        new BsSegmentedControl<BeatmapDifficulty?> {
+                                Enabled = false,
+                                Items = new Dictionary<BeatmapDifficulty?, BsSegmentedControlItem>(),
+                                Key = null,
+                                OnKeyChanged = x => DifficultySelectedEvent?.Invoke(x!.Value)
                             }
-                        }.AsFlexGroup(padding: 1f).Bind(ref _segmentedControl),
+                            .AsFlexGroup(padding: 1f)
+                            .AsFlexItem(flexGrow: 1f, size: new() { y = 100.pct })
+                            .Bind(ref _segmentedControl),
 
                         new Label {
                             Text = "No Difficulties",
@@ -55,20 +51,16 @@ namespace BeatLeader.UI.Hub {
         #region SetData
 
         public void SetData(IReadOnlyList<BeatmapDifficulty>? difficulties) {
-            var empty = difficulties == null;
-            _emptyLabel.Enabled = empty;
-            _segmentedControl.Enabled = !empty;
-            
-            if (!empty) {
-                var items = _segmentedControl.Items;
-                items.Clear();
+            _emptyLabel.Enabled = difficulties == null;
+            _segmentedControl.Enabled = difficulties != null;
 
-                // ReSharper disable PossibleMultipleEnumeration
-                foreach (var characteristic in difficulties!) {
-                    items.Add(characteristic, characteristic.Name());
-                }
+            if (difficulties != null) {
+                _segmentedControl.Items = difficulties.ToDictionary(
+                    static x => (BeatmapDifficulty?)x,
+                    static x => new BsSegmentedControlItem(x.Name(), null)
+                );
 
-                _segmentedControl.Select(difficulties.First());
+                _segmentedControl.Key = difficulties[0];
             }
         }
 

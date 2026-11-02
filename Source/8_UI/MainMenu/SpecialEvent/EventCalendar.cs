@@ -105,7 +105,7 @@ namespace BeatLeader.UI.MainMenu {
 
         protected override GameObject Construct() {
             return new Layout()
-                .AsFlexGroup(gap: 1.pt(), wrap: Wrap.Wrap)
+                .AsFlexGroup(gap: 1.pt, wrap: Wrap.Wrap)
                 .AsFlexItem()
                 .Bind(ref _content)
                 .Use();

@@ -11,10 +11,12 @@ using BeatLeader.Utils;
 using ModestTree;
 using Reactive;
 using Reactive.BeatSaber.Components;
+using Reactive.Compiler;
 using Reactive.Components;
 using Reactive.Yoga;
 using UnityEngine;
 using UnityEngine.UI;
+using Image = Reactive.BeatSaber.Components.Image;
 
 namespace BeatLeader.Components {
     internal class LeaderboardInfoPanel : ReactiveComponent {
@@ -32,29 +34,35 @@ namespace BeatLeader.Components {
 
         private DownloadScoresModal _downloadModal = null!;
         private Label _replaysLabel = null!;
-        private BsButton _proceedButton = null!;
+        private BsTextButton _proceedButton = null!;
 
-        private ImageButton _menuButton = null!;
+        private Image _menuButton = null!;
         private PushContainer _container = null!;
 
-        private static ImageButton CreateHeaderButton(Sprite sprite, Action callback) {
-            return new ImageButton {
-                Image = {
+        [StateGen]
+        private static Image CreateHeaderButton(Sprite sprite, Action callback) {
+            var graphicState = Remember(GraphicState.None);
+
+            return new Image {
                     Sprite = sprite,
-                    Material = BundleLoader.UIAdditiveGlowMaterial
-                },
-                Colors = UIStyle.GlowingButtonColorSet,
-                OnClick = callback
-            }.AsFlexItem(size: 4f);
+                    Material = BundleLoader.UIAdditiveGlowMaterial,
+                    sColor = graphicState.MapColorSet(UIStyle.GlowingButtonColorSet)
+                }
+                .WithPointerEvents(
+                    onEnter: _ => graphicState.IsHovered = true,
+                    onLeave: _ => graphicState.IsHovered = false,
+                    onDown: _ => {
+                        global::Reactive.BeatSaber.GameResources.ButtonClickSignal.Raise();
+                        callback();
+                    }
+                )
+                .AsFlexItem(size: 4f);
         }
 
         protected override GameObject Construct() {
-            _downloadModal = new DownloadScoresModal {
-                DownloadingFinishedCallback = OnScoreDownloadingFinished
-            }.WithAlphaAnimation(() => Canvas!.gameObject).WithJumpAnimation();
-
             return new PushContainer {
                 OpenedView = new Layout {
+                    IgnoreLayout = true,
                     Children = {
                         new Layout {
                             Children = {
@@ -66,6 +74,7 @@ namespace BeatLeader.Components {
                         }.AsFlexItem(flexGrow: 1f).AsFlexGroup(justifyContent: Justify.FlexStart),
 
                         new Layout {
+                            IgnoreLayout = true,
                             Children = {
                                 new ReeWrapperV2<MapStatus>().BindRee(ref _mapStatus),
 
@@ -122,8 +131,9 @@ namespace BeatLeader.Components {
                 ).WithRectExpand(),
 
                 ClosedView = new Layout {
+                    IgnoreLayout = true,
                     Children = {
-                        new BsButton {
+                        new BsTextButton {
                             Text = "Cancel",
                             ShowUnderline = false,
                             OnClick = () => SetBattleRoyaleEnabled(false)
@@ -133,14 +143,17 @@ namespace BeatLeader.Components {
                             FontSize = 5f
                         }.AsFlexItem().Bind(ref _replaysLabel),
 
-                        new BsButton {
+                        new BsTextButton {
                             Text = "Proceed",
                             ShowUnderline = false,
-                            OnClick = () => {
-                                _downloadModal.SetData(_selectedScores);
-                                ModalSystem.PresentModal(_downloadModal, Canvas!.transform);
-                            }
+                            OnClick = PresentDownloadModal
                         }.AsFlexItem().Bind(ref _proceedButton),
+
+                        new DownloadScoresModal {
+                                DownloadingFinishedCallback = OnScoreDownloadingFinished
+                            }
+                            .WithPlacement(RelativePlacement.Center)
+                            .Bind(ref _downloadModal)
                     }
                 }.AsFlexGroup(
                     alignItems: Align.Center,
@@ -149,7 +162,9 @@ namespace BeatLeader.Components {
                 ).WithRectExpand(),
 
                 Opened = true,
-                Color = Color.clear
+                BackgroundImage = {
+                    Color = Color.clear
+                }
             }.Bind(ref _container).Use();
         }
 
@@ -202,6 +217,12 @@ namespace BeatLeader.Components {
         private void RefreshBattleRoyaleUI() {
             _replaysLabel.Text = $"{_selectedScores.Count} OPPONENTS";
             _proceedButton.Interactable = _selectedScores.Count > 1;
+        }
+
+        private void PresentDownloadModal() {
+            _downloadModal.SetData(_selectedScores);
+            _downloadModal.PlacementAnchor = CanvasTransform;
+            _downloadModal.IsPushed = true;
         }
 
         private void OnScoreClicked(Score score) {
@@ -353,10 +374,8 @@ namespace BeatLeader.Components {
         }
 
         private void UpdateMapTypes() {
-            if (_mapTypePanels == null) {
-                _mapTypePanels = new List<MapTypePanel> { _mapTypePanel1, _mapTypePanel2, _mapTypePanel3 };
-            }
-            
+            _mapTypePanels ??= [_mapTypePanel1, _mapTypePanel2, _mapTypePanel3];
+
             int typeIndex = 0;
             int knownTypes = MapTypesManager.MapTypes.Count;
             foreach (var mapTypePanel in _mapTypePanels) {
@@ -374,18 +393,6 @@ namespace BeatLeader.Components {
                     mapTypePanel.SetActive(false);
                 }
             }
-        }
-
-        #endregion
-
-        #region Utils
-
-        private static bool ExMachinaVisibleToRole(PlayerRole playerRole) {
-            return playerRole.IsAnyAdmin() || playerRole.IsAnyRT() || playerRole.IsAnySupporter();
-        }
-
-        private static bool RtToolsVisibleToRole(PlayerRole playerRole) {
-            return playerRole.IsAnyAdmin() || playerRole.IsAnyRT();
         }
 
         #endregion

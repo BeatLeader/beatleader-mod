@@ -9,43 +9,51 @@ using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.UI.MainMenu {
-    internal class MapPreviewPanel : ListCell<TrendingMapData> {
+    internal class MapPreviewPanel : ReactiveComponent {
+        public MapPreviewPanel(CellContext<TrendingMapData> context) : base(false) {
+            _context = context;
+            ConstructAndInit();
+        }
+
         public Action<TrendingMapData>? ButtonAction { get; set; }
         public Action<TrendingMapData>? BackgroundAction { get; set; }
 
+        private readonly CellContext<TrendingMapData> _context;
+
         protected override GameObject Construct() {
-            return new BackgroundButton {
-                    Colors = new StateColorSet {
-                        States = {
-                            GraphicState.None.WithColor(Color.clear),
-                            GraphicState.Hovered.WithColor(new Color(0, 0, 0, 0.5f + 0.4f))
-                        }
-                    },
+            var graphicState = Remember(GraphicState.None);
 
-                    Image = {
-                        Sprite = BeatSaberResources.Sprites.background,
-                        PixelsPerUnit = 10,
-                        Skew = UIStyle.Skew
-                    },
+            var colors = new ColorSet {
+                Color = Color.clear,
+                HoveredColor = new Color(0, 0, 0, 0.5f + 0.4f)
+            };
 
-                    OnClick = () => BackgroundAction?.Invoke(Item),
+            return new Background {
+                    Sprite = BeatSaberResources.Sprites.background,
+                    PixelsPerUnit = 10,
+                    Skew = UIStyle.Skew,
+                    sColor = graphicState.MapColorSet(colors),
 
                     Children = {
-                        new Image {
+                        new WebImage {
                                 Sprite = BundleLoader.UnknownIcon,
                                 Material = BundleLoader.RoundTextureMaterial,
                                 Skew = UIStyle.Skew
                             }
                             .AsFlexItem(size: new() { x = 8, y = 8 })
-                            .Animate(
-                                ObservableItem,
-                                (img, item) => {
-                                    if (string.IsNullOrEmpty(item.song.coverImage)) {
+                            .On(
+                                _context,
+                                (img, ctx) => {
+                                    var coverImage = ctx.Item.song.coverImage;
+
+                                    if (string.IsNullOrEmpty(coverImage)) {
+                                        img.Src = null;
                                         img.Sprite = BundleLoader.UnknownIcon;
                                     } else {
-                                        img.WithWebSource(item.song.coverImage);
+                                        img.Src = coverImage;
                                     }
-                                }
+                                },
+                                lazy: true
                             ),
 
                         new Layout {
@@ -54,31 +62,39 @@ namespace BeatLeader.UI.MainMenu {
                                             FontSize = 3f,
                                             FontStyle = FontStyles.Italic,
                                             Overflow = TextOverflowModes.Ellipsis,
-                                            Alignment = TextAlignmentOptions.CaplineLeft
+                                            Alignment = TextAlignmentOptions.CaplineLeft,
+                                            sText = _context.Map(x => x.Item.song.name)
                                         }
-                                        .AsFlexItem()
-                                        .Animate(ObservableItem, (lbl, item) => lbl.Text = item.song.name),
+                                        .AsFlexItem(),
 
                                     new Label {
                                             FontSize = 2.5f,
                                             FontStyle = FontStyles.Italic,
                                             Overflow = TextOverflowModes.Ellipsis,
                                             Alignment = TextAlignmentOptions.TopLeft,
-                                            Color = new Color(0.53f, 0.53f, 0.53f)
+                                            Color = new Color(0.53f, 0.53f, 0.53f),
+                                            sText = _context.Map(x => x.Item.song.mapper)
                                         }
                                         .AsFlexItem(margin: new() { left = -0.6f })
-                                        .Animate(ObservableItem, (lbl, item) => lbl.Text = item.song.mapper)
                                 }
                             }
                             .AsFlexGroup(direction: FlexDirection.Column)
                             .AsFlexItem(margin: new() { left = 1 }, flexGrow: 1, flexShrink: 1),
 
-                        new BsButton {
+                        new BsTextButton {
                             Text = "Play",
-                            OnClick = () => ButtonAction?.Invoke(Item)
+                            OnClick = () => ButtonAction?.Invoke(_context.Item)
                         }.AsFlexItem(size: new() { x = 12, y = 8 })
                     }
                 }
+                .WithPointerEvents(
+                    onEnter: _ => graphicState.IsHovered = true,
+                    onLeave: _ => graphicState.IsHovered = false,
+                    onDown: _ => {
+                        global::Reactive.BeatSaber.GameResources.ButtonClickSignal.Raise();
+                        BackgroundAction?.Invoke(_context.Item);
+                    }
+                )
                 .AsFlexGroup(
                     direction: FlexDirection.Row,
                     gap: 1f,

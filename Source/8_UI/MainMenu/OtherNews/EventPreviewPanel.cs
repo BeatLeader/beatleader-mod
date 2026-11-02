@@ -10,38 +10,40 @@ using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.UI.MainMenu {
-    internal class EventPreviewPanel : ListCell<PlatformEvent> {
+    internal class EventPreviewPanel : ReactiveComponent {
+        public EventPreviewPanel(CellContext<PlatformEvent> context) : base(false) {
+            _context = context;
+            ConstructAndInit();
+        }
+
         public Action<PlatformEvent>? OnClick { get; set; }
 
-        private ObservableValue<string> _bottomText = null!;
+        private readonly CellContext<PlatformEvent> _context;
+        private State<string> _bottomText = null!;
 
         protected override GameObject Construct() {
             _bottomText = Remember(string.Empty);
+            var graphicState = Remember(GraphicState.None);
 
-            return new BackgroundButton {
-                    Colors = new StateColorSet {
-                        States = {
-                            GraphicState.None.WithColor(Color.clear),
-                            GraphicState.Hovered.WithColor(new Color(0, 0, 0, 0.5f + 0.4f))
-                        }
-                    },
+            var colors = new ColorSet {
+                Color = Color.clear,
+                HoveredColor = new Color(0, 0, 0, 0.5f + 0.4f)
+            };
 
-                    Image = {
-                        Sprite = BeatSaberResources.Sprites.background,
-                        PixelsPerUnit = 10,
-                        Skew = UIStyle.Skew
-                    },
-
-                    OnClick = () => OnClick?.Invoke(Item),
+            return new Background {
+                    Sprite = BeatSaberResources.Sprites.background,
+                    PixelsPerUnit = 10,
+                    Skew = UIStyle.Skew,
+                    sColor = graphicState.MapColorSet(colors),
 
                     Children = {
-                        new Image {
+                        new WebImage {
                                 Sprite = BundleLoader.UnknownIcon,
                                 Material = BundleLoader.RoundTextureMaterial,
-                                Skew = UIStyle.Skew
+                                Skew = UIStyle.Skew,
+                                sSrc = _context.Map(x => x.Item.image)
                             }
-                            .AsFlexItem(size: new() { x = 10, y = 10 })
-                            .Animate(ObservableItem, (img, item) => img.WithWebSource(item.image)),
+                            .AsFlexItem(size: new() { x = 10, y = 10 }),
 
                         new Layout {
                                 Children = {
@@ -49,10 +51,10 @@ namespace BeatLeader.UI.MainMenu {
                                             FontSize = 4f,
                                             FontStyle = FontStyles.Italic,
                                             Overflow = TextOverflowModes.Ellipsis,
-                                            Alignment = TextAlignmentOptions.CaplineLeft
+                                            Alignment = TextAlignmentOptions.CaplineLeft,
+                                            sText = _context.Map(x => x.Item.name)
                                         }
-                                        .AsFlexItem()
-                                        .Animate(ObservableItem, (lbl, item) => lbl.Text = item.name),
+                                        .AsFlexItem(),
 
                                     new Label {
                                             FontSize = 3.5f,
@@ -60,20 +62,29 @@ namespace BeatLeader.UI.MainMenu {
                                             Overflow = TextOverflowModes.Ellipsis,
                                             Alignment = TextAlignmentOptions.TopLeft,
                                             RichText = true, // For color tags
+                                            sText = _bottomText
                                         }
                                         .AsFlexItem(margin: new() { left = -0.6f })
-                                        .Animate(_bottomText, (lbl, text) => lbl.Text = text)
                                 }
                             }
                             .AsFlexGroup(direction: FlexDirection.Column)
                             .AsFlexItem(margin: new() { left = 1 }, flexGrow: 1, flexShrink: 1),
 
-                        new BsButton {
+                        new BsTextButton {
                             Text = "Details",
-                            OnClick = () => OnClick?.Invoke(Item)
+                            OnClick = () => OnClick?.Invoke(_context.Item)
                         }.AsFlexItem(size: new() { x = 12, y = 8 })
                     }
                 }
+                .WithPointerEvents(
+                    onEnter: _ => graphicState.IsHovered = true,
+                    onLeave: _ => graphicState.IsHovered = false,
+                    onDown: _ => {
+                        global::Reactive.BeatSaber.GameResources.ButtonClickSignal.Raise();
+                        OnClick?.Invoke(_context.Item);
+                    }
+                )
+                .On(_context, (_, ctx) => UpdateBottomText(ctx.Item), lazy: true)
                 .AsFlexGroup(
                     direction: FlexDirection.Row,
                     gap: 1f,
@@ -85,10 +96,6 @@ namespace BeatLeader.UI.MainMenu {
         }
 
         #region Timer Logic
-
-        protected override void OnInit(PlatformEvent item) {
-            UpdateBottomText(item);
-        }
 
         private void UpdateBottomText(PlatformEvent item) {
             StopAllCoroutines();

@@ -10,7 +10,9 @@ using BeatSaber.BeatAvatarAdapter.AvatarEditor;
 using BeatSaber.BeatAvatarSDK;
 using HMUI;
 using IPA.Utilities;
+using Reactive;
 using Reactive.BeatSaber;
+using Reactive.Compiler;
 using UnityEngine;
 using Zenject;
 
@@ -37,6 +39,7 @@ namespace BeatLeader.UI.Hub {
 
         private AvatarData? _avatarData;
 
+        [StateGen]
         private async void Awake() {
             _editAvatarButton = new EditAvatarFloatingButton {
                 ContentTransform = {
@@ -46,9 +49,9 @@ namespace BeatLeader.UI.Hub {
                 },
                 Interactable = false,
                 Enabled = false,
-                OnClick = PresentEditFlowCoordinator
+                OnClick = PresentEditFlowCoordinator,
+                sColors = _hubTheme.MenuButtonsTheme.EditAvatarButtonColors.State.Map(UIStyle.AeroButtonColors)
             };
-            _editAvatarButton.Setup(_hubTheme.MenuButtonsTheme);
             _editAvatarButton.Use(transform);
             _hubFlowCoordinator.FlowCoordinatorPresentedEvent += Present;
             _hubFlowCoordinator.FlowCoordinatorDismissedEvent += Dismiss;

@@ -1,4 +1,4 @@
-﻿using BeatLeader.UI.Reactive;
+﻿using BeatLeader.UI.Reactive.Components;
 using HMUI;
 using Reactive;
 using Reactive.Components;
@@ -17,10 +17,10 @@ namespace BeatLeader.UI.Hub {
         #region Construct
 
         private BattleRoyaleOpponentsList _opponentsList = null!;
-        private CanvasGroup _localCanvasGroup = null!;
+        private AnimatedState<float> _alpha = null!;
 
         private void Awake() {
-            new Layout {
+            var layout = new Layout {
                 Children = {
                     //header
                     new BattleRoyaleViewHeader {
@@ -31,14 +31,14 @@ namespace BeatLeader.UI.Hub {
                         .AsFlexItem(flexGrow: 1f, margin: new() { top = 10f })
                         .Bind(ref _opponentsList)
                 }
-            }.AsFlexGroup(direction: FlexDirection.Column).WithNativeComponent(out _localCanvasGroup).Use(transform);
+            }.AsFlexGroup(direction: FlexDirection.Column);
+
+            _alpha = StateUtils.RememberAnimatedFloat(layout, 0f, 20.fact);
+            layout.WithAlpha(_alpha).Use(transform);
 
             _battleRoyaleHost.ReplayAddedEvent += HandleReplayAdded;
             _battleRoyaleHost.ReplayRemovedEvent += HandleReplayRemoved;
             _opponentsList.Setup(_battleRoyaleHost);
-
-            _alphaAnimator.SetProgress(0f);
-            _alphaAnimator.SetTarget(0f);
         }
 
         public override void OnDestroy() {
@@ -52,7 +52,6 @@ namespace BeatLeader.UI.Hub {
 
         #region Animation
 
-        private readonly ValueAnimator _alphaAnimator = new() { LerpCoefficient = 20f };
         private int _replaysCount;
         private bool _isViewPresented;
 
@@ -65,18 +64,13 @@ namespace BeatLeader.UI.Hub {
         }
 
         private void PresentView() {
-            _alphaAnimator.Push();
+            _alpha.TargetValue = 1f;
             _isViewPresented = true;
         }
 
         private void DismissView() {
-            _alphaAnimator.Pull();
+            _alpha.TargetValue = 0f;
             _isViewPresented = false;
-        }
-
-        private void Update() {
-            _alphaAnimator.Update();
-            _localCanvasGroup.alpha = _alphaAnimator.Progress;
         }
 
         #endregion

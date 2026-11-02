@@ -7,27 +7,27 @@ using UnityEngine;
 
 namespace BeatLeader.UI.MainMenu {
     internal class TextNewsPostHeaderPanel : ReactiveComponent {
-        private string _nameValue = "Loading...";
-        public string Name {
-            get => _nameValue;
+        public string Owner {
+            get => _nameLabel.Text;
             set => _nameLabel.Text = value;
         }
 
-        private Label _nameLabel = null!;
-
         public long Timestamp {
-            get => 0;
-            set => _dateLabel.Text = FormatUtils.GetRelativeTimeString(value, false);
+            get;
+            set {
+                field = value;
+                _dateLabel.Text = FormatUtils.GetRelativeTimeString(value, false);
+            }
         }
 
+        public string? AvatarUrl {
+            get => _avatarImage.Src;
+            set => _avatarImage.Src = value;
+        }
+
+        private Label _nameLabel = null!;
         private Label _dateLabel = null!;
-
-        public string AvatarUrl {
-            get => "";
-            set => _avatarImage.WithWebSource(value);
-        }
-
-        private Image _avatarImage = null!;
+        private WebImage _avatarImage = null!;
 
         protected override GameObject Construct() {
             return new Background {
@@ -37,7 +37,7 @@ namespace BeatLeader.UI.MainMenu {
                 Children = {
                     new Layout {
                         Children = {
-                            new Image {
+                            new WebImage {
                                 Sprite = BundleLoader.UnknownIcon,
                                 Material = BundleLoader.RoundTextureMaterial
                             }.AsFlexItem(

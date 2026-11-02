@@ -6,7 +6,7 @@ using BeatLeader.API;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using BeatLeader.WebRequests;
-using Reactive.Components;
+using Reactive.Components.GIF;
 using UnityEngine;
 
 namespace BeatLeader.DataManager {
@@ -45,10 +45,16 @@ namespace BeatLeader.DataManager {
             var image = await ImageLoader.LoadImage(description.Icon, CancellationToken.None);
 
             if (image != null) {
-                _sprites[description] = image.Sprite;
+                _sprites[description] = image.Sprite ?? GetFirstFrame(image);
             } else {
                 Plugin.Log.Error("Failed to load map type icon");
             }
+        }
+
+        private static Sprite GetFirstFrame(CachedImage image) {
+            var player = new GifPlayer { Image = image };
+            player.Stop();
+            return player.Sprite!;
         }
     }
 }

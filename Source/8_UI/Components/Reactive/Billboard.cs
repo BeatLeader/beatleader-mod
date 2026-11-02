@@ -4,9 +4,9 @@ using BeatLeader.Utils;
 using JetBrains.Annotations;
 using Reactive;
 using Reactive.BeatSaber.Components;
+using Reactive.Compiler;
 using Reactive.Yoga;
 using UnityEngine;
-using UnityEngine.UI;
 using AnimationCurve = Reactive.AnimationCurve;
 
 namespace BeatLeader.UI.Reactive.Components;
@@ -41,10 +41,7 @@ public class Billboard : ReactiveComponent {
         }
         _components.Push(comp);
 
-        comp.RecalculateLayoutImmediate();
-        _outerWidth.Value = comp.ContentTransform.rect.width;
-
-        RecalculatePos();
+        RefreshTargets();
     }
 
     public void Pop() {
@@ -52,28 +49,22 @@ public class Billboard : ReactiveComponent {
             return;
         }
 
-        var comp = _components.Pop();
-        _pendingRemoval.Add(comp);
-        RecalculatePos();
+        _pendingRemoval.Add(_components.Pop());
 
-        if (_components.TryPeek(out var peek)) {
-            _outerWidth.Value = peek!.ContentTransform.rect.width;
-        } else {
-            _outerWidth.Value = 0f;
-        }
+        RefreshTargets();
     }
 
-    private void RecalculatePos() {
-        _innerPosX.Value = -_components
+    private void RefreshTargets() {
+        _inner.RecalculateLayout();
+
+        _outerWidth.TargetValue = _components.TryPeek(out var top) ? top!.ContentTransform.rect.width : 0f;
+
+        _innerPosX.TargetValue = -_components
             .Skip(1)
-            .Sum(x => {
-                    x.RecalculateLayoutImmediate();
-                    return x.ContentTransform.rect.width;
-                }
-            );
+            .Sum(x => x.ContentTransform.rect.width);
     }
 
-    private void HandlePosAnimationFinished(AnimatedValue<float> _) {
+    private void HandlePosAnimationFinished(float _) {
         foreach (var comp in _pendingRemoval) {
             _inner.Children.Remove(comp);
         }
@@ -88,12 +79,12 @@ public class Billboard : ReactiveComponent {
     private Layout _inner = null!;
     private YogaModifier _outerModifier = null!;
 
-    private AnimatedValue<float> _innerPosX = null!;
-    private AnimatedValue<float> _outerWidth = null!;
+    private AnimatedState<float> _innerPosX = null!;
+    private AnimatedState<float> _outerWidth = null!;
 
     protected override GameObject Construct() {
-        _innerPosX = RememberAnimated(0f, 300.ms(), AnimationCurve.EaseInOut, HandlePosAnimationFinished);
-        _outerWidth = RememberAnimated(0f, 300.ms(), AnimationCurve.EaseInOut);
+        _innerPosX = RememberAnimated(0f, 300.ms, AnimationCurve.EaseInOut, HandlePosAnimationFinished);
+        _outerWidth = RememberAnimated(0f, 300.ms, AnimationCurve.EaseInOut);
 
         return new Layout {
                 ContentTransform = {
@@ -105,17 +96,17 @@ public class Billboard : ReactiveComponent {
                             ContentTransform = {
                                 anchorMin = new(0f, 0f),
                                 anchorMax = new(0f, 1f),
-                                pivot = new(0f, 0f)
+                                pivot = new(0f, 0f),
+                                slocalPosition = _innerPosX.Map(x => new Vector3(x, 0f)).InLazy()
                             }
                         }
-                        .Animate(_innerPosX, (x, y) => x.ContentTransform.localPosition = new(y, 0f))
                         .AsFlexGroup(direction: FlexDirection.Row, constrainHorizontal: false)
                         .Bind(ref _inner)
                 }
             }
             .AsRectMask()
             .AsFlexItem(modifier: out _outerModifier)
-            .Animate(_outerWidth, (_, y) => _outerModifier.Size = new() { x = y })
+            .On(_outerWidth, (_, y) => _outerModifier.Size = new() { x = y }, lazy: true)
             .Use();
     }
 

@@ -1,5 +1,6 @@
 using System.Linq;
 using BeatLeader.Models;
+using BeatLeader.UI.Reactive.Components;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
@@ -156,16 +157,17 @@ namespace BeatLeader.UI.Hub {
         private Image _editButtonContainer = null!;
 
         protected override GameObject Construct() {
-            new TagSelectorModal()
-                .With(x => x.BuildImmediate())
-                .WithAnchor(this, RelativePlacement.BottomCenter)
-                .WithBeforeOpenListener(x => x.AsFlexItem(size: new() { x = 50.pt(), y = 36.pt() }))
-                .WithOpenListener(HandleTagSelectorOpened)
-                .WithCloseListener(HandleTagSelectorClosed)
-                .Bind(ref _tagSelectorModal);
+            var editButtonState = Remember(GraphicState.None);
 
             return new Layout {
                 Children = {
+                    new TagSelectorModal {
+                            OnPushed = HandleTagSelectorOpened,
+                            OnClickOutside = HandleTagSelectorClickedOutside
+                        }
+                        .WithPlacement(RelativePlacement.BottomCenter)
+                        .Bind(ref _tagSelectorModal),
+
                     new Background {
                             Sprite = BundleLoader.Sprites.backgroundLeft,
                             Children = {
@@ -197,13 +199,20 @@ namespace BeatLeader.UI.Hub {
                     new Background {
                             Sprite = BundleLoader.Sprites.backgroundRight,
                             Children = {
-                                new ImageButton {
-                                    Image = {
+                                new Image {
                                         Sprite = BundleLoader.Sprites.editIcon,
-                                        Material = BundleLoader.Materials.uiAdditiveGlowMaterial
-                                    },
-                                    Colors = UIStyle.GlowingButtonColorSet
-                                }.WithModal(_tagSelectorModal).AsFlexItem(size: 3f)
+                                        Material = BundleLoader.Materials.uiAdditiveGlowMaterial,
+                                        sColor = editButtonState.MapColorSet(UIStyle.GlowingButtonColorSet)
+                                    }
+                                    .WithPointerEvents(
+                                        onEnter: _ => editButtonState.IsHovered = true,
+                                        onLeave: _ => editButtonState.IsHovered = false,
+                                        onDown: _ => {
+                                            global::Reactive.BeatSaber.GameResources.ButtonClickSignal.Raise();
+                                            _tagSelectorModal.IsPushed = true;
+                                        }
+                                    )
+                                    .AsFlexItem(size: 3f)
                             }
                         }
                         .AsBlurBackground()
@@ -212,6 +221,11 @@ namespace BeatLeader.UI.Hub {
                         .Bind(ref _editButtonContainer)
                 }
             }.WithNativeComponent(out _containerGroup).AsFlexGroup(gap: 0.5f).Use();
+        }
+
+        protected override void OnInitialize() {
+            _tagSelectorModal.PlacementAnchor = ContentTransform;
+            _tagSelectorModal.Component.AsFlexItem(size: new() { x = 50.pt, y = 36.pt });
         }
 
         protected override void OnDestroy() {
@@ -225,8 +239,7 @@ namespace BeatLeader.UI.Hub {
 
         #region Callbacks
 
-        private void HandleTagSelectorOpened(IModal modal, bool finished) {
-            if (finished) return;
+        private void HandleTagSelectorOpened() {
             var tagSelector = _tagSelectorModal.Component;
 
             if (_metadata == null) {
@@ -238,8 +251,9 @@ namespace BeatLeader.UI.Hub {
             tagSelector.SelectedTagRemovedEvent += HandleSelectedTagRemoved;
         }
 
-        private void HandleTagSelectorClosed(IModal modal, bool finished) {
-            if (finished) return;
+        private void HandleTagSelectorClickedOutside() {
+            _tagSelectorModal.IsPushed = false;
+
             var tagSelector = _tagSelectorModal.Component;
             tagSelector.SelectedTagAddedEvent -= HandleSelectedTagAdded;
             tagSelector.SelectedTagRemovedEvent -= HandleSelectedTagRemoved;

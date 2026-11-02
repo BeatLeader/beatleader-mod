@@ -31,13 +31,14 @@ namespace BeatLeader.UI.MainMenu {
 
         #region Construct
 
-        private NewsPanel<NewsPost, TextNewsPostPanel> _newsPanel = null!;
+        private NewsPanel<NewsPost> _newsPanel = null!;
 
         protected override GameObject Construct() {
             return new Background {
                     Children = {
-                        new NewsPanel<NewsPost, TextNewsPostPanel> {
-                                EmptyMessage = "There is no news"
+                        new NewsPanel<NewsPost> {
+                                EmptyMessage = "There is no news",
+                                ConstructCell = ctx => new TextNewsPostPanel(ctx)
                             }
                             .AsFlexGroup(gap: 2f, constrainVertical: false)
                             .AsFlexItem(flexGrow: 1f)

@@ -1,8 +1,4 @@
-﻿using BeatLeader.UI;
-using BeatLeader.UI.Reactive;
-using Reactive.Components;
-
-namespace BeatLeader {
+﻿namespace BeatLeader {
     internal class BeatLeaderHubMenuButtonsTheme {
         public SerializableColorSet ReplayManagerButtonColors { get; set; } = new();
         public SerializableColorSet BattleRoyaleButtonColors { get; set; } = new();

@@ -1,12 +1,15 @@
-﻿using Reactive.BeatSaber.Components;
-using Reactive.Components;
+﻿using BeatLeader.UI.Reactive.Components;
+using Reactive;
+using Reactive.BeatSaber.Components;
 
 namespace BeatLeader.UI.Hub {
-    internal class TagSelectorModal : SharedModal<ModalWrapper<TagSelector>> {
-        public TagSelector Component => Modal.Component;
+    internal class TagSelectorModal : ModalBase {
+        public TagSelector Component => _tagSelector;
 
-        protected override void OnSpawn() {
-            this.WithJumpAnimation();
+        private TagSelector _tagSelector = null!;
+
+        protected override IReactiveComponent ConstructContent() {
+            return new TagSelector().Bind(ref _tagSelector).InShadow();
         }
     }
 }

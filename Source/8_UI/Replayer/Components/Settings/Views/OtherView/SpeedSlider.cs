@@ -6,7 +6,8 @@ using UnityEngine;
 namespace BeatLeader.UI.Replayer {
     public class SpeedSlider : ReactiveComponent {
         private IBeatmapTimeController? _timeController;
-        private Slider _speedSlider = null!;
+        private BsSlider _speedSlider = null!;
+        private bool _syncingSlider;
 
         public void Setup(IBeatmapTimeController timeController) {
             if (_timeController != null) {
@@ -18,21 +19,24 @@ namespace BeatLeader.UI.Replayer {
         }
 
         protected override GameObject Construct() {
-            return new Slider {
-                ValueRange = new() {
-                    Start = 1f,
-                    End = 200f
-                },
+            return new BsSlider {
+                MinValue = 1f,
+                MaxValue = 200f,
                 ValueFormatter = x => $"{x}%",
-                ValueStep = 1f
-            }.WithListener(
-                x => x.Value,
-                x => _timeController?.SetSpeedMultiplier(x / 100f)
-            ).Bind(ref _speedSlider).InNamedRail("Playback Speed").Use();
+                ValueStep = 1f,
+                OnValueChanged = HandleSliderValueChanged
+            }.Bind(ref _speedSlider).InNamedRail("Playback Speed").Use();
+        }
+
+        private void HandleSliderValueChanged(float value) {
+            if (_syncingSlider) return;
+            _timeController?.SetSpeedMultiplier(value / 100f);
         }
 
         private void HandleTimeControllerSpeedChanged(float speed) {
-            _speedSlider.SetValueSilent(speed * 100f);
+            _syncingSlider = true;
+            _speedSlider.Value = speed * 100f;
+            _syncingSlider = false;
         }
     }
 }

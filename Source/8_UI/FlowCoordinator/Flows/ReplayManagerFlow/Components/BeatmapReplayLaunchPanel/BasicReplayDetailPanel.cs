@@ -1,7 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
 using BeatLeader.Utils;
 using Reactive;
@@ -17,10 +16,12 @@ namespace BeatLeader.UI.Hub {
         private ReplayStatisticsPanel _replayStatisticsPanel = null!;
         private QuickMiniProfile _miniProfile = null!;
         private TagsStrip _tagsStrip = null!;
-        private CanvasGroup _contentGroup = null!;
         private Label _emptyLabel = null!;
+        private AnimatedState<float> _detailsAlpha = null!;
 
         protected sealed override GameObject Construct() {
+            _detailsAlpha = RememberAnimated(0f, 15.fact);
+
             return new Layout {
                 Children = {
                     //actual content
@@ -46,12 +47,13 @@ namespace BeatLeader.UI.Hub {
                     }.AsFlexGroup(
                         direction: FlexDirection.Column,
                         gap: new() { y = 0.5f }
-                    ).WithNativeComponent(out _contentGroup).WithRectExpand(),
+                    ).WithAlpha(_detailsAlpha).WithRectExpand(),
                     //empty label
                     new Label {
                         Text = "Select a replay to let Monke think on it",
                         RaycastTarget = false,
-                        EnableWrapping = true
+                        EnableWrapping = true,
+                        sColor = _detailsAlpha.Map(static x => Color.white.ColorWithAlpha(1f - x))
                     }.WithRectExpand().Bind(ref _emptyLabel)
                 }
             }.Use();
@@ -78,20 +80,8 @@ namespace BeatLeader.UI.Hub {
 
         #region Animation
 
-        private readonly ValueAnimator _valueAnimator = new() { LerpCoefficient = 15f };
-
         private void SetDetailsVisible(bool visible) {
-            _valueAnimator.SetTarget(visible ? 1f : 0f);
-        }
-
-        private void RefreshDetailsAnimation(float progress) {
-            _contentGroup.alpha = progress;
-            _emptyLabel.Color = Color.white.ColorWithAlpha(1f - progress);
-        }
-
-        protected override void OnUpdate() {
-            _valueAnimator.Update();
-            RefreshDetailsAnimation(_valueAnimator.Progress);
+            _detailsAlpha.TargetValue = visible ? 1f : 0f;
         }
 
         #endregion

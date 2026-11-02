@@ -24,32 +24,27 @@ namespace BeatLeader.UI.Hub {
         private ReplayDeletionDialog _replayDeletionDialog = null!;
         private BeatmapDownloadDialog _beatmapDownloadDialog = null!;
         private LoadingContainer _watchButtonContainer = null!;
-        private BsPrimaryButton _watchButton = null!;
+        private BsPrimaryTextButton _watchButton = null!;
 
         protected override ILayoutItem ConstructButtons() {
-            var canvasTransform = Lazy(() => (RectTransform)Canvas!.transform);
-            
             return new Layout {
                 Children = {
-                    new BeatmapDownloadDialog()
-                        .WithCloseListener(HandleDownloadBeatmapDialogClosed)
-                        .WithAnchor(canvasTransform, RelativePlacement.Center)
-                        .WithAlphaAnimation(() => Canvas!.gameObject)
-                        .WithJumpAnimation()
+                    new BeatmapDownloadDialog {
+                            OnPopped = HandleDownloadBeatmapDialogClosed
+                        }
+                        .WithPlacement(RelativePlacement.Center)
                         .Bind(ref _beatmapDownloadDialog),
                     //
                     new ReplayDeletionDialog()
-                        .WithAnchor(canvasTransform, RelativePlacement.Center)
-                        .WithAlphaAnimation(() => Canvas!.gameObject)
-                        .WithJumpAnimation()
+                        .WithPlacement(RelativePlacement.Center)
                         .Bind(ref _replayDeletionDialog),
                     //
-                    new BsButton {
+                    new BsTextButton {
                         Text = BLLocalization.GetTranslation("ls-delete"),
                         OnClick = HandleDeleteButtonClicked
                     }.AsFlexItem(flexGrow: 1f),
                     //
-                    new BsPrimaryButton {
+                    new BsPrimaryTextButton {
                             Text = BLLocalization.GetTranslation(WatchTextToken),
                             OnClick = () => _ = HandleWatchButtonClicked().RunCatching()
                         }
@@ -102,14 +97,14 @@ namespace BeatLeader.UI.Hub {
 
         #region Callbacks
 
-        private void HandleDownloadBeatmapDialogClosed(IModal modal, bool closed) {
-            if (closed) return;
+        private void HandleDownloadBeatmapDialogClosed() {
             SetDataInternalAsync(Header!, CancellationToken).ConfigureAwait(true);
         }
 
         private void HandleDeleteButtonClicked() {
             _replayDeletionDialog.SetHeader(Header!);
-            _replayDeletionDialog.Present(ContentTransform);
+            _replayDeletionDialog.PlacementAnchor = CanvasTransform;
+            _replayDeletionDialog.IsPushed = true;
         }
 
         private async Task HandleWatchButtonClicked() {
@@ -119,7 +114,8 @@ namespace BeatLeader.UI.Hub {
             
             if (_needToDownloadBeatmap) {
                 _beatmapDownloadDialog.SetHash(Header.ReplayInfo.SongHash);
-                _beatmapDownloadDialog.Present(ContentTransform);
+                _beatmapDownloadDialog.PlacementAnchor = CanvasTransform;
+                _beatmapDownloadDialog.IsPushed = true;
                 return;
             }
             

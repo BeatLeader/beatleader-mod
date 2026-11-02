@@ -4,6 +4,7 @@ using System.Linq;
 using Reactive;
 using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
+using Reactive.Yoga;
 using TMPro;
 using UnityEngine;
 
@@ -13,24 +14,21 @@ namespace BeatLeader.UI.Hub {
 
         public event Action<BeatmapCharacteristicSO>? CharacteristicSelectedEvent;
 
-        private IconSegmentedControl<BeatmapCharacteristicSO> _segmentedControl = null!;
+        private BsSegmentedControl<BeatmapCharacteristicSO?> _segmentedControl = null!;
         private Label _emptyLabel = null!;
 
         protected override GameObject Construct() {
             return new Background {
                     Children = {
-                        new IconSegmentedControl<BeatmapCharacteristicSO> {
-                            WhenKeySelected = x => CharacteristicSelectedEvent?.Invoke(x),
-                            WhenCellSpawned = (_, cell) => {
-                                cell.Colors = BeatSaberStyle.TextColorSet.With(
-                                    color: Color.white.ColorWithAlpha(0.9f),
-                                    hoveredColor: Color.white
-                                );
-
-                                cell.Image.Material = global::Reactive.BeatSaber.GameResources.UINoGlowMaterial;
-                                cell.Image.Skew = BeatSaberStyle.Skew;
+                        new BsSegmentedControl<BeatmapCharacteristicSO?> {
+                                Enabled = false,
+                                Items = new Dictionary<BeatmapCharacteristicSO?, BsSegmentedControlItem>(),
+                                Key = null,
+                                OnKeyChanged = x => CharacteristicSelectedEvent?.Invoke(x!)
                             }
-                        }.AsFlexGroup(padding: 1f).Bind(ref _segmentedControl),
+                            .AsFlexGroup(padding: 1f)
+                            .AsFlexItem(flexGrow: 1f, size: new() { y = 100.pct })
+                            .Bind(ref _segmentedControl),
 
                         new Label {
                             Text = "No Characteristics",
@@ -52,21 +50,17 @@ namespace BeatLeader.UI.Hub {
 
         #region SetData
 
-        public void SetData(IEnumerable<BeatmapCharacteristicSO>? beatmapCharacteristics) {
-            var empty = beatmapCharacteristics == null;
-            _emptyLabel.Enabled = empty;
-            _segmentedControl.Enabled = !empty;
+        public void SetData(IReadOnlyList<BeatmapCharacteristicSO>? characteristics) {
+            _emptyLabel.Enabled = characteristics == null;
+            _segmentedControl.Enabled = characteristics != null;
 
-            if (!empty) {
-                var items = _segmentedControl.Items;
-                items.Clear();
+            if (characteristics != null) {
+                _segmentedControl.Items = characteristics.ToDictionary(
+                    static x => (BeatmapCharacteristicSO?)x,
+                    static x => new BsSegmentedControlItem(null, x.icon)
+                );
 
-                // ReSharper disable PossibleMultipleEnumeration
-                foreach (var characteristic in beatmapCharacteristics!) {
-                    items.Add(characteristic, characteristic.icon);
-                }
-
-                _segmentedControl.Select(beatmapCharacteristics.First());
+                _segmentedControl.Key = characteristics[0];
             }
         }
 

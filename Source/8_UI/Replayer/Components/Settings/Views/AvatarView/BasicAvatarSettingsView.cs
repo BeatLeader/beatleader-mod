@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using BeatLeader.Models;
 using Reactive;
 using Reactive.BeatSaber.Components;
@@ -19,43 +20,41 @@ namespace BeatLeader.UI.Replayer {
 
             _bodySettings = bodySettings;
 
-            var basicSettings = bodySettings.RequireConfig<BasicBodySettings>();
-            _basicView = CreateBasicView(basicSettings, null);
-
-            _keyedContainer.Items[0] = _basicView;
+            var views = new Dictionary<int, IReactiveComponent> {
+                [0] = CreateBasicView(bodySettings.RequireConfig<BasicBodySettings>(), null)
+            };
 
             if (battleRoyaleEnabled) {
-                var royaleSettings = bodySettings.RequireConfig<BattleRoyaleBodySettings>();
-                _royaleView = CreateRoyaleView(royaleSettings);
-
-                _keyedContainer.Items[1] = _royaleView;
+                views[1] = CreateRoyaleView(bodySettings.RequireConfig<BattleRoyaleBodySettings>());
                 _segmentedControlContainer.Enabled = true;
             }
+
+            _keyedContainer.Views = views;
         }
 
         #endregion
 
         #region Construct
 
-        private ScrollArea _scrollArea = null!;
+        private ScrollContext _scrollContext = null!;
         private Image _segmentedControlContainer = null!;
-        private TextSegmentedControl<int> _segmentedControl = null!;
         private KeyedContainer<int> _keyedContainer = null!;
 
-        private Layout? _basicView;
-        private Layout? _royaleView;
-
         protected override GameObject Construct() {
+            _scrollContext = new ScrollContext();
+
             return new Layout {
                 Children = {
-                    new TextSegmentedControl<int> {
-                            Items = {
-                                [0] = "Main Player",
-                                [1] = "Other Players"
-                            }
+                    new BsSegmentedControl<int> {
+                            Items = new Dictionary<int, BsSegmentedControlItem> {
+                                [0] = new("Main Player", null),
+                                [1] = new("Other Players", null)
+                            },
+                            Key = 0,
+                            OnKeyChanged = HandleSegmentedControlKeyChanged
                         }
+                        .AsFlexItem(size: 100.pct)
                         .WithRectExpand()
-                        .Bind(ref _segmentedControl)
                         .InBackground(
                             color: new(0.1f, 0.1f, 0.1f, 1f),
                             pixelsPerUnit: 10f
@@ -67,36 +66,32 @@ namespace BeatLeader.UI.Replayer {
                     new Layout {
                         Children = {
                             new ScrollArea {
+                                    ScrollContext = _scrollContext,
                                     ScrollContent = new KeyedContainer<int> {
-                                            Control = _segmentedControl
+                                            Key = 0,
+                                            Views = new Dictionary<int, IReactiveComponent>()
                                         }
                                         .AsFlexGroup(justifyContent: Justify.FlexStart, constrainVertical: false)
                                         .AsFlexItem()
-                                        .Bind(ref _keyedContainer)
+                                        .Bind(ref _keyedContainer),
+                                    LineSize = 1f
                                 }
-                                .AsFlexItem(flexGrow: 1f)
-                                .Export(out var area)
-                                .Bind(ref _scrollArea),
+                                .AsFlexItem(flexGrow: 1f),
 
                             new Scrollbar {
+                                ScrollContext = _scrollContext,
+                                HideIfNothingToScroll = true,
                                 WithinLayoutIfDisabled = false
-                            }.With(x => area.Scrollbar = x)
+                            }
                         }
                     }.AsFlexGroup(gap: 1f).AsFlexItem(flexGrow: 1f)
                 }
             }.AsFlexGroup(direction: FlexDirection.Column, gap: 1f).Use();
         }
 
-        protected override void OnInitialize() {
-            _segmentedControl.WhenKeySelected += RefreshScrollArea;
-        }
-
-        protected override void OnDestroy() {
-            _segmentedControl.WhenKeySelected -= RefreshScrollArea;
-        }
-
-        private void RefreshScrollArea(int _) {
-            _scrollArea.ScrollToStart(true);
+        private void HandleSegmentedControlKeyChanged(int key) {
+            _keyedContainer.Key = key;
+            _scrollContext.ScrollTo(0f, immediately: true);
         }
 
         #endregion
@@ -214,16 +209,13 @@ namespace BeatLeader.UI.Replayer {
         }
 
         private NamedRail CreateToggle(BasicBodySettings settings, string name, bool initial, Action<bool> callback) {
-            return new Toggle()
-                .With(x => x.SetActive(initial, false))
-                .WithListener(
-                    x => x.Active,
-                    x => {
-                        callback(x);
-                        _bodySettings!.NotifyConfigUpdated(settings);
-                    }
-                )
-                .InNamedRail(name);
+            return new BsToggle {
+                Toggled = initial,
+                OnToggleStateChanged = x => {
+                    callback(x);
+                    _bodySettings!.NotifyConfigUpdated(settings);
+                }
+            }.InNamedRail(name);
         }
 
         private NamedRail CreateSlider(
@@ -235,19 +227,16 @@ namespace BeatLeader.UI.Replayer {
             float initial,
             Action<float> callback
         ) {
-            return new Slider {
-                    ValueRange = new(from, to),
-                    ValueStep = step,
-                    Value = initial,
+            return new BsSlider {
+                MinValue = from,
+                MaxValue = to,
+                ValueStep = step,
+                Value = initial,
+                OnValueChanged = x => {
+                    callback(x);
+                    _bodySettings!.NotifyConfigUpdated(settings);
                 }
-                .WithListener(
-                    x => x.Value,
-                    x => {
-                        callback(x);
-                        _bodySettings!.NotifyConfigUpdated(settings);
-                    }
-                )
-                .InNamedRail(name);
+            }.InNamedRail(name);
         }
 
         #endregion

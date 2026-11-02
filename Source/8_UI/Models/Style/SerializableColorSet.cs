@@ -1,71 +1,74 @@
-﻿using System;
-using BeatLeader.Models;
+﻿using BeatLeader.Models;
+using Newtonsoft.Json;
+using Reactive;
 using Reactive.Components;
-using UnityEngine;
 
 namespace BeatLeader {
     /// <summary>
     /// A simple serializable color set for general purposes.
     /// </summary>
-    internal class SerializableColorSet : IColorSet {
+    internal class SerializableColorSet {
+        public SerializableColorSet() {
+            _state = new(ToColorSet());
+        }
+
         public SerializableColor ActiveColor {
-            get => _activeColor;
+            get;
             set {
-                _activeColor = value;
-                SetUpdatedEvent?.Invoke();
+                field = value;
+                RefreshState();
             }
         }
 
         public SerializableColor HoveredColor {
-            get => _hoveredColor;
+            get;
             set {
-                _hoveredColor = value;
-                SetUpdatedEvent?.Invoke();
+                field = value;
+                RefreshState();
             }
         }
 
         public SerializableColor NotInteractableColor {
-            get => _notInteractableColor;
+            get;
             set {
-                _notInteractableColor = value;
-                SetUpdatedEvent?.Invoke();
+                field = value;
+                RefreshState();
             }
         }
 
         public SerializableColor Color {
-            get => _color;
+            get;
             set {
-                _color = value;
-                SetUpdatedEvent?.Invoke();
+                field = value;
+                RefreshState();
             }
         }
 
-        private SerializableColor _notInteractableColor;
-        private SerializableColor _activeColor;
-        private SerializableColor _hoveredColor;
-        private SerializableColor _color;
+        [JsonIgnore]
+        public IState<ColorSet> State => _state;
 
-        public event Action? SetUpdatedEvent;
+        private readonly State<ColorSet> _state;
 
-        public Color GetColor(GraphicState state) {
-            if (state.IsHovered()) {
-                return state.IsActive() ? ActiveColor : _hoveredColor;
-            }
-            if (state.IsActive()) {
-                return _activeColor;
-            }
-            if (!state.IsInteractable()) {
-                return _notInteractableColor;
-            }
-            return _color;
+        public ColorSet ToColorSet() {
+            return new ColorSet {
+                Color = Color,
+                HoveredColor = HoveredColor,
+                ActiveColor = ActiveColor,
+                HoveredActiveColor = ActiveColor,
+                NotInteractableColor = NotInteractableColor
+            };
         }
 
-        public static implicit operator SerializableColorSet(SimpleColorSet set) {
+        private void RefreshState() {
+            _state.Value = ToColorSet();
+        }
+
+        public static implicit operator SerializableColorSet(ColorSet set) {
             return new SerializableColorSet {
-                _activeColor = set.ActiveColor,
-                _hoveredColor = set.HoveredColor,
-                _notInteractableColor = set.NotInteractableColor,
-                _color = set.Color
+                ActiveColor = set.GetColor(GraphicState.Active),
+                HoveredColor = set.GetColor(GraphicState.Hovered),
+                NotInteractableColor = set.GetColor(GraphicState.NonInteractable),
+                Color = set.Color
             };
         }
     }

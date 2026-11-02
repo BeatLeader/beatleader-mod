@@ -80,8 +80,8 @@ namespace BeatLeader.UI.Hub {
             }
 
             public bool Interactable {
-                get => _backgroundButton.Interactable;
-                set => _backgroundButton.Interactable = value;
+                get => _graphicState.IsInteractable;
+                set => _graphicState.IsInteractable = value;
             }
 
             public Action? OnClick;
@@ -89,19 +89,19 @@ namespace BeatLeader.UI.Hub {
             private IReactiveComponent? _component;
             private bool _showComponent;
 
-            private BackgroundButton _backgroundButton = null!;
+            private State<GraphicState> _graphicState = null!;
+            private Background _backgroundButton = null!;
             private Label _emptyLabel = null!;
 
             protected override GameObject Construct() {
-                return new BackgroundButton {
-                        Image = {
-                            Sprite = BundleLoader.Sprites.background,
-                            Material = GameResources.UINoGlowMaterial,
-                            PixelsPerUnit = 10f,
-                            Skew = UIStyle.Skew
-                        },
-                        Colors = UIStyle.ControlColorSet,
-                        OnClick = () => OnClick?.Invoke(),
+                _graphicState = Remember(GraphicState.None);
+
+                return new Background {
+                        Sprite = BundleLoader.Sprites.background,
+                        Material = GameResources.UINoGlowMaterial,
+                        PixelsPerUnit = 10f,
+                        Skew = UIStyle.Skew,
+                        sColor = _graphicState.MapColorSet(UIStyle.ControlColorSet),
                         Children = {
                             new Label {
                                 FontStyle = FontStyles.Italic,
@@ -109,6 +109,17 @@ namespace BeatLeader.UI.Hub {
                             }.AsFlexItem(size: "auto").Bind(ref _emptyLabel),
                         }
                     }
+                    .WithPointerEvents(
+                        onEnter: _ => _graphicState.IsHovered = true,
+                        onLeave: _ => _graphicState.IsHovered = false,
+                        onDown: _ => {
+                            if (!_graphicState.IsInteractable) {
+                                return;
+                            }
+                            global::Reactive.BeatSaber.GameResources.ButtonClickSignal.Raise();
+                            OnClick?.Invoke();
+                        }
+                    )
                     .AsFlexGroup(justifyContent: Justify.Center, alignItems: Align.Stretch)
                     .Bind(ref _backgroundButton)
                     .Use();
@@ -123,7 +134,7 @@ namespace BeatLeader.UI.Hub {
         private ReplaysPreviewPanel _replaysPreviewPanel = null!;
         private ClickablePanel _replaysPanel = null!;
         private ClickablePanel _beatmapPanel = null!;
-        private BsPrimaryButton _battleButton = null!;
+        private BsPrimaryTextButton _battleButton = null!;
 
         private void Construct() {
             new Layout {
@@ -149,12 +160,14 @@ namespace BeatLeader.UI.Hub {
                             EmptyText = "NO REPLAYS",
                             Interactable = false,
                             OnClick = PresentReplaySelectionView,
-                            Component = new ReplaysPreviewPanel().Bind(ref _replaysPreviewPanel)
+                            Component = new ReplaysPreviewPanel()
+                                .AsFlexItem(flexGrow: 1f)
+                                .Bind(ref _replaysPreviewPanel)
                         }
                         .AsFlexItem(size: new() { x = 80f, y = 10f })
                         .Bind(ref _replaysPanel),
 
-                    new BsPrimaryButton {
+                    new BsPrimaryTextButton {
                             Text = "BATTLE",
                             Skew = UIStyle.Skew,
                             Interactable = false,

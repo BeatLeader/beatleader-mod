@@ -3,14 +3,11 @@ using UnityEngine;
 using BeatLeader.Models;
 using Reactive;
 using Reactive.BeatSaber.Components;
+using Reactive.Compiler;
 using Reactive.Components;
-using Reactive.Components.Basic;
 using Reactive.Yoga;
 using TMPro;
-using Image = Reactive.BeatSaber.Components.Image;
-using ImageButton = Reactive.BeatSaber.Components.ImageButton;
-using Background = Reactive.BeatSaber.Components.Background;
-using Label = Reactive.BeatSaber.Components.Label;
+using BeatLeader.UI.Reactive.Components;
 
 namespace BeatLeader.UI.Replayer {
     internal class Toolbar : ReactiveComponent {
@@ -64,9 +61,29 @@ namespace BeatLeader.UI.Replayer {
 
         private Timeline _timeline = null!;
         private Label _timeText = null!;
-        private ImageButton _playButton = null!;
+        private Image _playButton = null!;
+        private State<GraphicState> _settingsButtonState = null!;
+
+        [StateGen]
+        private static Image CreateGlowingButton(Sprite? sprite, State<GraphicState> state, Action onClick) {
+            return new Image {
+                Sprite = sprite,
+                Material = BundleLoader.Materials.uiAdditiveGlowMaterial,
+                PreserveAspect = true,
+                sColor = state.MapColorSet(UIStyle.GlowingButtonColorSet)
+            }.WithPointerEvents(
+                onEnter: _ => state.IsHovered = true,
+                onLeave: _ => state.IsHovered = false,
+                onDown: _ => {
+                    onClick();
+                    global::Reactive.BeatSaber.GameResources.ButtonClickSignal.Raise();
+                }
+            );
+        }
 
         protected override GameObject Construct() {
+            _settingsButtonState = Remember(GraphicState.None);
+
             return new Layout {
                 Children = {
                     new ExitButton {
@@ -83,14 +100,11 @@ namespace BeatLeader.UI.Replayer {
                     new Background {
                         Children = {
                             //play button
-                            new ImageButton {
-                                OnClick = HandlePlayButtonClicked,
-                                Colors = UIStyle.GlowingButtonColorSet,
-                                Image = {
-                                    PreserveAspect = true,
-                                    Material = BundleLoader.Materials.uiAdditiveGlowMaterial
-                                }
-                            }.Bind(ref _playButton).AsFlexItem(
+                            CreateGlowingButton(
+                                null,
+                                Remember(GraphicState.None),
+                                HandlePlayButtonClicked
+                            ).Bind(ref _playButton).AsFlexItem(
                                 basis: 5f,
                                 margin: new() { left = 1f, right = 1f }
                             ),
@@ -109,16 +123,11 @@ namespace BeatLeader.UI.Replayer {
                                 alignSelf: Align.Center
                             ),
                             //settings button
-                            new ImageButton {
-                                Image = {
-                                    Sprite = BundleLoader.SettingsIcon,
-                                    Material = BundleLoader.Materials.uiAdditiveGlowMaterial,
-                                    PreserveAspect = true
-                                },
-                                Colors = UIStyle.GlowingButtonColorSet,
-                                OnStateChanged = HandleSettingsButtonStateChanged,
-                                Latching = true
-                            }.AsFlexItem(
+                            CreateGlowingButton(
+                                BundleLoader.SettingsIcon,
+                                _settingsButtonState,
+                                HandleSettingsButtonClicked
+                            ).AsFlexItem(
                                 basis: 6f,
                                 margin: new() { left = 1f }
                             )
@@ -155,7 +164,7 @@ namespace BeatLeader.UI.Replayer {
         private static readonly Sprite pauseSprite = BundleLoader.PauseIcon;
 
         private void RefreshPlayButton(bool paused) {
-            _playButton.Image.Sprite = paused ? playSprite : pauseSprite;
+            _playButton.Sprite = paused ? playSprite : pauseSprite;
         }
 
         #endregion
@@ -166,33 +175,33 @@ namespace BeatLeader.UI.Replayer {
             public Action? OnClick;
 
             protected override GameObject Construct() {
-                static Image CreateImage(Sprite sprite) {
-                    return new Image {
-                        Sprite = sprite,
-                        Material = BundleLoader.UIAdditiveGlowMaterial,
-                        PreserveAspect = true
-                    }.WithRectExpand();
-                }
-
                 var color = UIStyle.GlowingButtonColorSet.Color;
-                var activeColor = UIStyle.GlowingButtonColorSet.ActiveColor;
-                
-                var progress = RememberAnimated(0f, 10.fact());
-                progress.EvaluateNextFrame();
+                var activeColor = UIStyle.GlowingButtonColorSet.GetColor(GraphicState.Active);
 
-                return new Clickable {
-                    OnClick = () => OnClick?.Invoke(),
-                    Children = {
-                        CreateImage(BundleLoader.ClosedDoorIcon)
-                            .Animate(progress, (x, y) => x.Color = Color.Lerp(color, Color.clear, y)),
+                var progress = RememberAnimated(0f, 10.fact);
 
-                        CreateImage(BundleLoader.OpenedDoorIcon)
-                            .Animate(progress, (x, y) => x.Color = Color.Lerp(Color.clear, activeColor, y))
+                return new Background {
+                        Sprite = BundleLoader.ClosedDoorIcon,
+                        Material = BundleLoader.UIAdditiveGlowMaterial,
+                        PreserveAspect = true,
+                        sColor = progress.Map(x => Color.Lerp(color, Color.clear, x)),
+                        Children = {
+                            new Image {
+                                Sprite = BundleLoader.OpenedDoorIcon,
+                                Material = BundleLoader.UIAdditiveGlowMaterial,
+                                PreserveAspect = true,
+                                RaycastTarget = false,
+                                sColor = progress.Map(x => Color.Lerp(Color.clear, activeColor, x))
+                            }.WithRectExpand()
+                        }
                     }
-                }.WithListener(
-                    x => x.IsHovered,
-                    x => progress.Value = x ? 1f : 0f
-                ).WithScaleAnimation(1f, 1.2f).Use();
+                    .WithPointerEvents(
+                        onEnter: _ => progress.TargetValue = 1f,
+                        onLeave: _ => progress.TargetValue = 0f,
+                        onDown: _ => OnClick?.Invoke()
+                    )
+                    .WithHoverScale(1f, 1.2f)
+                    .Use();
             }
         }
 
@@ -203,18 +212,6 @@ namespace BeatLeader.UI.Replayer {
         public interface ISettingsPanel {
             void Present();
             void Dismiss();
-        }
-
-        private bool _settingsPanelPresented;
-
-        private void RefreshSettingsPanel(bool state) {
-            if (state == _settingsPanelPresented) return;
-            if (state) {
-                _settingsPanel!.Present();
-            } else {
-                _settingsPanel!.Dismiss();
-            }
-            _settingsPanelPresented = state;
         }
 
         #endregion
@@ -229,8 +226,14 @@ namespace BeatLeader.UI.Replayer {
             }
         }
 
-        private void HandleSettingsButtonStateChanged(bool state) {
-            RefreshSettingsPanel(state);
+        private void HandleSettingsButtonClicked() {
+            var presented = !_settingsButtonState.IsActive;
+            _settingsButtonState.IsActive = presented;
+            if (presented) {
+                _settingsPanel!.Present();
+            } else {
+                _settingsPanel!.Dismiss();
+            }
         }
 
         private void HandleExitButtonClicked() {

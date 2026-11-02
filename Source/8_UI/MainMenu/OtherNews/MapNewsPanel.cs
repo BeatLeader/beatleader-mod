@@ -39,7 +39,7 @@ namespace BeatLeader.UI.MainMenu {
 
         #region Construct
 
-        private NewsPanel<TrendingMapData, MapPreviewPanel> _newsPanel = null!;
+        private NewsPanel<TrendingMapData> _newsPanel = null!;
 
         protected override GameObject Construct() {
             return new Background {
@@ -48,11 +48,11 @@ namespace BeatLeader.UI.MainMenu {
                             Text = "Trending Maps"
                         }.AsFlexItem(),
 
-                        new NewsPanel<TrendingMapData, MapPreviewPanel> {
+                        new NewsPanel<TrendingMapData> {
                             EmptyMessage = "No trending maps",
-                            OnCellConstructed = cell => {
-                                cell.ButtonAction = item => MapDownloadDialog.OpenSongOrDownloadDialog(item.song, ContentTransform);
-                                cell.BackgroundAction = item => MapPreviewDialog.OpenSongOrDownloadDialog(item, ContentTransform);
+                            ConstructCell = ctx => new MapPreviewPanel(ctx) {
+                                ButtonAction = item => MapDownloadDialog.OpenSongOrDownloadDialog(item.song, ContentTransform),
+                                BackgroundAction = item => MapPreviewDialog.OpenSongOrDownloadDialog(item, ContentTransform)
                             }
                         }.AsFlexItem(flexGrow: 1f).Bind(ref _newsPanel)
                     }

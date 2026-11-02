@@ -4,6 +4,7 @@ using BeatLeader.UI.Reactive.Components;
 using BeatLeader.Utils;
 using Reactive;
 using Reactive.BeatSaber.Components;
+using Reactive.Compiler;
 using Reactive.Components;
 using Reactive.Yoga;
 using TMPro;
@@ -18,7 +19,6 @@ namespace BeatLeader.UI.Hub {
 
         public void SetEditModeEnabled(bool enabled, bool immediate) {
             _editModeEnabled = enabled;
-            _button.Latching = !enabled;
             var targetValue = enabled ? Vector3.one : Vector3.zero;
 
             if (!enabled) {
@@ -32,7 +32,7 @@ namespace BeatLeader.UI.Hub {
                 if (enabled) {
                     _deleteButton.Enabled = true;
                 }
-                _deleteButtonScale.Value = targetValue;
+                _deleteButtonScale.TargetValue = targetValue;
             }
         }
 
@@ -44,7 +44,7 @@ namespace BeatLeader.UI.Hub {
 
         public void SetTagPresented(bool enabled, bool immediate) {
             _tagPresented = enabled;
-            _button.Interactable = enabled && Interactable;
+            _buttonState.IsInteractable = enabled && Interactable;
             var targetValue = enabled ? Vector3.one : Vector3.zero;
 
             if (immediate) {
@@ -54,7 +54,7 @@ namespace BeatLeader.UI.Hub {
                     DisappearAnimationFinishedEvent?.Invoke(_replayTag);
                 }
             } else {
-                _panelScale.Value = targetValue;
+                _panelScale.TargetValue = targetValue;
             }
         }
 
@@ -66,7 +66,7 @@ namespace BeatLeader.UI.Hub {
             get => _interactable;
             set {
                 _interactable = value;
-                _button.Interactable = value && _tagPresented;
+                _buttonState.IsInteractable = value && _tagPresented;
             }
         }
 
@@ -81,7 +81,10 @@ namespace BeatLeader.UI.Hub {
         private bool _interactable = true;
 
         public void SetTagSelected(bool enabled, bool silent) {
-            _button.Click(enabled, !silent);
+            _buttonState.IsActive = enabled;
+            if (!silent) {
+                HandleTagButtonStateChanged(enabled);
+            }
             _tagSelected = enabled;
         }
 
@@ -186,7 +189,7 @@ namespace BeatLeader.UI.Hub {
             _label.Text = _replayTag?.Name ?? "Tag";
             var color = _replayTag?.Color ?? Color.red;
 
-            _button.Colors = new SimpleColorSet {
+            _buttonColors.Value = new ColorSet {
                 Color = color.ColorWithAlpha(0.3f),
                 NotInteractableColor = color.ColorWithAlpha(0.3f),
                 HoveredColor = color.ColorWithAlpha(0.7f),
@@ -196,7 +199,7 @@ namespace BeatLeader.UI.Hub {
 
         public void RefreshContainerSize(bool recalculate) {
             if (recalculate) {
-                ((ILayoutItem)_button).RecalculateLayoutImmediate();
+                _button.RecalculateLayout();
             }
 
             // Content is disconnected from the layout hierarchy, so we manually maintain the size
@@ -212,59 +215,59 @@ namespace BeatLeader.UI.Hub {
 
         #region Construct
 
-        private AnimatedValue<Vector3> _deleteButtonScale = null!;
-        private AnimatedValue<Vector3> _panelScale = null!;
+        private static readonly ColorSet deleteButtonColors = new() {
+            Color = Color.red.ColorWithAlpha(0.7f),
+            HoveredColor = Color.red
+        };
+
+        private AnimatedState<Vector3> _deleteButtonScale = null!;
+        private AnimatedState<Vector3> _panelScale = null!;
+        private State<GraphicState> _buttonState = null!;
+        private State<ColorSet> _buttonColors = null!;
 
         private YogaModifier _containerModifier = null!;
-        private ImageButton _deleteButton = null!;
+        private Background _deleteButton = null!;
         private RectTransform _buttonTransform = null!;
-        private ImageButton _button = null!;
+        private Background _button = null!;
         private Label _label = null!;
 
         protected override GameObject Construct() {
             var container = new ReactiveComponent().AsFlexItem(out _containerModifier);
 
-            _deleteButtonScale = RememberAnimated(Vector3.zero, 200.ms(), AnimationCurve.EaseInOut);
+            _deleteButtonScale = RememberAnimated(Vector3.zero, 200.ms, AnimationCurve.EaseInOut);
             _deleteButtonScale.OnFinish = x => {
-                if (x.Value == Vector3.zero) {
+                if (x == Vector3.zero) {
                     _deleteButton.Enabled = false;
                 }
             };
 
-            _panelScale = RememberAnimated(Vector3.one, 300.ms(), AnimationCurve.EaseInOut);
+            _panelScale = RememberAnimated(Vector3.one, 300.ms, AnimationCurve.EaseInOut);
             _panelScale.OnFinish = x => {
-                if (x.Value == Vector3.zero) {
+                if (x == Vector3.zero) {
                     DisappearAnimationFinishedEvent?.Invoke(_replayTag!);
                 }
             };
 
-            new BackgroundButton {
-                    Image = {
-                        Sprite = BundleLoader.Sprites.background,
-                        PixelsPerUnit = 8f,
-                        Material = GameResources.UINoGlowMaterial
-                    },
+            _buttonState = Remember(GraphicState.None);
+            _buttonColors = Remember(new ColorSet());
+            var deleteButtonState = Remember(GraphicState.None);
 
-                    Latching = true,
-                    OnClick = HandleTagButtonClicked,
-                    OnStateChanged = HandleTagButtonStateChanged,
+            new Background {
+                    Sprite = BundleLoader.Sprites.background,
+                    PixelsPerUnit = 8f,
+                    Material = GameResources.UINoGlowMaterial,
+                    sColor = _buttonState.MapColorSet(_buttonColors, static x => x).In(),
 
                     Children = {
                         // Delete button
-                        new BackgroundButton {
+                        new Background {
                                 Enabled = false,
-                                OnClick = HandleDeleteButtonClicked,
                                 ContentTransform = {
                                     localScale = Vector3.zero
                                 },
-                                Image = {
-                                    Sprite = BundleLoader.Sprites.background,
-                                    PixelsPerUnit = 1f
-                                },
-                                Colors = new SimpleColorSet {
-                                    Color = Color.red.ColorWithAlpha(0.7f),
-                                    HoveredColor = Color.red
-                                },
+                                Sprite = BundleLoader.Sprites.background,
+                                PixelsPerUnit = 1f,
+                                sColor = deleteButtonState.MapColorSet(deleteButtonColors),
                                 Children = {
                                     // Minus icon
                                     new Image {
@@ -272,12 +275,20 @@ namespace BeatLeader.UI.Hub {
                                     }.AsFlexItem(flexGrow: 1f)
                                 }
                             }
+                            .WithPointerEvents(
+                                onEnter: _ => deleteButtonState.IsHovered = true,
+                                onLeave: _ => deleteButtonState.IsHovered = false,
+                                onDown: _ => {
+                                    global::Reactive.BeatSaber.GameResources.ButtonClickSignal.Raise();
+                                    HandleDeleteButtonClicked();
+                                }
+                            )
                             .AsFlexGroup(padding: 1f)
                             .AsFlexItem(
                                 size: 3.5f,
                                 position: new() { top = -1.5f, right = -1.5f }
                             )
-                            .Animate(_deleteButtonScale, x => x.ContentTransform.localScale)
+                            .On(_deleteButtonScale, static (x, y) => x.ContentTransform.localScale = y, lazy: true)
                             .Bind(ref _deleteButton),
 
                         // Text
@@ -287,29 +298,23 @@ namespace BeatLeader.UI.Hub {
                         }.AsFlexItem(size: "auto").Bind(ref _label)
                     }
                 }
+                .WithPointerEvents(
+                    onEnter: _ => HandleTagButtonHoverChanged(true),
+                    onLeave: _ => HandleTagButtonHoverChanged(false),
+                    onDown: _ => HandleTagButtonClicked()
+                )
                 .AsFlexGroup(
                     padding: new() { left = 1f, right = 1f },
                     alignItems: Align.Center,
                     constrainHorizontal: false,
                     constrainVertical: false
                 )
-                .Animate(_panelScale, x => x.ContentTransform.localScale)
-                .With(x => x.WrappedButton
-                    .WithListener(
-                        y => y.IsHovered,
-                        y => _panelScale.Value = (y ? 1.1f : 1f) * Vector3.one
-                    )
-                )
+                .On(_panelScale, static (x, y) => x.ContentTransform.localScale = y, lazy: true)
                 .Bind(ref _button)
                 .Bind(ref _buttonTransform)
                 .Use(container.ContentTransform);
 
-            // Helper to listen for content updates.
-            new LayoutWrapper(() => _button.Content) {
-                OnLayoutRecalculated = () => {
-                    RefreshContainerSize(false);
-                }
-            };
+            _button.LayoutAppliedEvent += _ => RefreshContainerSize(false);
 
             return container.Content;
         }
@@ -336,10 +341,31 @@ namespace BeatLeader.UI.Hub {
             TagStateChangedEvent?.Invoke(_replayTag!, state);
         }
 
+        private void HandleTagButtonHoverChanged(bool hovered) {
+            if (hovered && !_buttonState.IsInteractable) {
+                return;
+            }
+
+            _buttonState.IsHovered = hovered;
+            if (_tagPresented) {
+                _panelScale.TargetValue = (hovered ? 1.1f : 1f) * Vector3.one;
+            }
+        }
+
         private void HandleTagButtonClicked() {
+            if (!_buttonState.IsInteractable) {
+                return;
+            }
+
+            global::Reactive.BeatSaber.GameResources.ButtonClickSignal.Raise();
+
             if (_editModeEnabled) {
                 HandleDeleteButtonClicked();
+                return;
             }
+
+            _buttonState.IsActive = !_buttonState.IsActive;
+            HandleTagButtonStateChanged(_buttonState.IsActive);
         }
 
         private void HandleDeleteButtonClicked() {

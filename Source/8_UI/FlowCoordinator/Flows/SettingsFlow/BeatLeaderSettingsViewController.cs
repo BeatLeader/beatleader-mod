@@ -1,9 +1,5 @@
 ﻿using HMUI;
 using Reactive;
-using Reactive.BeatSaber.Components;
-using Reactive.Components;
-using Reactive.Yoga;
-using TMPro;
 using Zenject;
 
 namespace BeatLeader.UI.Hub {
@@ -13,7 +9,7 @@ namespace BeatLeader.UI.Hub {
         [Inject] private readonly MenuTransitionsHelper _menuTransitionsHelper = null!;
         [Inject] private readonly BeatLeaderHubTheme _hubTheme = null!;
 
-        private BeatLeaderSettingsView _settingsView;
+        private BeatLeaderSettingsView _settingsView = null!;
 
         #endregion
 

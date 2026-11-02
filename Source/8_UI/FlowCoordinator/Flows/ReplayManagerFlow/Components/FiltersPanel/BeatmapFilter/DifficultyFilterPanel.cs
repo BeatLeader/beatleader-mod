@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive.Components;
 using Reactive;
-using Reactive.Components;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
@@ -17,7 +15,7 @@ namespace BeatLeader.UI.Hub {
 
         public IEnumerable<IPanelListFilter<IReplayHeader>>? DependsOn { get; }
         public string FilterName => "Difficulty Filter";
-        public string FilterStatus { get; private set; } = null!;
+        public string FilterStatus => BeatmapDifficulty?.ToString() ?? "No Diff";
         public BeatmapDifficulty? BeatmapDifficulty { get; private set; }
 
         public event Action? FilterUpdatedEvent;
@@ -25,10 +23,6 @@ namespace BeatLeader.UI.Hub {
         public bool Matches(IReplayHeader value) {
             var diff = BeatmapDifficulty;
             return !diff.HasValue || value.ReplayInfo.SongDifficulty == diff.Value.ToString();
-        }
-
-        private void RefreshFilterStatus() {
-            FilterStatus = BeatmapDifficulty == null ? "No Diff" : BeatmapDifficulty.ToString();
         }
 
         #endregion
@@ -52,8 +46,6 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override void OnInitialize() {
-            RefreshFilterStatus();
-            _difficultyPanel.SetData(null);
             _difficultyPanel.DifficultySelectedEvent += HandleDifficultySelected;
         }
 
@@ -73,7 +65,6 @@ namespace BeatLeader.UI.Hub {
 
         private void HandleDifficultySelected(BeatmapDifficulty difficulty) {
             BeatmapDifficulty = difficulty;
-            RefreshFilterStatus();
             FilterUpdatedEvent?.Invoke();
         }
 

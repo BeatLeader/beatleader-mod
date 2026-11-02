@@ -62,7 +62,7 @@ namespace BeatLeader.UI.Hub {
                         pivot = new Vector2(0.5f, 0f)
                     },
                     Children = {
-                        new BsPrimaryButton {
+                        new BsPrimaryTextButton {
                             OnClick = HandleActionButtonPressed,
                             Text = "SELECT"
                         }.AsFlexItem(size: new() { x = 24f })

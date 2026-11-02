@@ -13,8 +13,7 @@ namespace BeatLeader.UI.Replayer {
         private const float Height = 10f;
 
         private SpeedSlider _speedSlider = null!;
-        private AnimatedValue<float> _contentAnim = null!;
-        private YogaModifier _modifier = null!;
+        private AnimatedState<float> _contentAnim = null!;
 
         public void Setup(IBeatmapTimeController timeController) {
             _speedSlider.Setup(timeController);
@@ -25,12 +24,12 @@ namespace BeatLeader.UI.Replayer {
             if (immediate) {
                 _contentAnim.SetValueImmediate(value);
             } else {
-                _contentAnim.Value = value;
+                _contentAnim.TargetValue = value;
             }
         }
 
         protected override GameObject Construct() {
-            _contentAnim = RememberAnimated(0f, 150f.ms(), AnimationCurve.EaseOut);
+            _contentAnim = RememberAnimated(0f, 150f.ms, AnimationCurve.EaseOut);
 
             return new Background {
                 Children = {
@@ -47,20 +46,17 @@ namespace BeatLeader.UI.Replayer {
                         padding: new() { top = 1f, bottom = 1f, left = 2f, right = 2f }
                     )
                 }
-            }.AsFlexItem(modifier: out _modifier).AsFlexGroup(
+            }.AsFlexItem().AsFlexGroup(
                 direction: FlexDirection.Column,
                 justifyContent: Justify.FlexStart
             ).AsBackground(
                 color: new(0.15f, 0.15f, 0.15f, 1f),
                 sprite: BundleLoader.Sprites.backgroundRightBottom,
                 pixelsPerUnit: 7f
-            ).Animate(
+            ).On(
                 _contentAnim,
-                () => {
-                    var size = _modifier.Size;
-                    size.y = _contentAnim.CurrentValue;
-                    _modifier.Size = size;
-                }
+                static (x, height) => x.FlexItem.Size = new() { y = height },
+                lazy: true
             ).WithNativeComponent(out Mask _).Use();
         }
     }

@@ -19,20 +19,15 @@ namespace BeatLeader.UI.Replayer {
         private QuickMiniProfile _miniProfile = null!;
         private Image _scoreBackground = null!;
         private Label _scoreText = null!;
-        private ImageButton _backgroundImage = null!;
-        private RectTransform _actualContent = null!;
+        private Background _backgroundImage = null!;
 
         protected override GameObject Construct() {
-            return new BackgroundButton {
+            return new Background {
                     ContentTransform = {
                         pivot = new(1f, 0f)
                     },
-                    OnClick = () => CellSelectedEvent?.Invoke(this),
-                    Image = {
-                        Sprite = BundleLoader.Sprites.background,
-                        PixelsPerUnit = 5f
-                    },
-                    Colors = null,
+                    Sprite = BundleLoader.Sprites.background,
+                    PixelsPerUnit = 5f,
                     Children = {
                         new QuickMiniProfile {
                                 UseAlternativeBlur = true
@@ -78,8 +73,13 @@ namespace BeatLeader.UI.Replayer {
                         )
                     }
                 }.AsFlexGroup()
+                .WithPointerEvents(
+                    onDown: _ => {
+                        CellSelectedEvent?.Invoke(this);
+                        global::Reactive.BeatSaber.GameResources.ButtonClickSignal.Raise();
+                    }
+                )
                 .Bind(ref _backgroundImage)
-                .Bind(ref _actualContent)
                 .AsFlexItem(size: new() { y = CELL_SIZE })
                 .Use();
         }
@@ -101,21 +101,15 @@ namespace BeatLeader.UI.Replayer {
         public void Setup(IVirtualPlayer player, IBeatmapTimeController timeController, PlayerList playerList) {
             _timeController = timeController;
             _playerList = playerList;
+
+            Unsubscribe();
             //score events
-            if (_scoreEventsProcessor is not null) {
-                _scoreEventsProcessor.ScoreEventDequeuedEvent -= HandleScoreEventDequeued;
-                _scoreEventsProcessor.EventQueueAdjustFinishedEvent -= HandleScoreEventQueueAdjustFinished;
-            }
             _player = player;
             _replay = player.Replay;
             _scoreEventsProcessor = player.ReplayScoreEventsProcessor;
             _scoreEventsProcessor.ScoreEventDequeuedEvent += HandleScoreEventDequeued;
             _scoreEventsProcessor.EventQueueAdjustFinishedEvent += HandleScoreEventQueueAdjustFinished;
             //beatmap events
-            if (_beatmapEventsProcessor is not null) {
-                _beatmapEventsProcessor.NoteEventDequeuedEvent -= HandleNoteEventDequeued;
-                _beatmapEventsProcessor.EventQueueAdjustStartedEvent -= HandleNoteEventQueueAdjustStarted;
-            }
             _beatmapEventsProcessor = player.ReplayBeatmapEventsProcessor;
             _beatmapEventsProcessor.NoteEventDequeuedEvent += HandleNoteEventDequeued;
             _beatmapEventsProcessor.EventQueueAdjustStartedEvent += HandleNoteEventQueueAdjustStarted;
@@ -137,10 +131,19 @@ namespace BeatLeader.UI.Replayer {
             LoadScoreBackgroundMaterial();
         }
 
-        protected override void OnDestroy() {
-            if (_scoreEventsProcessor is not null) {
+        private void Unsubscribe() {
+            if (_scoreEventsProcessor != null) {
                 _scoreEventsProcessor.ScoreEventDequeuedEvent -= HandleScoreEventDequeued;
+                _scoreEventsProcessor.EventQueueAdjustFinishedEvent -= HandleScoreEventQueueAdjustFinished;
             }
+            if (_beatmapEventsProcessor != null) {
+                _beatmapEventsProcessor.NoteEventDequeuedEvent -= HandleNoteEventDequeued;
+                _beatmapEventsProcessor.EventQueueAdjustStartedEvent -= HandleNoteEventQueueAdjustStarted;
+            }
+        }
+
+        protected override void OnDestroy() {
+            Unsubscribe();
             Object.Destroy(_backgroundFillMaterial);
             Object.Destroy(_scoreBackgroundMaterial);
         }
@@ -180,7 +183,7 @@ namespace BeatLeader.UI.Replayer {
 
         private void LoadBackgroundMaterial() {
             _backgroundFillMaterial = Object.Instantiate(BundleLoader.OpponentBackgroundMaterial);
-            _backgroundImage.Image.Material = _backgroundFillMaterial;
+            _backgroundImage.Material = _backgroundFillMaterial;
         }
 
         #endregion
@@ -194,8 +197,8 @@ namespace BeatLeader.UI.Replayer {
         }
 
         private void UpdateMoveAnimation() {
-            _actualContent.localPosition = Vector3.Lerp(
-                _actualContent.localPosition,
+            ContentTransform.localPosition = Vector3.Lerp(
+                ContentTransform.localPosition,
                 new Vector3(0f, _targetPos),
                 Time.deltaTime * 4f
             );

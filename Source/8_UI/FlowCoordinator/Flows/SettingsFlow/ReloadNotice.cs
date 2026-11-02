@@ -20,7 +20,7 @@ namespace BeatLeader.UI.Hub {
         #region Construct
 
         protected override GameObject Construct() {
-            return new BsPrimaryButton {
+            return new BsPrimaryTextButton {
                     Text = "Reload Now",
                     Skew = UIStyle.Skew,
                     OnClick = () => _transitionsHelper?.RestartGame()

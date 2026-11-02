@@ -1,7 +1,5 @@
-﻿using System;
-using BeatLeader.Models;
+﻿using BeatLeader.Models;
 using BeatLeader.Replayer;
-using BeatLeader.UI.Reactive.Components;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
@@ -26,46 +24,40 @@ namespace BeatLeader.UI.Replayer {
         #region View
 
         private ManualCameraView? _cameraView;
-        private Vector3 _position;
-        private float _rotation;
+        private bool _loadingFromView;
+
+        private ManualCameraView? EditableView => _loadingFromView ? null : _cameraView;
 
         private void LoadFromView() {
             if (_cameraView == null) return;
-            _position = _cameraView.Position;
-            _rotation = _cameraView.Rotation;
-            _xSlider.SetValueSilent(_position.x);
-            _ySlider.SetValueSilent(_position.y);
-            _zSlider.SetValueSilent(_position.z);
-            _rotationSlider.SetValueSilent(_rotation);
-        }
-
-        private void RefreshView() {
-            if (_cameraView == null) return;
-            _cameraView.Position = _position;
-            _cameraView.Rotation = _rotation;
+            Vector3 position = _cameraView.Position;
+            _loadingFromView = true;
+            _xSlider.Value = position.x;
+            _ySlider.Value = position.y;
+            _zSlider.Value = position.z;
+            _rotationSlider.Value = _cameraView.Rotation;
+            _loadingFromView = false;
         }
 
         #endregion
 
         #region Construct
 
-        private Slider _xSlider = null!;
-        private Slider _ySlider = null!;
-        private Slider _zSlider = null!;
-        private Slider _rotationSlider = null!;
+        private BsSlider _xSlider = null!;
+        private BsSlider _ySlider = null!;
+        private BsSlider _zSlider = null!;
+        private BsSlider _rotationSlider = null!;
 
         protected override GameObject Construct() {
-            static NamedRail CreateAxisSlider(string name, Action<float> callback, ref Slider slider) {
-                return new Slider {
-                        ValueRange = new() {
-                            Start = -10f,
-                            End = 10f
-                        },
-                        Value = 0f,
+            NamedRail CreateAxisSlider(string name, int axis, ref BsSlider slider) {
+                return new BsSlider {
+                        MinValue = -10f,
+                        MaxValue = 10f,
                         ValueStep = 0.1f,
-                        ValueFormatter = x => $"{Mathf.Round(x * 10f) / 10f}m"
+                        Value = 0f,
+                        ValueFormatter = x => $"{Mathf.Round(x * 10f) / 10f}m",
+                        OnValueChanged = x => HandleAxisChanged(axis, x)
                     }
-                    .WithListener(x => x.Value, callback)
                     .Bind(ref slider)
                     .InNamedRail(name);
             }
@@ -73,26 +65,22 @@ namespace BeatLeader.UI.Replayer {
             return new Layout {
                 Children = {
                     //
-                    CreateAxisSlider("X", HandleXChanged, ref _xSlider),
+                    CreateAxisSlider("X", 0, ref _xSlider),
                     //
-                    CreateAxisSlider("Y", HandleYChanged, ref _ySlider),
+                    CreateAxisSlider("Y", 1, ref _ySlider),
                     //
-                    CreateAxisSlider("Z", HandleZChanged, ref _zSlider),
+                    CreateAxisSlider("Z", 2, ref _zSlider),
                     //
-                    new Slider {
-                        ValueRange = new() {
-                            Start = -180f,
-                            End = 180f
-                        },
-                        Value = 0f,
+                    new BsSlider {
+                        MinValue = -180f,
+                        MaxValue = 180f,
                         ValueStep = 20f,
-                        ValueFormatter = x => $"{x}\u00b0"
-                    }.WithListener(
-                        x => x.Value,
-                        HandleRotationChanged
-                    ).Bind(ref _rotationSlider).InNamedRail("Rotation"),
+                        Value = 0f,
+                        ValueFormatter = x => $"{x}\u00b0",
+                        OnValueChanged = HandleRotationChanged
+                    }.Bind(ref _rotationSlider).InNamedRail("Rotation"),
                     //
-                    new BsButton {
+                    new BsTextButton {
                             Text = "Reset",
                             Skew = 0f,
                             OnClick = HandlePositionReset
@@ -111,24 +99,15 @@ namespace BeatLeader.UI.Replayer {
 
         #region Callbacks
 
-        private void HandleXChanged(float pos) {
-            _position.x = pos;
-            RefreshView();
+        private void HandleAxisChanged(int axis, float value) {
+            if (EditableView is not { } view) return;
+            Vector3 position = view.Position;
+            position[axis] = value;
+            view.Position = position;
         }
 
-        private void HandleYChanged(float pos) {
-            _position.y = pos;
-            RefreshView();
-        }
-
-        private void HandleZChanged(float pos) {
-            _position.z = pos;
-            RefreshView();
-        }
-
-        private void HandleRotationChanged(float pos) {
-            _rotation = pos;
-            RefreshView();
+        private void HandleRotationChanged(float rotation) {
+            EditableView?.Rotation = rotation;
         }
 
         private void HandlePositionReset() {

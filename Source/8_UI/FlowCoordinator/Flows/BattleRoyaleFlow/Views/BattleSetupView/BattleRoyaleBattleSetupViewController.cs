@@ -3,16 +3,9 @@ using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Yoga;
-using Zenject;
 
 namespace BeatLeader.UI.Hub {
     internal class BattleRoyaleBattleSetupViewController : ViewController {
-        #region Injection
-
-        [Inject] private readonly IBattleRoyaleHost _battleRoyaleHost = null!;
-
-        #endregion
-
         #region Setup
 
         private void Awake() {

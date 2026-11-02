@@ -2,7 +2,7 @@
 using BeatLeader.Components;
 using BeatLeader.Models;
 using BeatLeader.UI;
-using BeatLeader.UI.Reactive;
+using Reactive.Components;
 using UnityEngine;
 
 namespace BeatLeader {
@@ -57,22 +57,22 @@ namespace BeatLeader {
                 ReplayManagerButtonColors = {
                     HoveredColor = new Color(1f, 0.65f, 0f),
                     Color = UIStyle.InputColorSet.Color,
-                    NotInteractableColor = UIStyle.InputColorSet.NotInteractableColor
+                    NotInteractableColor = UIStyle.InputColorSet.GetColor(GraphicState.NonInteractable)
                 },
                 BattleRoyaleButtonColors = {
                     HoveredColor = Color.magenta,
                     Color = UIStyle.InputColorSet.Color,
-                    NotInteractableColor = UIStyle.InputColorSet.NotInteractableColor
+                    NotInteractableColor = UIStyle.InputColorSet.GetColor(GraphicState.NonInteractable)
                 },
                 SettingsButtonColors = {
                     HoveredColor = new Color(1f, 0.65f, 0f),
                     Color = UIStyle.InputColorSet.Color,
-                    NotInteractableColor = UIStyle.InputColorSet.NotInteractableColor
+                    NotInteractableColor = UIStyle.InputColorSet.GetColor(GraphicState.NonInteractable)
                 },
                 EditAvatarButtonColors = {
                     HoveredColor = new Color(0f, 0.65f, 0f),
                     Color = UIStyle.InputColorSet.Color,
-                    NotInteractableColor = UIStyle.InputColorSet.NotInteractableColor
+                    NotInteractableColor = UIStyle.InputColorSet.GetColor(GraphicState.NonInteractable)
                 }
             },
             ReplayManagerSearchTheme = {

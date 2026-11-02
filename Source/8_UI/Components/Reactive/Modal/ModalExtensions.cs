@@ -1,28 +1,47 @@
 using Reactive;
+using Reactive.BeatSaber.Components;
 using Reactive.Components;
+using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
     internal static class ModalExtensions {
-        #region WithShadow
+        #region Placement
 
-        public static T WithShadow<T>(this T comp, DynamicShadowSettings? settings = null) where T : IReactiveComponent, IModal {
-            settings ??= new();
-            DynamicShadow? shadow = null;
-            comp.ModalOpenedEvent += HandleModalOpened;
-            comp.ModalClosedEvent += HandleModalClosed;
-            return comp;
+        public static T WithPlacement<T>(
+            this T modal,
+            RelativePlacement placement,
+            RectTransform? anchor = null,
+            Vector2? offset = null
+        ) where T : ModalBase {
+            modal.PlacementData = new() {
+                Placement = placement,
+                Offset = offset ?? new(0f, 0.5f),
+                Clip = true
+            };
 
-            void HandleModalOpened(IModal _, bool finished) {
-                if (!finished) return;
-                if (shadow != null) DynamicShadow.DespawnShadow(shadow);
-                shadow = DynamicShadow.SpawnShadow(comp.ContentTransform, settings);
+            if (anchor != null) {
+                modal.PlacementAnchor = anchor;
             }
 
-            void HandleModalClosed(IModal _, bool finished) {
-                if (finished || shadow == null) return;
-                DynamicShadow.DespawnShadow(shadow);
-                shadow = null;
-            }
+            return modal;
+        }
+
+        #endregion
+
+        #region Shadow
+
+        public static Layout InShadow(this ILayoutItem content, DynamicShadowSettings? settings = null) {
+            return new Layout {
+                Children = {
+                    new DynamicShadow {
+                        Settings = settings ?? new()
+                    },
+                    content
+                }
+            }.AsFlexGroup(
+                constrainHorizontal: false,
+                constrainVertical: false
+            );
         }
 
         #endregion

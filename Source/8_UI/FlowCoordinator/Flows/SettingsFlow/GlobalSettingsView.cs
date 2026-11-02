@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using BeatLeader.Components;
 using BeatLeader.Models;
 using BeatLeader.UI.Reactive.Components;
@@ -22,7 +23,7 @@ namespace BeatLeader.UI.Hub {
 
         #region Event
 
-        public static event Action<bool> ExperienceBarConfigEvent;
+        public static event Action<bool>? ExperienceBarConfigEvent;
 
         #endregion
 
@@ -39,10 +40,10 @@ namespace BeatLeader.UI.Hub {
             PluginConfig.SelectedLanguage = _initialLanguage;
             PluginConfig.MainServer = _initialServer;
 
-            _menuButtonToggle.SetActive(_initialMenuButtonEnabled);
-            _noticeboardToggle.SetActive(_initialNoticeboardEnabled);
-            _languageDropdown.Select(_initialLanguage);
-            _serverDropdown.Select(_initialServer);
+            _menuButtonToggle.Toggled = _initialMenuButtonEnabled;
+            _noticeboardToggle.Toggled = _initialNoticeboardEnabled;
+            _languageDropdown.Key = _initialLanguage;
+            _serverDropdown.Key = _initialServer;
         }
 
         private void SaveInitialValues() {
@@ -62,53 +63,53 @@ namespace BeatLeader.UI.Hub {
 
         #region Construct
 
-        private Toggle _menuButtonToggle = null!;
-        private Toggle _noticeboardToggle = null;
-        private TextDropdown<BLLanguage> _languageDropdown = null!;
-        private TextDropdown<BeatLeaderServer> _serverDropdown = null!;
+        private BsToggle _menuButtonToggle = null!;
+        private BsToggle _noticeboardToggle = null!;
+        private BsDropdown<BLLanguage> _languageDropdown = null!;
+        private BsDropdown<BeatLeaderServer> _serverDropdown = null!;
         private ReloadNotice _reloadNotice = null!;
 
         protected override GameObject Construct() {
             return new Layout {
                 Children = {
-                    new Toggle()
-                        .With(x => x.SetActive(BeatLeaderMenuButtonManager.MenuButtonEnabled, false))
-                        .WithListener(
-                            x => x.Active,
-                            x => BeatLeaderMenuButtonManager.MenuButtonEnabled = x
-                        )
+                    new BsToggle {
+                            Toggled = BeatLeaderMenuButtonManager.MenuButtonEnabled,
+                            OnToggleStateChanged = x => BeatLeaderMenuButtonManager.MenuButtonEnabled = x
+                        }
                         .Bind(ref _menuButtonToggle)
                         .InNamedRail("Menu Button Enabled"),
-                    new Toggle()
-                        .With(x => x.SetActive(PluginConfig.NoticeboardEnabled, false))
-                        .WithListener(
-                            x => x.Active,
-                            x => PluginConfig.NoticeboardEnabled = x
-                        )
+                    new BsToggle {
+                            Toggled = PluginConfig.NoticeboardEnabled,
+                            OnToggleStateChanged = x => PluginConfig.NoticeboardEnabled = x
+                        }
                         .Bind(ref _noticeboardToggle)
                         .InNamedRail("Show Noticeboard"),
-                    new TextDropdown<BLLanguage>()
-                        .WithListener(
-                            x => x.SelectedKey,
-                            HandleLanguageChanged
-                        )
+                    new BsDropdown<BLLanguage> {
+                            Items = BLLocalization.SupportedLanguagesSorted().ToDictionary(
+                                static x => x,
+                                static x => new BsDropdownItem(BLLocalization.GetLanguageName(x), null)
+                            ),
+                            Key = PluginConfig.SelectedLanguage,
+                            OnKeyChanged = HandleLanguageChanged
+                        }
                         .Bind(ref _languageDropdown)
                         .InNamedRail("Language"),
                     //
-                    new TextDropdown<BeatLeaderServer>()
-                        .WithListener(
-                            x => x.SelectedKey,
-                            HandleServerChanged
-                        )
+                    new BsDropdown<BeatLeaderServer> {
+                            Items = BeatLeaderServerUtils.ServerOptions.ToDictionary(
+                                static x => x,
+                                static x => new BsDropdownItem(x.GetName(), null)
+                            ),
+                            Key = PluginConfig.MainServer,
+                            OnKeyChanged = HandleServerChanged
+                        }
                         .Bind(ref _serverDropdown)
                         .InNamedRail("Server"),
                     //
-                    new Toggle()
-                        .With(x => x.SetActive(ConfigFileData.Instance.ExperienceBarEnabled, false))
-                        .WithListener(
-                            x => x.Active,
-                            HandleEnableExperienceBar
-                        )
+                    new BsToggle {
+                            Toggled = ConfigFileData.Instance.ExperienceBarEnabled,
+                            OnToggleStateChanged = HandleEnableExperienceBar
+                        }
                         .InNamedRail("Experience Bar"),
                     //
                     new ReloadNotice()
@@ -125,20 +126,6 @@ namespace BeatLeader.UI.Hub {
         protected override void OnInitialize() {
             SaveInitialValues();
             RefreshNotice();
-            //applying language
-            var lang = PluginConfig.SelectedLanguage;
-            foreach (var language in BLLocalization.SupportedLanguagesSorted()) {
-                var name = BLLocalization.GetLanguageName(language);
-                _languageDropdown.Items.Add(language, name);
-            }
-            _languageDropdown.Select(lang);
-            //applying server
-            var server = PluginConfig.MainServer;
-            foreach (var option in BeatLeaderServerUtils.ServerOptions) {
-                var name = option.GetName();
-                _serverDropdown.Items.Add(option, name);
-            }
-            _serverDropdown.Select(server);
         }
 
         #endregion

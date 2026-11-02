@@ -1,6 +1,5 @@
 ﻿using BeatLeader.Models;
 using BeatLeader.Replayer;
-using BeatLeader.UI.Reactive.Components;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
@@ -18,28 +17,13 @@ namespace BeatLeader.UI.Replayer {
 
         public void Setup(ICameraView? cameraView) {
             _cameraView = cameraView as FlyingCameraView;
-            LoadFromView();
+            if (_cameraView != null) {
+                _speedSlider.Value = _cameraView.FlySpeed;
+            }
         }
-
-        #endregion
-
-        #region View
 
         private FlyingCameraView? _cameraView;
-        private int _speed;
-        private Vector2 _sensitivity;
-
-        private void LoadFromView() {
-            if (_cameraView == null) return;
-            _speed = _cameraView.FlySpeed;
-            _sensitivity = _cameraView.MouseSensitivity;
-        }
-
-        private void RefreshView() {
-            if (_cameraView == null) return;
-            _cameraView.FlySpeed = _speed;
-            _cameraView.MouseSensitivity = _sensitivity;
-        }
+        private BsSlider _speedSlider = null!;
 
         #endregion
 
@@ -48,19 +32,15 @@ namespace BeatLeader.UI.Replayer {
         protected override GameObject Construct() {
             return new Layout {
                 Children = {
-                    new Slider {
-                        ValueRange = new() {
-                            Start = 1f,
-                            End = 8f
-                        },
-                        Value = 5f,
-                        ValueStep = 1f
-                    }.WithListener(
-                        x => x.Value,
-                        HandleSpeedChanged
-                    ).InNamedRail("Speed"),
+                    new BsSlider {
+                        MinValue = 1f,
+                        MaxValue = 8f,
+                        ValueStep = 1f,
+                        Value = 4f,
+                        OnValueChanged = HandleSpeedChanged
+                    }.Bind(ref _speedSlider).InNamedRail("Speed"),
                     //
-                    new BsButton {
+                    new BsTextButton {
                             Text = "Reset",
                             Skew = 0f,
                             OnClick = HandlePositionReset
@@ -85,8 +65,7 @@ namespace BeatLeader.UI.Replayer {
         #region Callbacks
 
         private void HandleSpeedChanged(float speed) {
-            _speed = (int)speed;
-            RefreshView();
+            _cameraView?.FlySpeed = (int)speed;
         }
 
         private void HandlePositionReset() {

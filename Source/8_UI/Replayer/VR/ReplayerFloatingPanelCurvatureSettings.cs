@@ -1,9 +1,8 @@
 ﻿using System;
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive;
-using BeatLeader.UI.Reactive.Components;
 using Reactive;
 using Reactive.BeatSaber.Components;
+using Reactive.Compiler;
 using Reactive.Components;
 using Reactive.Yoga;
 using UnityEngine;
@@ -21,9 +20,11 @@ namespace BeatLeader.UI.Replayer {
         public void Setup(FloatingScreen screen, ReplayerFloatingUISettings settings) {
             _screen = screen;
             _settings = settings;
-            _isInitialized = true;
             _radiusSlider.Value = settings.CurvatureRadius;
-            _radiusToggle.SetActive(settings.CurvatureEnabled, false, false);
+            _radiusToggle.Toggled = settings.CurvatureEnabled;
+            _isInitialized = true;
+            HandleRadiusChanged(_radiusSlider.Value);
+            HandleRadiusStateChanged(_radiusToggle.Toggled);
         }
 
         #endregion
@@ -31,14 +32,14 @@ namespace BeatLeader.UI.Replayer {
         #region Hide & Present
 
         public void Present() {
-            _panelScale.Value = Vector3.one;
-            _canvasAlpha.Value = 0.8f;
+            _panelScale.TargetValue = Vector3.one;
+            _canvasAlpha.TargetValue = 0.8f;
             _screen!.BlockRaycasts = true;
         }
 
         public void Hide() {
-            _panelScale.Value = Vector3.zero;
-            _canvasAlpha.Value = 1f;
+            _panelScale.TargetValue = Vector3.zero;
+            _canvasAlpha.TargetValue = 1f;
             _screen!.BlockRaycasts = false;
         }
 
@@ -46,26 +47,30 @@ namespace BeatLeader.UI.Replayer {
 
         #region Construct
 
-        private AnimatedValue<Vector3> _panelScale = null!;
-        private AnimatedValue<float> _canvasAlpha = null!;
+        private AnimatedState<Vector3> _panelScale = null!;
+        private AnimatedState<float> _canvasAlpha = null!;
 
-        private Slider _radiusSlider = null!;
-        private Toggle _radiusToggle = null!;
+        private BsSlider _radiusSlider = null!;
+        private BsToggle _radiusToggle = null!;
         private float _radius;
 
         protected override GameObject Construct() {
-            _panelScale = RememberAnimated(Vector3.zero, 15.fact());
-            _canvasAlpha = RememberAnimated(1f, 10.fact());
+            _panelScale = RememberAnimated(Vector3.zero, 15.fact);
+            _canvasAlpha = RememberAnimated(1f, 10.fact);
 
-            _canvasAlpha.ValueChangedEvent += x => {
-                if (_screen != null) {
-                    _screen.Alpha = x;
-                }
-            };
+            _canvasAlpha.AddCallback(
+                x => {
+                    if (_screen != null) {
+                        _screen.Alpha = x;
+                    }
+                },
+                lazy: true
+            );
 
             return new Layout {
                     ContentTransform = {
-                        pivot = new(0.5f, 1f)
+                        pivot = new(0.5f, 1f),
+                        slocalScale = _panelScale.InLazy()
                     },
                     Children = {
                         new Background {
@@ -74,28 +79,22 @@ namespace BeatLeader.UI.Replayer {
                             },
                             Children = {
                                 //radius toggle
-                                new Toggle()
-                                    .WithListener(
-                                        x => x.Active,
-                                        HandleRadiusStateChanged
-                                    )
+                                new BsToggle {
+                                        OnToggleStateChanged = HandleRadiusStateChanged
+                                    }
                                     .Bind(ref _radiusToggle)
                                     .InNamedRail("Enable Radius"),
                                 //radius slider
-                                new Slider {
-                                    ValueRange = new() {
-                                        Start = 40f,
-                                        End = 120f
-                                    },
-                                    ValueStep = 10f
-                                }.WithListener(
-                                    x => x.Value,
-                                    HandleRadiusChanged
-                                ).AsFlexItem(
+                                new BsSlider {
+                                    MinValue = 40f,
+                                    MaxValue = 120f,
+                                    ValueStep = 10f,
+                                    OnValueChanged = HandleRadiusChanged
+                                }.AsFlexItem(
                                     size: new() { x = 36f, y = 6f }
                                 ).Bind(ref _radiusSlider).InNamedRail("Radius"),
                                 //ok button
-                                new BsPrimaryButton {
+                                new BsPrimaryTextButton {
                                     Text = "OK",
                                     Skew = 0f,
                                     OnClick = () => CloseButtonClicked?.Invoke()
@@ -119,7 +118,6 @@ namespace BeatLeader.UI.Replayer {
                 )
                 .WithNativeComponent(out CanvasGroup group)
                 .WithNativeComponent(out FloatingScreen _)
-                .Animate(_panelScale, x => x.ContentTransform.localScale)
                 .With(_ => group.ignoreParentGroups = true)
                 .Use();
         }

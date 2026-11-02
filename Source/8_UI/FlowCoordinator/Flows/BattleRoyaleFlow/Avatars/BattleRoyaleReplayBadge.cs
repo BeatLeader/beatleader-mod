@@ -31,10 +31,10 @@ namespace BeatLeader.UI.Hub {
 
         #region Animation
 
-        private AnimatedValue<Vector3> _scale = null!;
+        private AnimatedState<Vector3> _scale = null!;
 
         private void Show() {
-            _scale.Value = Vector3.one;
+            _scale.TargetValue = Vector3.one;
         }
 
         private void Hide() {
@@ -51,9 +51,13 @@ namespace BeatLeader.UI.Hub {
         private Label _nameLabel = null!;
 
         protected override GameObject Construct() {
-            _scale = RememberAnimated(Vector3.zero, 10.fact());
+            _scale = RememberAnimated(Vector3.zero, 10.fact);
 
             return new Background {
+                ContentTransform = {
+                    slocalScale = _scale
+                },
+
                 Children = {
                     new Layout {
                         Children = {
@@ -79,7 +83,6 @@ namespace BeatLeader.UI.Hub {
             }.With(
                 x => {
                     x.AsBlurBackground();
-                    x.Animate(_scale, static (x, y) => x.ContentTransform.localScale = y);
                     x.AsFlexGroup(
                         direction: FlexDirection.Column,
                         padding: new() { top = 1f, bottom = 0.3f, left = 2f, right = 2f },

@@ -44,7 +44,7 @@ namespace BeatLeader.UI.Hub {
                         .AsFlexItem(size: new() { x = "100%", y = 14f })
                         .Bind(ref _levelBarContainer),
                     //
-                    new BsPrimaryButton {
+                    new BsPrimaryTextButton {
                         Text = "SELECT",
                         Skew = UIStyle.Skew,
                         OnClick = () => OnClick?.Invoke()

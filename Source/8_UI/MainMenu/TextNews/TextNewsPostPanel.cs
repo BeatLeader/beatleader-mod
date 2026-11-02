@@ -6,44 +6,37 @@ using Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.MainMenu {
-    internal class TextNewsPostPanel : ListCell<NewsPost> {
+    internal class TextNewsPostPanel : ReactiveComponent {
+        public TextNewsPostPanel(CellContext<NewsPost> context) : base(false) {
+            _context = context;
+            ConstructAndInit();
+        }
+
+        private readonly CellContext<NewsPost> _context;
+
         protected override GameObject Construct() {
             return new Layout {
                 Children = {
-                    new TextNewsPostHeaderPanel()
-                        .Animate(
-                            ObservableItem,
-                            (panel, item) => {
-                                panel.Name = item.owner;
-                                panel.Timestamp = item.timepost;
-                                panel.AvatarUrl = item.ownerIcon;
-                            }
-                        ),
+                    new TextNewsPostHeaderPanel {
+                        sOwner = _context.Map(x => x.Item.owner),
+                        sTimestamp = _context.Map(x => x.Item.timepost),
+                        sAvatarUrl = _context.Map(x => x.Item.ownerIcon)
+                    },
 
                     new Label {
-                            Text = "Loading...",
                             FontSize = 3,
                             EnableWrapping = true,
-                            Alignment = TMPro.TextAlignmentOptions.Justified
+                            Alignment = TMPro.TextAlignmentOptions.Justified,
+                            sText = _context.Map(x => x.Item.body)
                         }
-                        .AsFlexItem(margin: new() { left = 1.pt(), right = 1.pt() })
-                        .Animate(ObservableItem, (label, item) => label.Text = item.body),
+                        .AsFlexItem(margin: new() { left = 1.pt, right = 1.pt }),
 
                     new WebImage {
                             PreserveAspect = true,
-                            Material = GameResources.UINoGlowMaterial
+                            Material = GameResources.UINoGlowMaterial,
+                            sEnabled = _context.Map(x => !string.IsNullOrEmpty(x.Item.image)),
+                            sSrc = _context.Map(x => x.Item.image)
                         }
-                        .Animate(
-                            ObservableItem,
-                            (image, item) => {
-                                if (string.IsNullOrEmpty(item.image)) {
-                                    image.Enabled = false;
-                                } else {
-                                    image.Src = item.image;
-                                    image.Enabled = true;
-                                }
-                            }
-                        )
                         .AsFlexItem(size: new() { y = 30 })
                 }
             }.AsFlexGroup(

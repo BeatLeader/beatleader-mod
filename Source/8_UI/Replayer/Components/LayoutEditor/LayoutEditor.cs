@@ -61,7 +61,7 @@ namespace BeatLeader.Components {
             var scaleFactor = Canvas!.scaleFactor;
             _settings.Migrate(resolution, scaleFactor);
             //
-            var dict = _settings!.ComponentData;
+            var dict = _settings.ComponentData;
             foreach (var component in _components) {
                 if (dict.TryGetValue(component.ComponentName, out var data)) {
                     component.LayoutData = data;

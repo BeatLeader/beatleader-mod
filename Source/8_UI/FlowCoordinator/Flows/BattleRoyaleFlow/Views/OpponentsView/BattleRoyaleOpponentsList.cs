@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Components;
@@ -11,31 +12,51 @@ using Reactive;
 using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
+using Reactive.Components.Basic;
 using Reactive.Yoga;
 using TMPro;
 using UnityEngine;
+using Background = Reactive.BeatSaber.Components.Background;
+using Image = Reactive.BeatSaber.Components.Image;
+using Label = Reactive.BeatSaber.Components.Label;
 
 namespace BeatLeader.UI.Hub {
-    internal class BattleRoyaleOpponentsList : Table<BattleRoyaleReplay, BattleRoyaleOpponentsList.Cell> {
+    internal class BattleRoyaleOpponentsList : ReactiveComponent {
         #region Cells
 
-        public class Cell : TableCell<BattleRoyaleReplay> {
+        private readonly record struct Opponent(BattleRoyaleReplay Replay, int Rank);
+
+        private class Cell : ReactiveComponent {
+            public Cell(CellContext<Opponent> context, BattleRoyaleOpponentsList list) : base(false) {
+                _list = list;
+                ConstructAndInit();
+                context.AddCallback(this, static (x, y) => x.HandleItemUpdated(y.Item));
+            }
+
             #region Construct
 
-            private Image _backgroundImage = null!;
             private PlayerAvatar _playerAvatar = null!;
             private Label _playerNameText = null!;
             private Label _rankText = null!;
             private Label _dateText = null!;
-            private BsButtonBase _removeButton = null!;
-            private BsButtonBase _navigateButton = null!;
 
             protected override GameObject Construct() {
+                _progress = RememberAnimated(0f, 10.fact);
+                _accentColor = Remember<Color?>(null);
+                _progress.AddCallback(this, static (x, y) => x.Pulse(y), lazy: true);
+
                 return new Layout {
                     Children = {
                         new Background {
                             Sprite = BundleLoader.Sprites.background,
-                            Color = Color.white.ColorWithAlpha(0.2f),
+                            sColor = RememberDerived(
+                                _progress, _accentColor,
+                                static (progress, accentColor) => Color.Lerp(
+                                    Color.white.ColorWithAlpha(0.1f),
+                                    accentColor ?? Color.white.ColorWithAlpha(0.3f),
+                                    progress
+                                )
+                            ),
                             PixelsPerUnit = 8f,
                             Skew = BeatSaberStyle.Skew,
 
@@ -43,7 +64,7 @@ namespace BeatLeader.UI.Hub {
                                 //rank
                                 new Label {
                                     LayoutModifier = new YogaModifier {
-                                        Margin = new() { left = 1.pt(), right = 1.pt() },
+                                        Margin = new() { left = 1.pt, right = 1.pt },
                                         AlignSelf = Align.Center
                                     },
 
@@ -85,26 +106,28 @@ namespace BeatLeader.UI.Hub {
                                 ),
 
                                 //remove button
-                                new ImageBsButton {
+                                new BsImageButton {
                                     LayoutModifier = new YogaModifier {
-                                        Size = new() { x = 6.pt() }
+                                        Size = new() { x = 6.pt }
                                     },
 
                                     Sprite = BundleLoader.Sprites.crossIcon,
                                     ShowUnderline = false,
-                                    OnClick = HandleRemoveButtonClicked
-                                }.Bind(ref _removeButton),
+                                    OnClick = HandleRemoveButtonClicked,
+                                    sEnabled = _list._canMutateLobby
+                                },
 
                                 //navigate button
-                                new ImageBsButton {
+                                new BsImageButton {
                                     LayoutModifier = new YogaModifier {
-                                        Size = new() { x = 6.pt() }
+                                        Size = new() { x = 6.pt }
                                     },
 
                                     Sprite = BundleLoader.Sprites.rightArrowIcon,
                                     ShowUnderline = false,
-                                    OnClick = HandleNavigateButtonClicked
-                                }.Bind(ref _navigateButton)
+                                    OnClick = HandleNavigateButtonClicked,
+                                    sEnabled = _list._canMutateLobby
+                                }
                             }
                         }.AsFlexGroup(
                             padding: 1f,
@@ -112,7 +135,7 @@ namespace BeatLeader.UI.Hub {
                         ).AsFlexItem(
                             flexGrow: 1f,
                             margin: new() { right = 1f, left = 1f }
-                        ).Bind(ref _backgroundImage)
+                        )
                     }
                 }.AsFlexGroup().AsFlexItem(size: new() { y = 10f }).Use();
             }
@@ -121,60 +144,43 @@ namespace BeatLeader.UI.Hub {
 
             #region Animation
 
-            private readonly ValueAnimator _valueAnimator = new();
-            private Color _targetColor;
-            private bool _colorShouldBeSet;
-            private bool _colorSet;
+            private AnimatedState<float> _progress = null!;
+            private State<Color?> _accentColor = null!;
 
-            protected override void OnUpdate() {
-                if (_colorSet) return;
-                //
-                _valueAnimator.Update();
-                if (!_colorShouldBeSet) {
-                    if (_valueAnimator.Progress > 0.8f) {
-                        _valueAnimator.SetTarget(0f);
-                    } else if (_valueAnimator.Progress < 0.2f) {
-                        _valueAnimator.SetTarget(1f);
-                    }
+            private void Pulse(float progress) {
+                if (_accentColor.Value != null) {
+                    return;
                 }
 
-                var targetColor = _colorShouldBeSet ? _targetColor : Color.white.ColorWithAlpha(0.3f);
-                var color = Color.Lerp(
-                    Color.white.ColorWithAlpha(0.1f),
-                    targetColor,
-                    _valueAnimator.Progress
-                );
-                _backgroundImage.Color = color;
-                if (_colorShouldBeSet && color == _targetColor) {
-                    _colorSet = true;
+                if (progress > 0.8f) {
+                    _progress.TargetValue = 0f;
+                } else if (progress < 0.2f) {
+                    _progress.TargetValue = 1f;
                 }
             }
 
             private void ResetColor() {
-                _colorSet = false;
-                _colorShouldBeSet = false;
-                OnUpdate();
+                _accentColor.Value = null;
+                _progress.TargetValue = _progress.Value > 0.5f ? 0f : 1f;
             }
 
             private void SetColor(Color color) {
-                _targetColor = color.ColorWithAlpha(0.2f);
-                _colorShouldBeSet = true;
-                _valueAnimator.SetTarget(1f);
+                _accentColor.Value = color.ColorWithAlpha(0.2f);
+                _progress.TargetValue = 1f;
             }
 
             #endregion
 
             #region Setup
 
-            private IBattleRoyaleReplay? _prevReplay;
-            private int _prevRank;
-            private IBattleRoyaleHost _battleRoyaleHost = null!;
+            private readonly BattleRoyaleOpponentsList _list;
+            private Opponent _item;
             private CancellationTokenSource _tokenSource = new();
             private Task? _refreshColorTask;
             private Task? _refreshPlayerTask;
 
-            protected override void OnInit(BattleRoyaleReplay item) {
-                if (item == _prevReplay && item.ReplayRank == _prevRank) {
+            private void HandleItemUpdated(Opponent item) {
+                if (item == _item) {
                     return;
                 }
 
@@ -183,22 +189,15 @@ namespace BeatLeader.UI.Hub {
                     _tokenSource = new();
                 }
 
+                _item = item;
+
                 ResetColor();
                 RefreshOtherText();
 
                 var token = _tokenSource.Token;
 
-                _refreshPlayerTask = RefreshPlayer(item, token).RunCatching();
-                _refreshColorTask = RefreshAccentColor(item, token).RunCatching();
-
-                _prevReplay = item;
-                _prevRank = item.ReplayRank;
-            }
-
-            public void Init(IBattleRoyaleHost battleRoyaleHost) {
-                _battleRoyaleHost = battleRoyaleHost;
-                _removeButton.Enabled = battleRoyaleHost.CanMutateLobby;
-                _navigateButton.Enabled = battleRoyaleHost.CanMutateLobby;
+                _refreshPlayerTask = RefreshPlayer(item.Replay, token).RunCatching();
+                _refreshColorTask = RefreshAccentColor(item.Replay, token).RunCatching();
             }
 
             private async Task RefreshAccentColor(BattleRoyaleReplay replay, CancellationToken token) {
@@ -226,8 +225,8 @@ namespace BeatLeader.UI.Hub {
             }
 
             private void RefreshOtherText() {
-                _rankText.Text = $"#{Item.ReplayRank}";
-                var timestamp = Item.ReplayHeader.ReplayInfo.Timestamp.ToString();
+                _rankText.Text = $"#{_item.Rank}";
+                var timestamp = _item.Replay.ReplayHeader.ReplayInfo.Timestamp.ToString();
                 _dateText.Text = FormatUtils.FormatTimeset(timestamp, false);
             }
 
@@ -236,11 +235,11 @@ namespace BeatLeader.UI.Hub {
             #region Callbacks
 
             private void HandleNavigateButtonClicked() {
-                _battleRoyaleHost.NavigateTo(Item.ReplayHeader);
+                _list._battleRoyaleHost?.NavigateTo(_item.Replay.ReplayHeader);
             }
 
             private void HandleRemoveButtonClicked() {
-                _battleRoyaleHost.RemoveReplay(Item.ReplayHeader, this);
+                _list._battleRoyaleHost?.RemoveReplay(_item.Replay.ReplayHeader, this);
             }
 
             #endregion
@@ -272,13 +271,27 @@ namespace BeatLeader.UI.Hub {
             }
         }
 
-        protected override void OnCellConstruct(Cell cell) {
-            cell.Init(_battleRoyaleHost!);
+        #endregion
+
+        #region Construct
+
+        private readonly List<BattleRoyaleReplay> _replays = new();
+        private State<bool> _canMutateLobby = null!;
+        private Table<Opponent, Cell> _table = null!;
+
+        protected override GameObject Construct() {
+            _canMutateLobby = Remember(true);
+
+            return new Table<Opponent, Cell> {
+                ScrollContext = new ScrollContext(),
+                SelectionMode = SelectionMode.None,
+                Items = Array.Empty<Opponent>(),
+                ConstructCell = ctx => new Cell(ctx, this)
+            }.Bind(ref _table).Use();
         }
 
-        protected override void OnInitialize() {
-            base.OnInitialize();
-            SelectionMode = global::Reactive.Components.Basic.SelectionMode.None;
+        private void RefreshItems() {
+            _table.Items = _replays.Select(static x => new Opponent(x, x.ReplayRank)).ToArray();
         }
 
         #endregion
@@ -298,22 +311,22 @@ namespace BeatLeader.UI.Hub {
         #region Callbacks
 
         private void HandleReplayAdded(BattleRoyaleReplay replay, object caller) {
-            Items.Add(replay);
-            Refresh();
+            _replays.Add(replay);
+            RefreshItems();
         }
 
         private void HandleReplayRemoved(BattleRoyaleReplay replay, object caller) {
-            Items.Remove(replay);
-            Refresh();
+            _replays.Remove(replay);
+            RefreshItems();
         }
 
         private void HandleRefreshRequested() {
-            Items.Sort(opponentComparator);
-            Refresh();
+            _replays.Sort(opponentComparator);
+            RefreshItems();
         }
 
         private void HandleCanMutateLobbyChangedEvent(bool canMutate) {
-            Refresh();
+            _canMutateLobby.Value = canMutate;
         }
 
         #endregion

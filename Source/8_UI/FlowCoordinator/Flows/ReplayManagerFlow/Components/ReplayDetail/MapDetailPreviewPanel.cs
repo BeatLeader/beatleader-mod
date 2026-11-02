@@ -60,6 +60,7 @@ namespace BeatLeader.UI.Hub {
                         .AsFlexItem(aspectRatio: 1f)
                         .Bind(ref _cover)
                         .InLoadingContainer()
+                        .AsFlexItem(aspectRatio: 1f)
                         .Bind(ref _coverContainer),
                     //labels
                     new Layout {

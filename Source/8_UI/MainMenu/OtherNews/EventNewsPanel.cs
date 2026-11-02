@@ -21,7 +21,7 @@ namespace BeatLeader.UI.MainMenu {
 
         #region Construct
 
-        private NewsPanel<PlatformEvent, EventPreviewPanel> _newsPanel = null!;
+        private NewsPanel<PlatformEvent> _newsPanel = null!;
 
         protected override GameObject Construct() {
             return new Background {
@@ -30,10 +30,10 @@ namespace BeatLeader.UI.MainMenu {
                             Text = "BeatLeader Events"
                         }.AsFlexItem(),
 
-                        new NewsPanel<PlatformEvent, EventPreviewPanel> {
+                        new NewsPanel<PlatformEvent> {
                             EmptyMessage = "No events",
-                            OnCellConstructed = cell => {
-                                cell.OnClick = x => OnEventSelected?.Invoke(x);
+                            ConstructCell = ctx => new EventPreviewPanel(ctx) {
+                                OnClick = x => OnEventSelected?.Invoke(x)
                             }
                         }.AsFlexItem(flexGrow: 1f).Bind(ref _newsPanel)
                     }

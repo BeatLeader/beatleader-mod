@@ -1,7 +1,10 @@
+using System.Collections.Generic;
+using System.Linq;
 using BeatLeader.Components;
 using BeatLeader.Models;
 using Reactive;
 using Reactive.BeatSaber.Components;
+using Reactive.Compiler;
 using Reactive.Components;
 using Reactive.Yoga;
 using UnityEngine;
@@ -23,17 +26,19 @@ namespace BeatLeader.UI.Replayer {
             bool useAlternativeBlur
         ) {
             var settings = launchData.Settings;
-            
+
             _quickSettingsPanel.Setup(timeController);
             _quickSettingsPanel.SetShown(settings.UISettings.QuickSettingsEnabled, true);
 
             var cameraContr = launchData.DisableBuiltinCamera ? null : cameraController;
             _cameraView.Setup(cameraContr, settings.CameraSettings);
-            
+
             _uiView.Setup(settings.UISettings, _quickSettingsPanel, layoutEditor, timeline, watermark);
             _otherView.Setup(timeController, finishController);
 
-            _selectorContainer.Items["Avatar"] = bodySettingsFactory.CreateBodySettingsView().WithRectExpand();
+            var views = _selectorContainer.Views.ToDictionary(static x => x.Key, static x => x.Value);
+            views["Avatar"] = bodySettingsFactory.CreateBodySettingsView().AsFlexItem(size: 100.pct);
+            _selectorContainer.Views = views;
 
             RefreshBackgroundBlur(useAlternativeBlur);
         }
@@ -53,21 +58,24 @@ namespace BeatLeader.UI.Replayer {
         private Image _backgroundImage = null!;
 
         private KeyedContainer<string> _selectorContainer = null!;
+        private State<string> _selectedView = null!;
 
         protected override GameObject Construct() {
+            _selectedView = Remember("Camera");
+
             return new Layout {
                 Children = {
                     //view selector
-                    new SegmentedControl<string, Sprite, ViewSegmentedControlCell> {
-                            Items = {
-                                { "Camera", BundleLoader.CameraIcon },
-                                { "Avatar", BundleLoader.AvatarIcon },
-                                { "UI", BundleLoader.UIIcon },
-                                { "Other", BundleLoader.OtherIcon }
+                    new Layout {
+                            Children = {
+                                CreateViewButton("Camera", BundleLoader.CameraIcon),
+                                CreateViewButton("Avatar", BundleLoader.AvatarIcon),
+                                CreateViewButton("UI", BundleLoader.UIIcon),
+                                CreateViewButton("Other", BundleLoader.OtherIcon)
                             }
                         }
                         .AsFlexGroup(direction: FlexDirection.Column)
-                        .Export(out var segmentedControl)
+                        .WithRectExpand()
                         .InBackground(
                             sprite: BundleLoader.Sprites.backgroundLeft,
                             color: new(0.1f, 0.1f, 0.1f, 1f),
@@ -83,25 +91,28 @@ namespace BeatLeader.UI.Replayer {
                         Children = {
                             //actual view
                             new KeyedContainer<string> {
-                                Control = segmentedControl,
-                                Items = {
-                                    ["Camera"] = new SettingsCameraView {
-                                        CameraViewParams = {
-                                            new PlayerViewCameraParams().AsFlexItem(),
-                                            new FlyingViewCameraParams().AsFlexItem(),
-                                            new ManualViewCameraParams().AsFlexItem()
-                                        }
-                                    }.WithRectExpand().Bind(ref _cameraView),
+                                    Views = new Dictionary<string, IReactiveComponent> {
+                                        ["Camera"] = new SettingsCameraView {
+                                            CameraViewParams = {
+                                                new PlayerViewCameraParams().WithRectExpand(),
+                                                new FlyingViewCameraParams().WithRectExpand(),
+                                                new ManualViewCameraParams().WithRectExpand()
+                                            }
+                                        }.AsFlexItem(size: 100.pct).Bind(ref _cameraView),
 
-                                    ["UI"] = new SettingsUIView()
-                                        .AsFlexItem(size: 100.pct())
-                                        .Bind(ref _uiView),
-                                    
-                                    ["Other"] = new SettingsOtherView()
-                                        .AsFlexItem(size: 100.pct())
-                                        .Bind(ref _otherView)
+                                        ["UI"] = new SettingsUIView()
+                                            .AsFlexItem(size: 100.pct)
+                                            .Bind(ref _uiView),
+
+                                        ["Other"] = new SettingsOtherView()
+                                            .AsFlexItem(size: 100.pct)
+                                            .Bind(ref _otherView)
+                                    },
+                                    sKey = _selectedView
                                 }
-                            }.AsFlexItem(flexGrow: 1f, margin: 2f).AsFlexGroup().Bind(ref _selectorContainer),
+                                .AsFlexItem(flexGrow: 1f, margin: 2f)
+                                .AsFlexGroup()
+                                .Bind(ref _selectorContainer),
 
                             //pop-up with quick settings
                             new QuickSettingsPanel().Bind(ref _quickSettingsPanel)
@@ -123,111 +134,51 @@ namespace BeatLeader.UI.Replayer {
 
         #endregion
 
-        #region ViewSegmentedControl
+        #region View Selector
 
-        private class ViewSegmentedControlCell : KeyedControlCell<string, Sprite> {
-            #region Setup
+        [StateGen]
+        private Background CreateViewButton(string key, Sprite icon) {
+            var state = Remember(GraphicState.None);
+            var color = state.MapColorSet(UIStyle.GlowingButtonColorSet);
 
-            private SegmentedControlButton _button = null!;
-
-            public override void OnInit(string name, Sprite icon) {
-                _button.Icon = icon;
-                _button.Text = name;
-            }
-
-            protected override GameObject Construct() {
-                return new SegmentedControlButton {
-                    Colors = UIStyle.GlowingButtonColorSet,
-                    Latching = true,
-                    OnStateChanged = HandleButtonStateChanged
-                }.AsFlexItem(flex: 1).Bind(ref _button).Use();
-            }
-
-            protected override void OnStart() {
-                ContentTransform.parent.localScale = Vector3.one;
-            }
-
-            #endregion
-
-            #region Button
-
-            private class SegmentedControlButton : ColoredButton {
-                #region Setup
-
-                public string Text {
-                    get => _text.Text;
-                    set => _text.Text = value;
-                }
-
-                public Sprite? Icon {
-                    get => _icon.Sprite;
-                    set => _icon.Sprite = value;
-                }
-
-                #endregion
-
-                #region Construct
-
-                private Image _icon = null!;
-                private Label _text = null!;
-
-                protected override GameObject Construct() {
-                    var layout = new Layout {
-                        Children = {
-                            new Image {
+            return new Background {
+                    Color = Color.clear,
+                    Children = {
+                        new Image {
+                                Sprite = icon,
                                 Material = BundleLoader.UIAdditiveGlowMaterial,
-                                PreserveAspect = true
-                            }.AsFlexItem(flex: 1f).Bind(ref _icon).In<Layout>().AsFlexGroup(
-                                padding: 1f
-                            ).AsFlexItem(
+                                PreserveAspect = true,
+                                sColor = color
+                            }
+                            .AsFlexItem(flex: 1f)
+                            .In<Layout>()
+                            .AsFlexGroup(padding: 1f)
+                            .AsFlexItem(
                                 minSize: new() { y = 9f },
                                 maxSize: new() { y = 10f }
                             ),
-                            //
-                            new Label {
+                        //
+                        new Label {
+                                Text = key,
                                 Material = BundleLoader.UIAdditiveGlowMaterial,
-                                FontSize = 3.6f
-                            }.AsFlexItem(basis: 4f).Bind(ref _text)
-                        }
-                    }.AsFlexGroup(
-                        direction: FlexDirection.Column,
-                        justifyContent: Justify.Center,
-                        padding: 1f
-                    );
-                    
-                    Construct(layout.ContentTransform);
-                    
-                    return layout.Use();
+                                FontSize = 3.6f,
+                                sColor = color
+                            }
+                            .AsFlexItem(basis: 4f)
+                    }
                 }
-
-                #endregion
-
-                #region ApplyColor
-
-                protected override void ApplyColor(Color color) {
-                    _icon.Color = color;
-                    _text.Color = color;
-                }
-
-                #endregion
-            }
-
-            #endregion
-
-            #region Callbacks
-
-            public override void OnCellStateChange(bool selected) {
-                _button.Click(selected);
-            }
-
-            private void HandleButtonStateChanged(bool state) {
-                if (!state) {
-                    _button.Click(true);
-                }
-                SelectSelf();
-            }
-
-            #endregion
+                .AsFlexGroup(
+                    direction: FlexDirection.Column,
+                    justifyContent: Justify.Center,
+                    padding: 1f
+                )
+                .AsFlexItem(flex: 1f)
+                .WithPointerEvents(
+                    onEnter: _ => state.IsHovered = true,
+                    onLeave: _ => state.IsHovered = false,
+                    onDown: _ => _selectedView.Value = key
+                )
+                .On(_selectedView, (_, y) => state.IsActive = y == key);
         }
 
         #endregion

@@ -14,9 +14,9 @@ internal class NewsViewPanel : ReactiveComponent {
     #region Public API
 
     //TODO: Oh my god please forgive me for this
-    public INotifyValueChanged<PlatformEventStatus?> HappeningEvent => _eventDetailsStatus;
+    public IState<PlatformEventStatus?> HappeningEvent => _eventDetailsStatus;
 
-    private PlatformEvent? eventToAutoopen = null;
+    private PlatformEvent? eventToAutoopen;
 
     public void SetEvents(RequestState state, IReadOnlyList<PlatformEvent>? events) {
         _eventNewsPanel.SetData(state, events);
@@ -74,6 +74,8 @@ internal class NewsViewPanel : ReactiveComponent {
             _statusRequest = PlatformEventStatusRequest.Send(evt.id);
             _statusRequest.StateChangedEvent += HandleRequestUpdated;
         }
+
+        _eventDetailsStatus.EnforceInvalidation();
     }
 
     private void HandleRequestUpdated(IWebRequest<PlatformEventStatus> instance, RequestState state, string? failReason) {
@@ -99,8 +101,8 @@ internal class NewsViewPanel : ReactiveComponent {
     #region Construct
 
     private EventNewsPanel _eventNewsPanel = null!;
-    private ObservableValue<PlatformEventStatus?> _eventDetailsStatus = null!;
-    private ObservableValue<bool> _eventDetailsPresented = null!;
+    private State<PlatformEventStatus?> _eventDetailsStatus = null!;
+    private State<bool> _eventDetailsPresented = null!;
 
     protected override GameObject Construct() {
         _eventDetailsStatus = Remember<PlatformEventStatus?>(null);
@@ -113,7 +115,7 @@ internal class NewsViewPanel : ReactiveComponent {
                     }.Bind(ref _eventNewsPanel)
                     .AsFlexItem(size: new() { y = 12f }),
 
-                    new MapNewsPanel(),
+                    new MapNewsPanel().AsFlexItem(basis: 14.5f),
                 }
             }
             .AsFlexGroup(direction: FlexDirection.Column, gap: 1f)
@@ -122,7 +124,7 @@ internal class NewsViewPanel : ReactiveComponent {
         var specialNews = new SpecialEventPanel {
                 OnBackClick = () => _eventDetailsPresented.Value = false
             }
-            .Animate(
+            .On(
                 _eventDetailsStatus,
                 (x, y) => {
                     if (y == null) {
@@ -130,7 +132,8 @@ internal class NewsViewPanel : ReactiveComponent {
                     } else {
                         x.SetData(y);
                     }
-                }
+                },
+                lazy: true
             );
 
         return new Layout {
@@ -140,7 +143,7 @@ internal class NewsViewPanel : ReactiveComponent {
                     new BBillboard()
                         .AsFlexItem(flex: 1, size: new() { y = 70f })
                         .With(x => x.Push(eventNews))
-                        .Animate(
+                        .On(
                             _eventDetailsPresented,
                             (billboard, y) => {
                                 if (y) {
@@ -150,7 +153,8 @@ internal class NewsViewPanel : ReactiveComponent {
                                     billboard.Pop();
                                     specialNews.CancelPreview();
                                 }
-                            }
+                            },
+                            lazy: true
                         )
                 }
             }

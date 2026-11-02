@@ -11,10 +11,10 @@ namespace BeatLeader.UI.Hub {
     internal class BattleRoyaleDetailPanel : BasicReplayDetailPanel {
         #region Construct
 
-        private BsPrimaryButton _selectButton = null!;
+        private BsPrimaryTextButton _selectButton = null!;
 
         protected override ILayoutItem ConstructButtons() {
-            return new BsPrimaryButton {
+            return new BsPrimaryTextButton {
                     Text = BLLocalization.GetTranslation("ls-watch-replay-short"),
                     OnClick = HandleSelectButtonClicked
                 }

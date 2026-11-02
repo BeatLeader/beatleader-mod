@@ -6,6 +6,7 @@ using BeatLeader.Models;
 using BeatLeader.Utils;
 using Reactive;
 using Reactive.BeatSaber.Components;
+using Reactive.Compiler;
 using Reactive.Components;
 using Reactive.Yoga;
 using TMPro;
@@ -19,6 +20,7 @@ internal class SpecialEventMapPanel : ReactiveComponent {
 
     public void SetData(PlatformEventMap? map) {
         _map.Value = map;
+        _map.EnforceInvalidation();
 
         if (map != null) {
             _mapDetail.Value = map.song;
@@ -37,10 +39,10 @@ internal class SpecialEventMapPanel : ReactiveComponent {
 
     #endregion
 
-    #region Constuct
+    #region Construct
 
-    public ObservableValue<PlatformEventMap?> _map = null!;
-    private ObservableValue<MapDetail> _mapDetail = null!;
+    public State<PlatformEventMap?> _map = null!;
+    private State<MapDetail> _mapDetail = null!;
 
     private AudioClip? _previewClip;
     private SongPreviewPlayer _songPreviewPlayer = null!;
@@ -49,62 +51,51 @@ internal class SpecialEventMapPanel : ReactiveComponent {
         _map = Remember<PlatformEventMap?>(null);
         _mapDetail = Remember<MapDetail>(null!);
 
+        var hasMap = _map.Map(x => x != null);
+
         _songPreviewPlayer = Resources.FindObjectsOfTypeAll<SongPreviewPlayer>().First();
 
         return new Layout {
                 Children = {
                     new Label {
                             FontSize = 4.5f,
-                            EnableWrapping = true
+                            EnableWrapping = true,
+                            sText = _map.Map(x => x == null ? "Oops, seems like Monke has stolen the map" : FormatUtils.GetDateOfMonthTimeString(x.startTime))
                         }
-                        .Animate(
-                            _map,
-                            onEffect: (x, y) => {
-                                string text;
-
-                                if (y == null) {
-                                    text = "Oops, seems like Monke has stolen the map";
-                                } else {
-                                    text = FormatUtils.GetDateOfMonthTimeString(y.startTime);
-                                }
-
-                                x.Text = text;
-                            }
-                        )
-                        .AsFlexItem(margin: new() { top = 1.pt(), bottom = 1.pt() }),
+                        .AsFlexItem(margin: new() { top = 1.pt, bottom = 1.pt }),
 
                     new WebImage {
-                            Material = BundleLoader.RoundTextureMaterial
+                            Material = BundleLoader.RoundTextureMaterial,
+                            sEnabled = hasMap,
+                            sSrc = _mapDetail.Map(string? (x) => x.coverImage).InLazy()
                         }
-                        .Animate(_map, (x, y) => x.Enabled = y != null)
-                        .Animate(_mapDetail, (x, y) => x.Src = y.coverImage)
-                        .AsFlexItem(size: 25.pt()),
+                        .AsFlexItem(size: 25.pt),
 
                     new Label {
                             FontStyle = FontStyles.Italic,
                             Overflow = TextOverflowModes.Ellipsis,
-                            FontSize = 5f
+                            FontSize = 5f,
+                            sEnabled = hasMap,
+                            sText = _mapDetail.Map(x => x.name).InLazy()
                         }
-                        .Animate(_map, (x, y) => x.Enabled = y != null)
-                        .Animate(_mapDetail, (x, y) => x.Text = y.name)
-                        .AsFlexItem(margin: new() { left = 1.pt(), right = 1.pt() }),
+                        .AsFlexItem(margin: new() { left = 1.pt, right = 1.pt }),
 
                     new Label {
                             Color = Color.white * 0.7f,
                             FontStyle = FontStyles.Italic,
                             Overflow = TextOverflowModes.Ellipsis,
-                            FontSize = 4f
+                            FontSize = 4f,
+                            sEnabled = hasMap,
+                            sText = _mapDetail.Map(x => x.author).InLazy()
                         }
-                        .Animate(_map, (x, y) => x.Enabled = y != null)
-                        .Animate(_mapDetail, (x, y) => x.Text = y.author)
-                        .AsFlexItem(margin: new() { top = -1.5f, left = 1.pt(), right = 1.pt() }),
+                        .AsFlexItem(margin: new() { top = -1.5f, left = 1.pt, right = 1.pt }),
 
                     new Label {
                             Color = Color.white * 0.5f,
                             Overflow = TextOverflowModes.Ellipsis,
                             FontSize = 3.5f
                         }
-                        .Animate(_map, (x, y) => { 
+                        .On(_map, (x, y) => {
                             if (y == null) { 
                                 x.Enabled = false;
                                 return;
@@ -123,8 +114,8 @@ internal class SpecialEventMapPanel : ReactiveComponent {
                             } else {
                                 x.Enabled = false;
                             }
-                        })
-                        .AsFlexItem(margin: new() { top = 0.5f, left = 1.pt(), right = 1.pt() })
+                        }, lazy: true)
+                        .AsFlexItem(margin: new() { top = 0.5f, left = 1.pt, right = 1.pt })
                 }
             }
             .AsFlexGroup(direction: FlexDirection.Column, justifyContent: Justify.Center, alignItems: Align.Center)

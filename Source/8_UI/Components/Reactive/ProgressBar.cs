@@ -1,5 +1,6 @@
 ﻿using Reactive;
 using Reactive.BeatSaber.Components;
+using Reactive.Components;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
@@ -7,61 +8,58 @@ namespace BeatLeader.UI.Reactive.Components {
         #region Props
 
         public float TotalProgress {
-            get => _totalProgress;
-            set {
-                _totalProgress = value;
-                RefreshBarPos();
-            }
+            get => _totalProgress.Value;
+            set => _totalProgress.Value = value;
         }
 
         public float Progress {
-            get => _progress;
-            set {
-                _progress = value;
-                RefreshBarPos();
-            }
+            get => _progress.Value;
+            set => _progress.Value = value;
         }
 
         public Color Color {
-            get => _progressBarImage.Color;
-            set => _progressBarImage.Color = value;
+            get => _bar.Color;
+            set => _bar.Color = value;
         }
-
-        private float _totalProgress = 1f;
-        private float _progress;
 
         #endregion
 
         #region Construct
 
-        private Image _progressBarImage = null!;
-        private RectTransform _progressBar = null!;
+        private State<float> _totalProgress = null!;
+        private State<float> _progress = null!;
+        private Image _bar = null!;
 
         protected override GameObject Construct() {
+            _totalProgress = Remember(1f);
+            _progress = Remember(0f);
+
             return new Background {
+                FlexItem = {
+                    Size = new() { y = 2f }
+                },
+
                 Sprite = BundleLoader.Sprites.background,
                 PixelsPerUnit = 15f,
                 Color = (Color.white * 0.2f).ColorWithAlpha(0.5f),
 
                 Children = {
                     new Image {
+                        ContentTransform = {
+                            anchorMin = Vector2.zero,
+                            sizeDelta = Vector2.zero,
+                            sanchorMax = RememberDerived(
+                                _progress, _totalProgress,
+                                static (progress, total) => new Vector2(Mathf.Clamp01(progress / total), 1f)
+                            )
+                        },
+
                         Sprite = BundleLoader.Sprites.background,
                         PixelsPerUnit = 15f,
-                        Color = UIStyle.ControlButtonColorSet.ActiveColor
-                    }.Bind(ref _progressBar).Bind(ref _progressBarImage)
+                        Color = UIStyle.ControlButtonColorSet.GetColor(GraphicState.Active)
+                    }.Bind(ref _bar)
                 }
             }.Use();
-        }
-
-        protected override void OnInitialize() {
-            this.AsFlexItem(size: new() { y = 2f });
-            RefreshBarPos();
-        }
-
-        private void RefreshBarPos() {
-            _progressBar.anchorMin = Vector2.zero;
-            _progressBar.anchorMax = new Vector2(Mathf.Clamp01(Progress / TotalProgress), 1f);
-            _progressBar.sizeDelta = Vector2.zero;
         }
 
         #endregion

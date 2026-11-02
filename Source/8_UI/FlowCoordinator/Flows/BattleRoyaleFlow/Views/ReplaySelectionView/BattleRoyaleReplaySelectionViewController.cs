@@ -1,4 +1,5 @@
 ﻿using BeatLeader.Models;
+using BeatLeader.UI.Reactive.Components;
 using BeatLeader.Utils;
 using HMUI;
 using Reactive;
@@ -23,11 +24,7 @@ namespace BeatLeader.UI.Hub {
             new Layout {
                 Children = {
                     new ListFiltersPanel<IReplayHeader> {
-                        SearchContract = x => {
-                            var info = x.ReplayInfo;
-                            var str = new[] { info.PlayerName, info.SongName };
-                            return str;
-                        },
+                        SearchContract = x => [x.ReplayInfo.PlayerName, x.ReplayInfo.SongName],
                         Filters = {
                             new TagFilter()
                         }
@@ -50,7 +47,7 @@ namespace BeatLeader.UI.Hub {
             _replayLaunchPanel.Setup(null);
             _replayLaunchPanel.DetailPanel = detailPanel;
             _replayLaunchPanel.ReplaysList.Setup(_hubTheme.ReplayManagerSearchTheme);
-            _replayLaunchPanel.ReplaysList.Filter = new FilterProxy<IReplayHeader> {
+            _replayLaunchPanel.ReplaysList.Filter = new CompositeTableFilter<IReplayHeader> {
                 Filters = {
                     _battleRoyaleHost.ReplayFilter,
                     filtersPanel

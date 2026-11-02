@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using BeatLeader.Models;
 using Reactive;
 using UnityEngine;
@@ -14,7 +15,7 @@ namespace BeatLeader.UI.Hub {
 
         public IEnumerable<IPanelListFilter<IReplayHeader>>? DependsOn { get; }
         public string FilterName => "Characteristic Filter";
-        public string FilterStatus { get; private set; } = null!;
+        public string FilterStatus => BeatmapCharacteristic == null ? "No Mode" : BeatmapCharacteristic.serializedName;
         public BeatmapCharacteristicSO? BeatmapCharacteristic { get; private set; }
 
         public event Action? FilterUpdatedEvent;
@@ -22,10 +23,6 @@ namespace BeatLeader.UI.Hub {
         public bool Matches(IReplayHeader value) {
             var characteristic = BeatmapCharacteristic?.serializedName;
             return characteristic == null || value.ReplayInfo.SongMode == characteristic;
-        }
-
-        private void RefreshFilterStatus() {
-            FilterStatus = BeatmapCharacteristic == null ? "No Mode" : BeatmapCharacteristic.serializedName;
         }
 
         #endregion
@@ -38,13 +35,10 @@ namespace BeatLeader.UI.Hub {
         }
 
         public void SetBeatmapLevel(BeatmapLevel? level) {
-            var characteristics = level?.GetCharacteristics();
-            _characteristicPanel.SetData(characteristics);
+            _characteristicPanel.SetData(level?.GetCharacteristics().ToArray());
         }
 
         protected override void OnInitialize() {
-            RefreshFilterStatus();
-            _characteristicPanel.SetData(null);
             _characteristicPanel.CharacteristicSelectedEvent += HandleBeatmapCharacteristicSelected;
         }
 
@@ -64,7 +58,6 @@ namespace BeatLeader.UI.Hub {
 
         private void HandleBeatmapCharacteristicSelected(BeatmapCharacteristicSO characteristic) {
             BeatmapCharacteristic = characteristic;
-            RefreshFilterStatus();
             FilterUpdatedEvent?.Invoke();
         }
 

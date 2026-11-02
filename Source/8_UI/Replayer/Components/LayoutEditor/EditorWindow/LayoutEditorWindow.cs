@@ -1,13 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using BeatLeader.UI.Reactive.Components;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Yoga;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace BeatLeader.Components {
     /// <summary>
@@ -68,10 +65,9 @@ namespace BeatLeader.Components {
 
         private Vector2 _componentOriginPos;
         private Vector2 _componentPosOffset;
-        private bool _isMoving;
 
         protected override void OnUpdate() {
-            if (_isMoving) UpdateMovement();
+            if (_windowHandleState.IsActive) UpdateMovement();
         }
 
         private void UpdateMovement() {
@@ -79,7 +75,7 @@ namespace BeatLeader.Components {
             if (componentDestinationPos == _componentOriginPos) return;
             ContentTransform.localPosition = LayoutTool.ApplyBorders(
                 componentDestinationPos,
-                _imageTransform.rect.size,
+                ContentTransform.rect.size,
                 _handler!.AreaTransform!.rect.size
             );
         }
@@ -88,37 +84,35 @@ namespace BeatLeader.Components {
 
         #region Window Handle
 
-        private static readonly Color handleBaseColor = Color.cyan;
-        private static readonly Color handleHoverColor = Color.yellow;
+        private static readonly ColorSet windowHandleColors = new() {
+            Color = Color.cyan,
+            HoveredColor = Color.yellow,
+            ActiveColor = Color.yellow
+        };
 
-        private bool _isWindowHandleHovered;
-
-        private void RefreshWindowHandleColor(bool? hovered = null) {
-            if (hovered.HasValue) _isWindowHandleHovered = hovered.Value;
-            _windowHandle.Color = _isWindowHandleHovered || _isMoving ? handleHoverColor : handleBaseColor;
-        }
+        private State<GraphicState> _windowHandleState = null!;
 
         #endregion
 
         #region Construct
 
         private LayoutEditorComponentsList _layoutEditorComponentsList = null!;
-        private Image _windowHandle = null!;
-        private BsButton _layerUpButton = null!;
-        private BsButton _layerDownButton = null!;
-        private RectTransform _imageTransform = null!;
+        private BsTextButton _layerUpButton = null!;
+        private BsTextButton _layerDownButton = null!;
 
         protected override GameObject Construct() {
+            _windowHandleState = Remember(GraphicState.None);
+
             return new Background {
                 Sprite = BundleLoader.Sprites.background,
                 PixelsPerUnit = 7f,
                 Color = new(0.14f, 0.14f, 0.14f),
 
-                LayoutModifier = new YogaModifier {
-                    Size = new() { x = 48.pt(), y = 70.pt() }
+                FlexItem = {
+                    Size = new() { x = 48.pt, y = 70.pt }
                 },
 
-                LayoutController = new YogaLayoutController {
+                FlexController = {
                     FlexDirection = FlexDirection.Column
                 },
 
@@ -127,6 +121,7 @@ namespace BeatLeader.Components {
                     new Background {
                         Sprite = BundleLoader.Sprites.backgroundTop,
                         PixelsPerUnit = 7f,
+                        sColor = _windowHandleState.MapColorSet(windowHandleColors),
                         Children = {
                             new Label {
                                 Text = "Layout Editor",
@@ -137,14 +132,21 @@ namespace BeatLeader.Components {
                                 margin: new() { left = 2f }
                             )
                         }
-                    }.Bind(ref _windowHandle).AsFlexGroup(
+                    }.WithPointerEvents(
+                        onEnter: _ => _windowHandleState.IsHovered = true,
+                        onLeave: _ => _windowHandleState.IsHovered = false,
+                        onDown: HandleWindowHandlePointerDown,
+                        onUp: _ => _windowHandleState.IsActive = false
+                    ).AsFlexGroup(
                         justifyContent: Justify.FlexStart
                     ).AsFlexItem(basis: 4f),
-                    
+
                     //list
                     new Layout {
                         Children = {
-                            new LayoutEditorComponentsList()
+                            new LayoutEditorComponentsList {
+                                    OnComponentSelected = HandleListComponentSelected
+                                }
                                 .Bind(ref _layoutEditorComponentsList)
                                 .AsFlexItem(flexGrow: 1f),
                         }
@@ -156,13 +158,13 @@ namespace BeatLeader.Components {
                         Color = new(0.22f, 0.22f, 0.22f),
                         PixelsPerUnit = 10f,
 
-                        LayoutModifier = new YogaModifier {
-                            FlexBasis = 18.pt(),
-                            Margin = 1.pt()
+                        FlexItem = {
+                            FlexBasis = 18.pt,
+                            Margin = 1.pt
                         },
 
-                        LayoutController = new YogaLayoutController {
-                            Padding = 2.pt()
+                        FlexController = {
+                            Padding = 2.pt
                         },
 
                         Children = {
@@ -170,16 +172,16 @@ namespace BeatLeader.Components {
                             new Layout {
                                 Children = {
                                     //layer up button
-                                    new BsButton {
-                                            Text = "UP",
+                                    new BsTextButton {
+                                            Text = "Up",
                                             Skew = 0f,
                                             OnClick = () => ModifySelectedComponentLayer(1)
                                         }
                                         .AsFlexItem(basis: 6f)
                                         .Bind(ref _layerUpButton),
-                                    
+
                                     //layer down button
-                                    new BsButton {
+                                    new BsTextButton {
                                             Text = "Down",
                                             Skew = 0f,
                                             OnClick = () => ModifySelectedComponentLayer(-1)
@@ -195,7 +197,7 @@ namespace BeatLeader.Components {
                             new Layout {
                                 Children = {
                                     //cancel button
-                                    new BsButton {
+                                    new BsTextButton {
                                         Text = "Cancel",
                                         Skew = 0f,
                                         OnClick = () => {
@@ -203,9 +205,9 @@ namespace BeatLeader.Components {
                                             _editor!.Mode = _editor.PreviousMode;
                                         }
                                     }.AsFlexItem(basis: 6f),
-                                    
+
                                     //apply button
-                                    new BsPrimaryButton {
+                                    new BsPrimaryTextButton {
                                         Text = "Apply",
                                         Skew = 0f,
                                         OnClick = () => {
@@ -221,45 +223,31 @@ namespace BeatLeader.Components {
                         }
                     }
                 }
-            }.Bind(ref _imageTransform).Use();
-        }
-
-        protected override void OnInitialize() {
-            _layoutEditorComponentsList.WithListener(
-                static x => x.SelectedIndexes,
-                HandleListComponentSelected
-            );
-            var eventsHandler = _windowHandle.Content.AddComponent<PointerEventsHandler>();
-            eventsHandler.PointerUpEvent += OnComponentPointerUp;
-            eventsHandler.PointerDownEvent += OnComponentPointerDown;
-            eventsHandler.PointerEnterEvent += OnComponentPointerEnter;
-            eventsHandler.PointerExitEvent += OnComponentPointerExit;
-            RefreshWindowHandleColor();
+            }.Use();
         }
 
         private void RefreshComponents() {
-            _layoutEditorComponentsList.Items.Clear();
-            _layoutEditorComponentsList.Items.AddRange(_editor!.LayoutComponents);
-            _layoutEditorComponentsList.Items.Remove(this);
-            _layoutEditorComponentsList.Refresh();
+            _layoutEditorComponentsList.SetItems(_editor!.LayoutComponents.Where(x => x != this));
         }
 
         #endregion
 
         #region Component Handling
 
-        private static readonly Func<ILayoutComponent, int> layerSelector = static x => x.LayoutData.layer;
         private ILayoutComponent? _selectedComponent;
 
         private void RefreshLayerButtons() {
-            var isComponentAvailable = _selectedComponent is null;
-            var layer = _selectedComponent?.LayoutData.layer;
+            if (_selectedComponent is null) {
+                _layerUpButton.Interactable = false;
+                _layerDownButton.Interactable = false;
+                return;
+            }
 
-            var minLayer = isComponentAvailable ? 0 : _layoutEditorComponentsList.Items.Min(layerSelector);
-            var maxLayer = isComponentAvailable ? 0 : _layoutEditorComponentsList.Items.Max(layerSelector);
+            var layer = _selectedComponent.LayoutData.layer;
+            var items = _layoutEditorComponentsList.Items;
 
-            _layerUpButton.Interactable = !isComponentAvailable && layer < maxLayer;
-            _layerDownButton.Interactable = !isComponentAvailable && layer > minLayer;
+            _layerUpButton.Interactable = layer < items.Max(static x => x.LayoutData.layer);
+            _layerDownButton.Interactable = layer > items.Min(static x => x.LayoutData.layer);
         }
 
         private void ModifySelectedComponentLayer(int layer) {
@@ -267,7 +255,6 @@ namespace BeatLeader.Components {
             _selectedComponent.LayoutData.layer += layer;
             _selectedComponent.ApplyLayoutData();
             _layoutEditorComponentsList.Refresh();
-            _layoutEditorComponentsList.Select(_selectedComponent);
             RefreshLayerButtons();
         }
 
@@ -278,25 +265,25 @@ namespace BeatLeader.Components {
         private bool _applyingSelection;
 
         public void OnEditorModeChanged(LayoutEditorMode mode) {
-            Content.SetActive(mode is LayoutEditorMode.Edit);
+            var editing = mode is LayoutEditorMode.Edit;
+            Content.SetActive(editing);
+            if (editing) _layoutEditorComponentsList.Refresh();
         }
 
         public void OnSelectedComponentChanged(ILayoutComponent? component) {
             _selectedComponent = component;
             RefreshLayerButtons();
             if (component == null) {
-                _layoutEditorComponentsList.ClearSelection();
+                _layoutEditorComponentsList.Select(null);
             } else if (!_applyingSelection) {
                 _layoutEditorComponentsList.Select(component);
             }
         }
 
-        private void HandleListComponentSelected(IReadOnlyCollection<int> indexes) {
-            if (indexes.Count is 0) return;
-            var comp = _layoutEditorComponentsList.Items[indexes.First()];
+        private void HandleListComponentSelected(ILayoutComponent component) {
             // Using _applyingSelection to prevent endless loop
             _applyingSelection = true;
-            _handler!.OnSelect(comp);
+            _handler!.OnSelect(component);
             _applyingSelection = false;
         }
 
@@ -304,14 +291,12 @@ namespace BeatLeader.Components {
             if (component == this) {
                 return;
             }
-            _layoutEditorComponentsList.Items.Add(component);
-            _layoutEditorComponentsList.Refresh();
+            _layoutEditorComponentsList.AddItem(component);
             RefreshLayerButtons();
         }
 
         private void HandleComponentRemoved(ILayoutComponent component) {
-            if (_layoutEditorComponentsList.Items.Remove(component)) {
-                _layoutEditorComponentsList.Refresh();
+            if (_layoutEditorComponentsList.RemoveItem(component)) {
                 RefreshLayerButtons();
             }
         }
@@ -320,26 +305,11 @@ namespace BeatLeader.Components {
 
         #region PointerEventsHandler Callbacks
 
-        private void OnComponentPointerUp(PointerEventsHandler handler, PointerEventData data) {
-            _isMoving = false;
-            RefreshWindowHandleColor();
-        }
-
-        private void OnComponentPointerDown(PointerEventsHandler handler, PointerEventData data) {
+        private void HandleWindowHandlePointerDown(PointerEventsHandler handler) {
             var compPos = (Vector2)ContentTransform.localPosition;
-            var pointerPos = _handler!.PointerPosition;
-            _componentPosOffset = compPos - pointerPos;
+            _componentPosOffset = compPos - _handler!.PointerPosition;
             _componentOriginPos = compPos;
-            _isMoving = true;
-            RefreshWindowHandleColor();
-        }
-
-        private void OnComponentPointerEnter(PointerEventsHandler handler, PointerEventData data) {
-            RefreshWindowHandleColor(true);
-        }
-
-        private void OnComponentPointerExit(PointerEventsHandler handler, PointerEventData data) {
-            RefreshWindowHandleColor(false);
+            _windowHandleState.IsActive = true;
         }
 
         #endregion

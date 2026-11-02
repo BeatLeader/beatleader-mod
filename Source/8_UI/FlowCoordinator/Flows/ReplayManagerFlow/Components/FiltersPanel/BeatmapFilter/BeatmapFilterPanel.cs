@@ -54,7 +54,7 @@ namespace BeatLeader.UI.Hub {
 
         public IEnumerable<IPanelListFilter<IReplayHeader>>? DependsOn => null;
         public string FilterName => "Beatmap Filter";
-        public string FilterStatus { get; private set; } = null!;
+        public string FilterStatus => BeatmapLevel.HasValue ? $"Map: {FormatUtils.TruncateEllipsis(BeatmapLevel.Level.songName, 15)}" : "No Map";
         public BeatmapLevelWithKey BeatmapLevel { get; private set; }
 
         public event Action? FilterUpdatedEvent;
@@ -63,11 +63,6 @@ namespace BeatLeader.UI.Hub {
             if (!BeatmapLevel.HasValue) return false;
             var levelId = BeatmapLevel.Level.levelID;
             return levelId.Replace("custom_level_", "") == value.ReplayInfo.SongHash;
-        }
-
-        private void RefreshFilterStatus() {
-            var level = BeatmapLevel;
-            FilterStatus = level.HasValue ? $"Map: {FormatUtils.TruncateEllipsis(level.Level.songName, 15)}" : "No Map";
         }
 
         #endregion
@@ -98,6 +93,11 @@ namespace BeatLeader.UI.Hub {
 
         #region Construct
 
+        private static readonly ColorSet gradientColors = new() {
+            Color = Color.clear,
+            HoveredColor = Color.white.ColorWithAlpha(0.2f)
+        };
+
         private BeatmapPreviewPanel _beatmapPreviewPanel = null!;
 
         private void SetBeatmapLevel(BeatmapLevel level) {
@@ -105,39 +105,44 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override GameObject Construct() {
+            var graphicState = Remember(GraphicState.None);
+
             return new Layout {
                 Children = {
-                    new BackgroundButton {
-                        Image = {
+                    new Background {
                             Color = Color.white,
                             Sprite = BundleLoader.Sprites.background,
                             PixelsPerUnit = 12f,
-                            Material = GameResources.UINoGlowMaterial
-                        },
-                        Colors = null,
-                        OnClick = Present,
-                        GradientColors1 = new SimpleColorSet {
-                            Color = Color.clear,
-                            HoveredColor = Color.white.ColorWithAlpha(0.2f)
-                        },
-                        Skew = UIStyle.Skew,
-                        Children = {
-                            new BeatmapPreviewPanel {
-                                    Skew = UIStyle.Skew
-                                }
-                                .AsFlexItem(flexGrow: 1f, margin: new() { right = 1f })
-                                .Bind(ref _beatmapPreviewPanel)
+                            Material = GameResources.UINoGlowMaterial,
+                            UseGradient = true,
+                            sGradientColor1 = graphicState.MapColorSet(gradientColors),
+                            Skew = UIStyle.Skew,
+                            Children = {
+                                new BeatmapPreviewPanel {
+                                        Skew = UIStyle.Skew
+                                    }
+                                    .AsFlexItem(flexGrow: 1f, margin: new() { right = 1f })
+                                    .Bind(ref _beatmapPreviewPanel)
+                            }
                         }
-                    }.AsFlexGroup().AsFlexItem(
-                        flexGrow: 1f,
-                        margin: new() { left = 1f, right = 1f }
-                    )
+                        .WithPointerEvents(
+                            onEnter: _ => graphicState.IsHovered = true,
+                            onLeave: _ => graphicState.IsHovered = false,
+                            onDown: _ => {
+                                global::Reactive.BeatSaber.GameResources.ButtonClickSignal.Raise();
+                                Present();
+                            }
+                        )
+                        .AsFlexGroup()
+                        .AsFlexItem(
+                            flexGrow: 1f,
+                            margin: new() { left = 1f, right = 1f }
+                        )
                 }
             }.AsFlexGroup(padding: new() { top = 1f, bottom = 1f }).Use();
         }
 
         protected override void OnInitialize() {
-            RefreshFilterStatus();
             SetBeatmapLevel(previewBeatmapLevel);
             this.AsFlexItem(size: new() { x = 52f, y = 12f });
         }
@@ -153,7 +158,6 @@ namespace BeatLeader.UI.Hub {
 
         private void HandleBeatmapSelected(BeatmapLevelWithKey beatmap) {
             BeatmapLevel = beatmap;
-            RefreshFilterStatus();
             SetBeatmapLevel(beatmap.Level);
             BeatmapSelectedEvent?.Invoke(BeatmapLevel);
             FilterUpdatedEvent?.Invoke();

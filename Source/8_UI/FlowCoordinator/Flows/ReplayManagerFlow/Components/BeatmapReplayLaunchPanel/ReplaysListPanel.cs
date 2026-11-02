@@ -1,7 +1,7 @@
-﻿using BeatLeader.Models;
+﻿using System.Collections.Generic;
+using BeatLeader.Models;
 using BeatLeader.Utils;
 using Reactive;
-using Reactive.Components;
 using Reactive.Yoga;
 using UnityEngine;
 
@@ -15,26 +15,24 @@ namespace BeatLeader.UI.Hub {
         private ReplaysListSettingsPanel _settingsPanel = null!;
 
         protected override GameObject Construct() {
-            var go = new Layout {
+            return new Layout {
                 Children = {
                     new ReplaysList()
                         .AsFlexItem(flexGrow: 1f)
                         // ReSharper disable once InconsistentlySynchronizedField
                         .Bind(ref _replaysList),
+
                     new ReplaysListSettingsPanel()
                         .AsFlexItem(basis: 4f)
                         .Bind(ref _settingsPanel)
                 }
             }.AsFlexGroup(direction: FlexDirection.Column).Use();
-            return go;
         }
 
         protected override void OnInitialize() {
             _settingsPanel.Setup(_replaysList);
-            CollectionExtensions.AddRange(_replaysList.Items, ReplayManager.Headers);
-
-            _replaysList.Sort();
-            _replaysList.Refresh();
+            _headers.AddRange(ReplayManager.Headers);
+            _replaysList.Items = _headers;
 
             ReplayManager.ReplayAddedEvent += HandleReplayAdded;
             ReplayManager.ReplayDeletedEvent += HandleReplayRemoved;
@@ -53,6 +51,7 @@ namespace BeatLeader.UI.Hub {
 
         #region List Update
 
+        private readonly List<IReplayHeader> _headers = new();
         private IReplayHeader? _navigateHeader;
         private bool _listIsDirty;
 
@@ -60,8 +59,8 @@ namespace BeatLeader.UI.Hub {
             if (!_listIsDirty) {
                 return;
             }
-            
-            _replaysList.Refresh();
+
+            _replaysList.Items = _headers;
 
             if (_navigateHeader != null) {
                 _replaysList.Select(_navigateHeader);
@@ -74,7 +73,7 @@ namespace BeatLeader.UI.Hub {
         private void SetListIsDirty(bool force = false) {
             const int multiplier = 30;
 
-            if (force || _replaysList.Items.Count < _replaysList.VisibleCells * multiplier) {
+            if (force || _headers.Count < _replaysList.VisibleCells * multiplier) {
                 _listIsDirty = true;
             }
         }
@@ -89,22 +88,21 @@ namespace BeatLeader.UI.Hub {
         #region Callbacks
 
         private void HandleReplayAdded(IReplayHeader header) {
-            _replaysList.Items.Add(header);
+            _headers.Add(header);
             SetListIsDirty();
         }
 
         private void HandleReplayRemoved(IReplayHeader header) {
-            _replaysList.Items.Remove(header);
-            SetListIsDirty();
+            _headers.Remove(header);
+            SetListIsDirty(true);
         }
 
         private void HandleAllReplaysRemoved() {
-            _replaysList.Items.Clear();
-            SetListIsDirty();
+            _headers.Clear();
+            SetListIsDirty(true);
         }
 
         private void HandleLoadingFinished(bool _) {
-            _replaysList.Sort();
             SetListIsDirty(true);
         }
 

@@ -42,11 +42,7 @@ namespace BeatLeader.UI.Hub {
             new Layout {
                 Children = {
                     new ListFiltersPanel<IReplayHeader> {
-                        SearchContract = x => {
-                            var info = x.ReplayInfo;
-                            var str = new[] { info.PlayerName, info.SongName };
-                            return str;
-                        },
+                        SearchContract = static x => new[] { x.ReplayInfo.PlayerName, x.ReplayInfo.SongName },
                         Filters = {
                             new TagFilter()
                         }

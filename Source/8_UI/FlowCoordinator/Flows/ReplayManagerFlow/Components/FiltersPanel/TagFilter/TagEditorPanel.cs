@@ -1,9 +1,8 @@
-using System;
-using BeatLeader.Models;
-using BeatLeader.UI.Reactive.Components;
+using BeatLeader.Utils;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
+using Reactive.Yoga;
 using UnityEngine;
 using ColorUtils = BeatLeader.Utils.ColorUtils;
 
@@ -11,65 +10,70 @@ namespace BeatLeader.UI.Hub {
     internal class TagEditorPanel : ReactiveComponent {
         #region Tag
 
-        public Func<string, ReplayTagValidationResult>? ValidationContract { get; set; }
-
-        public string TagName => _inputField.Text;
-        public Color TagColor => _colorPicker.Color;
-        public bool IsValid => _validationResult?.Ok ?? false;
+        public string TagName => _nameContext.Text ?? string.Empty;
+        public Color TagColor => _colorContext.SelectedColor;
+        public IState<bool> Validity => _validity;
 
         public void Clear() {
-            _colorPicker.Color = ColorUtils.RandomColor();
-            _inputField.ClearText();
+            _colorContext.SelectedColor = ColorUtils.RandomColor();
+            _nameContext.Text = null;
         }
 
         #endregion
 
         #region Construct
 
-        private ReplayTagValidationResult? _validationResult;
-        private InputField _inputField = null!;
-        private ColorPicker _colorPicker = null!;
+        private readonly BsInputFieldContext _nameContext = new() {
+            Validate = static x => x is not { Length: > 10 }
+        };
+
+        private readonly BsColorPickerContext _colorContext = new() { SelectedColor = ColorUtils.RandomColor() };
+        private IState<bool> _validity = null!;
+
+        private BsInputField _inputField = null!;
+        private BsKeyboardModal _keyboardModal = null!;
+        private BsColorPicker _colorPicker = null!;
+        private BsColorCircleModal _colorModal = null!;
 
         protected override GameObject Construct() {
+            _validity = _nameContext.Map(static x => x.Text != null && ReplayMetadataManager.ValidateTagName(x.Text).Ok);
+
             return new Layout {
                 Children = {
-                    new InputField {
-                            Icon = GameResources.Sprites.EditIcon,
+                    new BsInputField {
+                            Context = _nameContext,
                             Placeholder = "Enter Name",
-
-                            TextApplicationContract = x => {
-                                _validationResult = ValidationContract?.Invoke(x);
-                                NotifyPropertyChanged(nameof(IsValid));
-
-                                return _validationResult?.Ok ?? false;
-                            },
-
-                            Keyboard = new KeyboardModal<Keyboard, InputField>()
+                            Icon = GameResources.Sprites.EditIcon
                         }
-                        .WithListener(
-                            x => x.Text,
-                            x => {
-                                if (x.Length == 0) {
-                                    _validationResult = null;
-                                }
-                                NotifyPropertyChanged(nameof(TagName));
-                                NotifyPropertyChanged(nameof(IsValid));
-                            }
-                        )
                         .AsFlexItem(flexGrow: 1f, flexShrink: 1f)
                         .Bind(ref _inputField),
 
-                    new ColorPicker {
-                            Color = ColorUtils.RandomColor()
+                    new BsKeyboardModal {
+                        Context = _nameContext
+                    }.Bind(ref _keyboardModal),
+
+                    new BsColorPicker {
+                            Context = _colorContext
                         }
-                        .WithListener(
-                            x => x.Color,
-                            _ => NotifyPropertyChanged(nameof(TagColor))
-                        )
                         .AsFlexItem()
-                        .Bind(ref _colorPicker)
+                        .Bind(ref _colorPicker),
+
+                    new BsColorCircleModal {
+                        Context = _colorContext,
+                        Title = "Select Color",
+                        CircleSize = 54.pt,
+                        PlacementData = new() {
+                            Placement = RelativePlacement.Center,
+                            Clip = true
+                        }
+                    }.Bind(ref _colorModal)
                 }
             }.AsFlexGroup(gap: 1f).AsFlexItem(size: new() { y = 8f }).Use();
+        }
+
+        protected override void OnInitialize() {
+            _keyboardModal.PlacementAnchor = _inputField.ContentTransform;
+            _colorModal.PlacementAnchor = _colorPicker.ContentTransform;
         }
 
         #endregion

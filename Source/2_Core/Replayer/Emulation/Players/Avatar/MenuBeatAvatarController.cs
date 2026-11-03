@@ -14,6 +14,8 @@ namespace BeatLeader.Replayer.Emulation {
         private Spinner _spinner = null!;
 
         protected override void Awake() {
+            // must run before SetActive(false) below, which would hide another mod's copy
+            if (RemoveIfForeignCopy()) return;
             _tweenController = GetComponent<AvatarTweenController>();
             //spinner
             _spinner = new Spinner {

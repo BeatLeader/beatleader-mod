@@ -58,7 +58,9 @@ namespace BeatLeader.Replayer.Emulation {
         #region Height Handling
 
         private void LateUpdate() {
-            if (_lastNode is null || _lastNode.Value.time > _timeController.SongTime) return;
+            var songTime = _timeController.SongTime;
+            if (_lastNode is null || _lastNode.Value.time > songTime) return;
+            while (_lastNode.Next is { } next && next.Value.time <= songTime) _lastNode = next;
             HandleHeightChange(_lastNode.Value.height);
             _lastNode = _lastNode.Next;
         }

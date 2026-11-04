@@ -368,7 +368,7 @@ namespace BeatLeader.Utils {
                 note.maxScore = maxScore;
                 note.combo = combo;
 
-                note.accuracy = note.isBlock ? (float)note.totalScore / maxScore : i == 0 ? 0 : allStructs[i - 1].accuracy;
+                note.accuracy = note.isBlock ? (float)note.totalScore / maxScore : i == 0 ? 1 : allStructs[i - 1].accuracy;
                 currentFcAcc = (float)fcScore / maxScore;
             }
             result.fcAcc = currentFcAcc;
@@ -392,8 +392,7 @@ namespace BeatLeader.Utils {
                 }
                 if (delimiter > 0) {
                     scoreGraph.graph[i] = cumulative / delimiter;
-                }
-                if (scoreGraph.graph[i] == 0) {
+                } else {
                     scoreGraph.graph[i] = i == 0 ? 1.0f : scoreGraph.graph[i - 1];
                 }
             }

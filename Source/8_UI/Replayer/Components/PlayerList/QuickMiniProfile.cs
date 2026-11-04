@@ -14,21 +14,21 @@ namespace BeatLeader.UI {
         #region Layout
 
         public Justify JustifyContent {
-            get => _root.FlexController.JustifyContent;
+            get => _layoutController.JustifyContent;
             set {
                 switch (value) {
                     case Justify.FlexStart:
-                        _rails.FlexItem.FlexGrow = 1;
-                        _rails.FlexItem.Size = new() { x = YogaValue.Undefined };
+                        _railsLayoutModifier.FlexGrow = 1;
+                        _railsLayoutModifier.Size = new() { x = YogaValue.Undefined };
                         break;
                     case Justify.Center:
-                        _rails.FlexItem.FlexGrow = 0;
-                        _rails.FlexItem.Size = new() { x = "auto" };
+                        _railsLayoutModifier.FlexGrow = 0;
+                        _railsLayoutModifier.Size = new() { x = YogaValue.Auto };
                         break;
                     default:
                         throw new Exception("Only FlexStart and Center are supported");
                 }
-                _root.FlexController.JustifyContent = value;
+                _layoutController.JustifyContent = value;
             }
         }
 
@@ -78,8 +78,8 @@ namespace BeatLeader.UI {
         private Label _playerNameLabel = null!;
         private Label _playerGlobalRankLabel = null!;
         private Label _playerPpLabel = null!;
-        private Layout _root = null!;
-        private Layout _rails = null!;
+        private YogaLayoutController _layoutController = null!;
+        private YogaModifier _railsLayoutModifier = null!;
         private Image _nameFitterBackground = null!;
         private Image _rankFitterBackground = null!;
         private Image _ppFitterBackground = null!;
@@ -96,8 +96,8 @@ namespace BeatLeader.UI {
                     },
 
                     FlexItem = {
-                        Size = "auto",
-                        MaxSize = "100%"
+                        Size = YogaVector.Auto,
+                        MaxSize = 100.pct
                     }
                 }.Export(out background).AsBlurBackground(pixelsPerUnit: 12f);
                 layout.Children.AddRange(children);
@@ -154,14 +154,14 @@ namespace BeatLeader.UI {
                                     //name text
                                     new Label {
                                         FlexItem = {
-                                            Size = "auto"
+                                            Size = YogaVector.Auto
                                         },
 
                                         Overflow = TextOverflowModes.Ellipsis,
                                         FontSize = 3
                                     }.Bind(ref _playerNameLabel)
                                 )
-                            ).AsFlexItem(size: new() { y = "auto" }),
+                            ).AsFlexItem(size: new() { y = YogaValue.Auto }),
                             //rank & pp
                             CreateRail(
                                 //rank container
@@ -170,7 +170,7 @@ namespace BeatLeader.UI {
                                     //rank text
                                     new Label {
                                         FlexItem = {
-                                            Size = "auto"
+                                            Size = YogaVector.Auto
                                         },
 
                                         FontSize = 3
@@ -182,17 +182,17 @@ namespace BeatLeader.UI {
                                     //pp text
                                     new Label {
                                         FlexItem = {
-                                            Size = "auto"
+                                            Size = YogaVector.Auto
                                         },
 
                                         FontSize = 3
                                     }.Bind(ref _playerPpLabel)
                                 )
-                            ).AsFlexItem(size: new() { y = "auto" })
+                            ).AsFlexItem(size: new() { y = YogaValue.Auto })
                         }
-                    }.Bind(ref _rails)
+                    }.AsFlexItem(out _railsLayoutModifier)
                 }
-            }.Bind(ref _root).Use();
+            }.AsFlexGroup(out _layoutController).Use();
         }
 
         protected override void OnInitialize() {

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using BeatLeader.Components;
 using BeatLeader.UI.Reactive.Components;
 using Reactive;
+using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Yoga;
@@ -64,7 +65,7 @@ namespace BeatLeader.UI.Hub {
                 },
 
                 FlexItem = {
-                    Size = "auto"
+                    Size = YogaVector.Auto
                 },
 
                 ContentTransform = {
@@ -84,7 +85,7 @@ namespace BeatLeader.UI.Hub {
                         Children = {
                             new Label {
                                 FlexItem = {
-                                    Size = "auto"
+                                    Size = YogaVector.Auto
                                 },
 
                                 FontSize = 3f
@@ -98,7 +99,7 @@ namespace BeatLeader.UI.Hub {
                             //
                             new Label {
                                 FlexItem = {
-                                    Size = "auto"
+                                    Size = YogaVector.Auto
                                 },
 
                                 FontSize = 3f
@@ -108,10 +109,10 @@ namespace BeatLeader.UI.Hub {
                     //date
                     new Label {
                         FlexItem = {
-                            Size = "auto"
+                            Size = YogaVector.Auto
                         },
 
-                        Color = UIStyle.SecondaryTextColor,
+                        Color = BeatSaberStyle.SecondaryTextColor,
                         FontSize = 2.8f
                     }.Bind(ref _dateLabel)
                 }

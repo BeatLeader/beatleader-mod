@@ -7,7 +7,6 @@ using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using BeatLeader.Models.Replay;
-using BeatLeader.UI;
 using BeatLeader.Utils;
 using Reactive;
 using TMPro;
@@ -16,6 +15,7 @@ using UnityEngine.UI;
 using Image = Reactive.BeatSaber.Components.Image;
 using BeatLeader.API;
 using HMUI;
+using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 
 namespace BeatLeader.Components {
@@ -77,7 +77,7 @@ namespace BeatLeader.Components {
                 Sprite = BundleLoader.SaveIcon,
                 Color = Color.white * 0.8f,
                 PreserveAspect = true,
-                Skew = UIStyle.Skew
+                Skew = BeatSaberStyle.Skew
             }.With(x => {
                     x.WithNativeComponent(out LayoutElement el);
                     el.preferredHeight = 6f;

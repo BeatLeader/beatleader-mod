@@ -1,4 +1,5 @@
 ﻿using Reactive;
+using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using UnityEngine;
@@ -56,7 +57,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
                         Sprite = BundleLoader.Sprites.background,
                         PixelsPerUnit = 15f,
-                        Color = UIStyle.ControlButtonColorSet.GetColor(GraphicState.Active)
+                        Color = BeatSaberStyle.BsToggleColors.KnobColors.GetColor(GraphicState.Active)
                     }.Bind(ref _bar)
                 }
             }.Use();

@@ -177,10 +177,9 @@ namespace BeatLeader.Components {
                         }.Bind(ref _proceedButton),
 
                         new DownloadScoresModal {
-                                DownloadingFinishedCallback = OnScoreDownloadingFinished
-                            }
-                            .WithPlacement(RelativePlacement.Center)
-                            .Bind(ref _downloadModal)
+                            DownloadingFinishedCallback = OnScoreDownloadingFinished,
+                            PlacementData = new() { Placement = RelativePlacement.Center, Offset = new(0f, 0.5f) }
+                        }.Bind(ref _downloadModal)
                     }
                 }.WithRectExpand(),
 

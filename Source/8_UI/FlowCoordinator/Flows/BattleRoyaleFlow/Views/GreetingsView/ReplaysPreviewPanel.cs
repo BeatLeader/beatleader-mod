@@ -81,10 +81,11 @@ namespace BeatLeader.UI.Hub {
                 }
                 
                 var wrapper = _avatarsPool.Spawn(replay);
-                wrapper.FlexItem.AspectRatio = 1f;
-                wrapper.FlexItem.Size = new() { x = _avatarSize };
-                wrapper.FlexItem.Position = new() { left = CalculateIndent(index) };
-                wrapper.FlexItem.PositionType = PositionType.Absolute;
+                var flexItem = wrapper.FlexItem;
+                flexItem.AspectRatio = 1f;
+                flexItem.Size = new() { x = _avatarSize };
+                flexItem.Position = new() { left = CalculateIndent(index) };
+                flexItem.PositionType = PositionType.Absolute;
                 
                 _avatarsContainer.Children.Add(wrapper);
                 
@@ -126,7 +127,7 @@ namespace BeatLeader.UI.Hub {
                         },
 
                         FlexItem = {
-                            Size = new() { y = "100%" }
+                            Size = new() { y = 100.pct }
                         },
 
                         Children = {
@@ -136,7 +137,7 @@ namespace BeatLeader.UI.Hub {
                     //
                     new Label {
                         FlexItem = {
-                            Size = "auto"
+                            Size = YogaVector.Auto
                         },
 
                         FontSize = 5f,

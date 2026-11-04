@@ -78,7 +78,7 @@ namespace BeatLeader.UI.Replayer {
                                         //score label
                                         new Label {
                                             FlexItem = {
-                                                Size = "auto"
+                                                Size = YogaVector.Auto
                                             },
 
                                             Text = "0",

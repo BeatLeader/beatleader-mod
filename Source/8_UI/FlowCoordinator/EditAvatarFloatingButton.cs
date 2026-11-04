@@ -66,7 +66,7 @@ namespace BeatLeader.UI.Hub {
                         //
                         new Label {
                             FlexItem = {
-                                Size = new() { x = "auto" }
+                                Size = new() { x = YogaValue.Auto }
                             },
 
                             Text = "Edit Avatar",

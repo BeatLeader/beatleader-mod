@@ -5,7 +5,7 @@ using Reactive.BeatSaber.Components;
 using Reactive.Yoga;
 
 namespace BeatLeader.UI.Hub {
-    internal class TagDeletionDialog : Dialog {
+    internal class TagDeletionDialog : DialogBase {
         #region Setup
 
         private ReplayTag? _replayTag;
@@ -21,20 +21,19 @@ namespace BeatLeader.UI.Hub {
 
         private Label _label = null!;
 
+        protected override IReactiveComponent ConstructDialogContent() {
+            return new Label {
+                FlexItem = {
+                    Size = new() { x = 60.pt, y = 12.pt }
+                },
+
+                EnableWrapping = true
+            }.Bind(ref _label);
+        }
+
         protected override void OnInitialize() {
             base.OnInitialize();
             Title = "Delete Tag";
-
-            Children.Add(
-                new Label {
-                    FlexItem = {
-                        FlexGrow = 1f,
-                        Size = new() { x = 60.pt, y = 12.pt }
-                    },
-
-                    EnableWrapping = true
-                }.Bind(ref _label)
-            );
 
             OkButton.OnClick = HandleOkButtonClicked;
             CancelButton.OnClick = () => IsPushed = false;

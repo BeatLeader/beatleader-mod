@@ -63,8 +63,10 @@ internal class SpecialEventBar : ReactiveComponent {
                         FlexItem = {
                             Position = 0.pt,
                             PositionType = PositionType.Absolute
-                        }
-                    }.AsBlurBackground(pixelsPerUnit: 10f).On(bgAlpha, (x, y) => x.Color = x.Color.ColorWithAlpha(y)),
+                        },
+
+                        sColor = bgAlpha.Map(static x => Color.white.ColorWithAlpha(x))
+                    }.AsBlurBackground(pixelsPerUnit: 10f),
 
                     // Bar
                     new Layout {

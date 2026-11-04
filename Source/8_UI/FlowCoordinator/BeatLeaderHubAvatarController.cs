@@ -50,7 +50,7 @@ namespace BeatLeader.UI.Hub {
                 Interactable = false,
                 Enabled = false,
                 OnClick = PresentEditFlowCoordinator,
-                sColors = _hubTheme.MenuButtonsTheme.EditAvatarButtonColors.State.Map(UIStyle.AeroButtonColors)
+                sColors = _hubTheme.MenuButtonsTheme.State.Map(static x => UIStyle.AeroButtonColors(x.EditAvatarButtonColors.ToColorSet()))
             };
             _editAvatarButton.Use(transform);
             _hubFlowCoordinator.FlowCoordinatorPresentedEvent += Present;

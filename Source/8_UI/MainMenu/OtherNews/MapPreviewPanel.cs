@@ -42,7 +42,7 @@ namespace BeatLeader.UI.MainMenu {
 
                     Sprite = BeatSaberResources.Sprites.background,
                     PixelsPerUnit = 10,
-                    Skew = UIStyle.Skew,
+                    Skew = BeatSaberStyle.Skew,
                     sColor = graphicState.MapColorSet(colors),
 
                     Children = {
@@ -53,7 +53,7 @@ namespace BeatLeader.UI.MainMenu {
 
                             Sprite = BundleLoader.UnknownIcon,
                             Material = BundleLoader.RoundTextureMaterial,
-                            Skew = UIStyle.Skew
+                            Skew = BeatSaberStyle.Skew
                         }.On(
                                 _context,
                                 (img, ctx) => {

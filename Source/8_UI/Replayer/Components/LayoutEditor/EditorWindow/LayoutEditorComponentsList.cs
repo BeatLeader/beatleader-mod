@@ -44,7 +44,7 @@ namespace BeatLeader.Components {
 
         public void Refresh() {
             _items.Sort(CompareLayersDescending);
-            _table.Items = _items.ToArray();
+            _table.Items = _items;
             _dataRevision.Value++;
         }
 
@@ -102,6 +102,8 @@ namespace BeatLeader.Components {
             var layoutData = RememberDerived(context, _dataRevision, static (x, _) => x.Item.LayoutData);
             var textColor = context.Map(static x => x.Selected ? selectedTextColor : baseTextColor);
             var visibilityState = Remember(GraphicState.None);
+
+            layoutData.AddCallback(x => visibilityState.IsActive = x.visible);
 
             void HandleVisibilityButtonClicked() {
                 var visible = !visibilityState.IsActive;
@@ -196,9 +198,6 @@ namespace BeatLeader.Components {
                                             HandleVisibilityButtonClicked();
                                             global::Reactive.BeatSaber.GameResources.ButtonClickSignal.Raise();
                                         }
-                                    ).On(
-                                        layoutData,
-                                        (_, x) => visibilityState.IsActive = x.visible
                                     )
                                 }
                             }

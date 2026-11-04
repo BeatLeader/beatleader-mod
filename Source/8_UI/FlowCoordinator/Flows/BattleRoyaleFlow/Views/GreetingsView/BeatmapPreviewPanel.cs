@@ -122,6 +122,10 @@ namespace BeatLeader.UI.Hub {
                     Gap = 0.8f
                 },
 
+                FlexItem = {
+                    Size = new() { x = 50f, y = 10f }
+                },
+
                 Children = {
                     new Image {
                         FlexItem = {
@@ -141,7 +145,7 @@ namespace BeatLeader.UI.Hub {
                         FlexItem = {
                             FlexGrow = 1f,
                             MinSize = new() { y = 8f },
-                            MaxSize = new() { y = "100%" },
+                            MaxSize = new() { y = 100.pct },
                             Size = new() { y = 12f },
                             Margin = new() { right = 2f },
                             AlignSelf = Align.Center
@@ -220,7 +224,7 @@ namespace BeatLeader.UI.Hub {
                                 },
 
                                 FlexItem = {
-                                    Size = new() { y = "100%" },
+                                    Size = new() { y = 100.pct },
                                     Position = new() { right = 0f },
                                     PositionType = PositionType.Absolute
                                 },
@@ -228,7 +232,7 @@ namespace BeatLeader.UI.Hub {
                                 Children = {
                                     new Label {
                                         FlexItem = {
-                                            Size = "auto"
+                                            Size = YogaVector.Auto
                                         },
 
                                         FontSize = 4f,
@@ -254,7 +258,6 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override void OnInitialize() {
-            this.FlexItem.Size = new() { x = 50f, y = 10f };
             ShowDifficultyInsteadOfTime = false;
         }
 

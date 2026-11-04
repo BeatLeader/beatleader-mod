@@ -6,7 +6,6 @@ using BeatLeader.API;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using Reactive.Components.GIF;
-using UnityEngine;
 
 namespace BeatLeader.DataManager {
     public static class LeaderboardContextsManager {
@@ -49,16 +48,10 @@ namespace BeatLeader.DataManager {
             var image = await ImageLoader.LoadImage(url, CancellationToken.None);
 
             if (image != null) {
-                context.Icon = image.Sprite ?? GetFirstFrame(image);
+                context.Icon = image.GetFirstFrame();
             } else {
                 Plugin.Log.Error("Failed to load context icon");
             }
-        }
-
-        private static Sprite GetFirstFrame(CachedImage image) {
-            var player = new GifPlayer { Image = image };
-            player.Stop();
-            return player.Sprite!;
         }
     }
 }

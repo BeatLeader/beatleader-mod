@@ -11,7 +11,6 @@ namespace BeatLeader.UI.Hub {
         #region Animation
 
         public bool IsPresent {
-            get => _alpha.TargetValue > 0f;
             set => _alpha.TargetValue = value ? 1f : 0f;
         }
 
@@ -29,7 +28,7 @@ namespace BeatLeader.UI.Hub {
                     new Label {
                         Text = "Did you see it?! Monke stole all players and mystically disappeared!\n" +
                             "But don't be upset, add some by yourself!",
-                        Color = UIStyle.SecondaryTextColor,
+                        Color = BeatSaberStyle.SecondaryTextColor,
                         FontSize = 6f
                     }
                 }

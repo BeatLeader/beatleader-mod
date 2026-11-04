@@ -24,15 +24,15 @@ namespace BeatLeader.UI.Replayer {
                     },
 
                     FlexItem = {
-                        Size = "auto",
-                        MaxSize = "100%"
+                        Size = YogaVector.Auto,
+                        MaxSize = 100.pct
                     },
 
                     Children = {
                         new Label {
                             FlexItem = {
                                 FlexShrink = 1f,
-                                Size = "auto"
+                                Size = YogaVector.Auto
                             },
 
                             Overflow = TextOverflowModes.Ellipsis,

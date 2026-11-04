@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BeatLeader.Models;
 using Reactive;
+using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Components.Basic;
@@ -53,11 +54,11 @@ namespace BeatLeader.UI.Hub {
 
             #region Setup
 
-            private CellContext<IReplayHeader> _context = null!;
-            private ReplaysList _replaysList = null!;
+            private readonly CellContext<IReplayHeader> _context;
+            private readonly ReplaysList _replaysList;
             private IReplayHeader? _item;
 
-            public void Setup(CellContext<IReplayHeader> context, ReplaysList replaysList) {
+            public Cell(CellContext<IReplayHeader> context, ReplaysList replaysList) {
                 _context = context;
                 _replaysList = replaysList;
 
@@ -200,7 +201,7 @@ namespace BeatLeader.UI.Hub {
                 ) {
                     return new Label {
                         FlexItem = {
-                            Size = new() { y = "100%", x = $"{size}%" },
+                            Size = new() { y = 100.pct, x = size.pct },
                             Position = frame,
                             PositionType = PositionType.Absolute
                         },
@@ -236,7 +237,7 @@ namespace BeatLeader.UI.Hub {
                                 Sprite = BundleLoader.Sprites.background,
                                 PixelsPerUnit = 10f,
                                 Material = GameResources.UINoGlowAdditiveMaterial,
-                                Skew = UIStyle.Skew,
+                                Skew = BeatSaberStyle.Skew,
                                 Color = Color.white,
                                 UseGradient = true,
                                 sGradientColor1 = gradientColor,
@@ -248,7 +249,7 @@ namespace BeatLeader.UI.Hub {
                                         },
 
                                         FlexItem = {
-                                            Size = new() { y = "100%", x = "70%" },
+                                            Size = new() { y = 100.pct, x = 70.pct },
                                             Position = new() { top = 0, left = 0.6f },
                                             PositionType = PositionType.Absolute
                                         },
@@ -256,7 +257,7 @@ namespace BeatLeader.UI.Hub {
                                         Children = {
                                             new Label {
                                                 FlexItem = {
-                                                    Size = new() { x = "auto" }
+                                                    Size = new() { x = YogaValue.Auto }
                                                 },
 
                                                 Overflow = TextOverflowModes.Ellipsis,
@@ -495,14 +496,14 @@ namespace BeatLeader.UI.Hub {
 
         public IReadOnlyCollection<IReplayHeader> HighlightedItems => _highlightedItems.Value;
 
-        private readonly State<IReadOnlyCollection<IReplayHeader>> _highlightedItems = new(new HashSet<IReplayHeader>());
+        private readonly State<HashSet<IReplayHeader>> _highlightedItems = new(new HashSet<IReplayHeader>());
 
         public void SetItemHighlighted(IReplayHeader item, bool highlighted) {
-            var items = new HashSet<IReplayHeader>(_highlightedItems.Value);
+            var items = _highlightedItems.Value;
             var changed = highlighted ? items.Add(item) : items.Remove(item);
 
             if (changed) {
-                _highlightedItems.Value = items;
+                _highlightedItems.EnforceInvalidation();
             }
         }
 
@@ -557,11 +558,7 @@ namespace BeatLeader.UI.Hub {
 
                         ScrollContext = _scrollContext,
                         Items = Array.Empty<IReplayHeader>(),
-                        ConstructCell = ctx => {
-                            var cell = new Cell();
-                            cell.Setup(ctx, this);
-                            return cell;
-                        },
+                        ConstructCell = ctx => new Cell(ctx, this),
                         OnSelectedItemsChanged = x => OnSelectedItemsChanged?.Invoke(x)
                     }.Bind(ref _table),
 

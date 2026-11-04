@@ -83,7 +83,7 @@ namespace BeatLeader.UI.Hub {
                         new Label {
                             FlexItem = {
                                 FlexGrow = 1f,
-                                Size = new() { y = "auto" }
+                                Size = new() { y = YogaValue.Auto }
                             },
 
                             EnableWrapping = true,
@@ -250,9 +250,9 @@ namespace BeatLeader.UI.Hub {
                         OnClick = () => _deletionModal.IsPushed = true
                     },
 
-                    new DeletionModal()
-                        .WithPlacement(RelativePlacement.Center)
-                        .Bind(ref _deletionModal)
+                    new DeletionModal {
+                        PlacementData = new() { Placement = RelativePlacement.Center, Offset = new(0f, 0.5f) }
+                    }.Bind(ref _deletionModal)
                 }
             }.Use();
         }

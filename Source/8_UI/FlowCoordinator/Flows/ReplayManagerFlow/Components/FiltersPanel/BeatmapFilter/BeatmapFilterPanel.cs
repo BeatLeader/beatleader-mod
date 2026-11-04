@@ -6,6 +6,7 @@ using BeatLeader.Models;
 using BeatSaberMarkupLanguage;
 using HMUI;
 using Reactive;
+using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using UnityEngine;
@@ -54,7 +55,7 @@ namespace BeatLeader.UI.Hub {
 
         public IEnumerable<IPanelListFilter<IReplayHeader>>? DependsOn => null;
         public string FilterName => "Beatmap Filter";
-        public string FilterStatus => BeatmapLevel.HasValue ? $"Map: {FormatUtils.TruncateEllipsis(BeatmapLevel.Level.songName, 15)}" : "No Map";
+        public string FilterStatus { get; private set; } = null!;
         public BeatmapLevelWithKey BeatmapLevel { get; private set; }
 
         public event Action? FilterUpdatedEvent;
@@ -63,6 +64,11 @@ namespace BeatLeader.UI.Hub {
             if (!BeatmapLevel.HasValue) return false;
             var levelId = BeatmapLevel.Level.levelID;
             return levelId.Replace("custom_level_", "") == value.ReplayInfo.SongHash;
+        }
+
+        private void RefreshFilterStatus() {
+            var level = BeatmapLevel;
+            FilterStatus = level.HasValue ? $"Map: {FormatUtils.TruncateEllipsis(level.Level.songName, 15)}" : "No Map";
         }
 
         #endregion
@@ -112,6 +118,10 @@ namespace BeatLeader.UI.Hub {
                     Padding = new() { top = 1f, bottom = 1f }
                 },
 
+                FlexItem = {
+                    Size = new() { x = 52f, y = 12f }
+                },
+
                 Children = {
                     new Background {
                             FlexItem = {
@@ -125,7 +135,7 @@ namespace BeatLeader.UI.Hub {
                             Material = GameResources.UINoGlowMaterial,
                             UseGradient = true,
                             sGradientColor1 = graphicState.MapColorSet(gradientColors),
-                            Skew = UIStyle.Skew,
+                            Skew = BeatSaberStyle.Skew,
                             Children = {
                                 new BeatmapPreviewPanel {
                                     FlexItem = {
@@ -133,7 +143,7 @@ namespace BeatLeader.UI.Hub {
                                         Margin = new() { right = 1f }
                                     },
 
-                                    Skew = UIStyle.Skew
+                                    Skew = BeatSaberStyle.Skew
                                 }.Bind(ref _beatmapPreviewPanel)
                             }
                         }
@@ -151,8 +161,8 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override void OnInitialize() {
+            RefreshFilterStatus();
             SetBeatmapLevel(previewBeatmapLevel);
-            this.FlexItem.Size = new() { x = 52f, y = 12f };
         }
 
         #endregion
@@ -166,6 +176,7 @@ namespace BeatLeader.UI.Hub {
 
         private void HandleBeatmapSelected(BeatmapLevelWithKey beatmap) {
             BeatmapLevel = beatmap;
+            RefreshFilterStatus();
             SetBeatmapLevel(beatmap.Level);
             BeatmapSelectedEvent?.Invoke(BeatmapLevel);
             FilterUpdatedEvent?.Invoke();

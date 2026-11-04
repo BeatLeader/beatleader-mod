@@ -2,6 +2,7 @@ using System.Linq;
 using BeatLeader.Models;
 using BeatLeader.UI.Reactive.Components;
 using Reactive;
+using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Yoga;
@@ -169,11 +170,15 @@ namespace BeatLeader.UI.Hub {
 
                 Children = {
                     new TagSelectorModal {
-                            OnPushed = HandleTagSelectorOpened,
-                            OnClickOutside = HandleTagSelectorClickedOutside
+                        OnPushed = HandleTagSelectorOpened,
+                        OnClickOutside = HandleTagSelectorClickedOutside,
+                        PlacementData = new() { Placement = RelativePlacement.BottomCenter, Offset = new(0f, 0.5f) },
+                        Component = {
+                            FlexItem = {
+                                Size = new() { x = 50.pt, y = 36.pt }
+                            }
                         }
-                        .WithPlacement(RelativePlacement.BottomCenter)
-                        .Bind(ref _tagSelectorModal),
+                    }.Bind(ref _tagSelectorModal),
 
                     new Background {
                             FlexController = {
@@ -205,7 +210,7 @@ namespace BeatLeader.UI.Hub {
                                         Margin = new() { left = 1f, right = 1f }
                                     },
 
-                                    Color = UIStyle.SecondaryTextColor,
+                                    Color = BeatSaberStyle.SecondaryTextColor,
                                     FontSize = 3.5f,
                                     Alignment = TextAlignmentOptions.Capline
                                 }.Bind(ref _tagsLabel)
@@ -247,7 +252,6 @@ namespace BeatLeader.UI.Hub {
 
         protected override void OnInitialize() {
             _tagSelectorModal.PlacementAnchor = ContentTransform;
-            _tagSelectorModal.Component.FlexItem.Size = new() { x = 50.pt, y = 36.pt };
         }
 
         protected override void OnDestroy() {

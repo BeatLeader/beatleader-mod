@@ -55,7 +55,7 @@ namespace BeatLeader.UI.Replayer {
                         },
 
                         FlexItem = {
-                            Size = "100%"
+                            Size = 100.pct
                         },
 
                         ContentTransform = {

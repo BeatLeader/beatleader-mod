@@ -1,5 +1,6 @@
 ﻿using BeatLeader.UI.Reactive.Components;
 using Reactive;
+using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 using UnityEngine;
 
@@ -26,7 +27,7 @@ namespace BeatLeader.UI.Hub {
                     },
 
                     Text = "Reload Now",
-                    Skew = UIStyle.Skew,
+                    Skew = BeatSaberStyle.Skew,
                     OnClick = () => _transitionsHelper?.RestartGame()
                 }
                 .InNamedRail("These changes will be applied after game reload ")

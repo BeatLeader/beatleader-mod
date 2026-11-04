@@ -165,7 +165,7 @@ namespace BeatLeader.UI.Replayer {
                 },
 
                 FlexItem = {
-                    Size = new() { x = "100%" }
+                    Size = new() { x = 100.pct }
                 },
 
                 Children = {

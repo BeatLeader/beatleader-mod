@@ -126,9 +126,9 @@ namespace BeatLeader.UI.Hub {
                 },
 
                 Children = {
-                    new SortOptionsModal()
-                        .WithPlacement(RelativePlacement.TopRight)
-                        .Bind(ref _sortOptionsModal),
+                    new SortOptionsModal {
+                        PlacementData = new() { Placement = RelativePlacement.TopRight, Offset = new(0f, 0.5f) }
+                    }.Bind(ref _sortOptionsModal),
                     //label
                     new Label {
                         FlexItem = {

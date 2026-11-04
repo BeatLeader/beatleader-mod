@@ -258,14 +258,14 @@ namespace BeatLeader.UI.Replayer {
         protected override GameObject Construct() {
             _graphicState = Remember(GraphicState.None);
             _backgroundScale = RememberAnimated(1f, 15.fact);
-            _backgroundColor = RememberAnimated(UIStyle.InputColorSet.Color, 15.fact);
+            _backgroundColor = RememberAnimated(BeatSaberStyle.BsSliderColors.BackgroundColors.Color, 15.fact);
 
             _graphicState.AddCallback(
                 x => {
                     var focused = x.IsHovered || x.IsActive;
 
                     _backgroundScale.TargetValue = focused ? 1.4f : 1f;
-                    _backgroundColor.TargetValue = UIStyle.InputColorSet.GetColor(focused ? GraphicState.Hovered : GraphicState.None);
+                    _backgroundColor.TargetValue = BeatSaberStyle.BsSliderColors.BackgroundColors.GetColor(focused ? GraphicState.Hovered : GraphicState.None);
                 },
                 lazy: true
             );
@@ -284,6 +284,10 @@ namespace BeatLeader.UI.Replayer {
                     Padding = new() { left = 1f, right = 1f },
                     Overflow = Overflow.Visible,
                     AlignItems = Align.Center
+                },
+
+                FlexItem = {
+                    Size = new() { y = 4f }
                 },
 
                 ContentTransform = {
@@ -331,10 +335,6 @@ namespace BeatLeader.UI.Replayer {
                     ).Bind(ref _slidingArea)
                 }
             }.Use();
-        }
-
-        protected override void OnInitialize() {
-            this.FlexItem.Size = new() { y = 4f };
         }
 
         #endregion

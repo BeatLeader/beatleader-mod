@@ -1,7 +1,7 @@
 ﻿using BeatLeader.Models;
-using BeatLeader.UI;
 using BeatLeader.UI.Reactive.Components;
 using Reactive;
+using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 using Reactive.Compiler;
 using Reactive.Yoga;
@@ -47,7 +47,7 @@ public class SpecialEventResultsPanel : ReactiveComponent {
 
                     Sprite = BundleLoader.UnknownIcon,
                     Material = BundleLoader.RoundTextureMaterial,
-                    Skew = UIStyle.Skew,
+                    Skew = BeatSaberStyle.Skew,
                     sSrc = _status.Map(x => x?.eventDescription.image).InLazy()
                 }.WithAlpha(_contentAlpha),
 

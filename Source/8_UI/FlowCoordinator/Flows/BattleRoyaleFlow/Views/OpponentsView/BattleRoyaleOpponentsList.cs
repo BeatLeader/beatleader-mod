@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Components;
@@ -118,7 +116,7 @@ namespace BeatLeader.UI.Hub {
                                                 FlexGrow = 1f
                                             },
 
-                                            Color = UIStyle.SecondaryTextColor,
+                                            Color = BeatSaberStyle.SecondaryTextColor,
                                             FontSize = 4f,
                                             Overflow = TextOverflowModes.Ellipsis,
                                             Alignment = TextAlignmentOptions.Right,
@@ -291,7 +289,7 @@ namespace BeatLeader.UI.Hub {
 
         #region Construct
 
-        private readonly List<BattleRoyaleReplay> _replays = new();
+        private readonly List<Opponent> _opponents = new();
         private State<bool> _canMutateLobby = null!;
         private Table<Opponent, Cell> _table = null!;
 
@@ -312,7 +310,7 @@ namespace BeatLeader.UI.Hub {
 
                         ScrollContext = scrollContext,
                         SelectionMode = SelectionMode.None,
-                        Items = Array.Empty<Opponent>(),
+                        Items = _opponents,
                         ConstructCell = ctx => new Cell(ctx, this)
                     }.Bind(ref _table),
 
@@ -325,17 +323,13 @@ namespace BeatLeader.UI.Hub {
             }.Use();
         }
 
-        private void RefreshItems() {
-            _table.Items = _replays.Select(static x => new Opponent(x, x.ReplayRank)).ToArray();
-        }
-
         #endregion
 
         #region Comparison
 
-        private class OpponentComparator : IComparer<BattleRoyaleReplay> {
-            public int Compare(BattleRoyaleReplay x, BattleRoyaleReplay y) {
-                return x.ReplayRank.CompareTo(y.ReplayRank);
+        private class OpponentComparator : IComparer<Opponent> {
+            public int Compare(Opponent x, Opponent y) {
+                return x.Rank.CompareTo(y.Rank);
             }
         }
 
@@ -346,18 +340,23 @@ namespace BeatLeader.UI.Hub {
         #region Callbacks
 
         private void HandleReplayAdded(BattleRoyaleReplay replay, object caller) {
-            _replays.Add(replay);
-            RefreshItems();
+            _opponents.Add(new(replay, replay.ReplayRank));
+            _table.Items = _opponents;
         }
 
         private void HandleReplayRemoved(BattleRoyaleReplay replay, object caller) {
-            _replays.Remove(replay);
-            RefreshItems();
+            _opponents.RemoveAll(x => x.Replay == replay);
+            _table.Items = _opponents;
         }
 
         private void HandleRefreshRequested() {
-            _replays.Sort(opponentComparator);
-            RefreshItems();
+            for (var i = 0; i < _opponents.Count; i++) {
+                var replay = _opponents[i].Replay;
+                _opponents[i] = new(replay, replay.ReplayRank);
+            }
+
+            _opponents.Sort(opponentComparator);
+            _table.Items = _opponents;
         }
 
         private void HandleCanMutateLobbyChangedEvent(bool canMutate) {

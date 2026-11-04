@@ -15,10 +15,7 @@ namespace BeatLeader.UI.Hub {
 
         public IEnumerable<IPanelListFilter<IReplayHeader>>? DependsOn => null;
         public string FilterName => "Tag Filter";
-
-        public string FilterStatus => _selectedTags.Count == 0 ?
-            "No Tags" :
-            "Tags: " + string.Join(", ", _selectedTags.Take(3).Select(static x => x.Name));
+        public string FilterStatus { get; private set; } = null!;
 
         public event Action? FilterUpdatedEvent;
 
@@ -27,6 +24,15 @@ namespace BeatLeader.UI.Hub {
         public bool Matches(IReplayHeader value) {
             var i = value.ReplayMetadata.Tags.Count(tag => _selectedTags.Contains(tag));
             return i == _selectedTags.Count;
+        }
+
+        private void RefreshFilterStatus() {
+            if (_selectedTags.Count == 0) {
+                FilterStatus = "No Tags";
+                return;
+            }
+            var items = _selectedTags.Take(3).Select((x, idx) => $"{(idx > 0 ? ", " : "")}{x.Name}");
+            FilterStatus = "Tags: " + string.Join(string.Empty, items);
         }
 
         #endregion
@@ -57,13 +63,21 @@ namespace BeatLeader.UI.Hub {
                     JustifyContent = Justify.Center
                 },
 
+                FlexItem = {
+                    Size = new() { x = 52f, y = 10f }
+                },
+
                 Children = {
                     new TagSelectorModal {
-                            OnPushed = HandleTagSelectorOpened,
-                            OnClickOutside = HandleTagSelectorClickedOutside
+                        OnPushed = HandleTagSelectorOpened,
+                        OnClickOutside = HandleTagSelectorClickedOutside,
+                        PlacementData = new() { Placement = RelativePlacement.BottomCenter, Offset = new(0f, 0.5f) },
+                        Component = {
+                            FlexItem = {
+                                Size = new() { x = 50.pt, y = 40.pt }
+                            }
                         }
-                        .WithPlacement(RelativePlacement.BottomCenter)
-                        .Bind(ref _tagSelectorModal),
+                    }.Bind(ref _tagSelectorModal),
                     //text area
                     new BsInputField {
                         FlexItem = {
@@ -79,10 +93,9 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override void OnInitialize() {
-            this.FlexItem.Size = new() { x = 52f, y = 10f };
+            RefreshFilterStatus();
 
             _tagSelectorModal.PlacementAnchor = _textArea.ContentTransform;
-            _tagSelectorModal.Component.FlexItem.Size = new() { x = 50.pt, y = 40.pt };
             this.On(_textAreaContext, static (x, y) => x.HandleTextAreaContextUpdated(y), lazy: true);
         }
 
@@ -118,6 +131,7 @@ namespace BeatLeader.UI.Hub {
                 if (string.IsNullOrEmpty(_textAreaText)) {
                     _tagSelectorModal.Component.ClearSelectedTags();
                     _selectedTags.Clear();
+                    RefreshFilterStatus();
                     FilterUpdatedEvent?.Invoke();
                 }
             }
@@ -125,11 +139,13 @@ namespace BeatLeader.UI.Hub {
 
         private void HandleSelectedTagAdded(ReplayTag tag) {
             _selectedTags.Add(tag);
+            RefreshFilterStatus();
             RefreshTextArea();
         }
 
         private void HandleSelectedTagRemoved(ReplayTag tag) {
             _selectedTags.Remove(tag);
+            RefreshFilterStatus();
             RefreshTextArea();
         }
 

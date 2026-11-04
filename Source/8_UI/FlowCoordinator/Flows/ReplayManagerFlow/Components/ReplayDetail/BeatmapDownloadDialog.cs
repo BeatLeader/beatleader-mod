@@ -13,7 +13,7 @@ using Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
-    internal class BeatmapDownloadDialog : Dialog {
+    internal class BeatmapDownloadDialog : DialogBase {
         #region Tokens
 
         private const string GreetingsText = "Press proceed to let Monke visit BeatSaver and steal some maps for further actions.";
@@ -95,7 +95,7 @@ namespace BeatLeader.UI.Hub {
         private Layout _searchIndicatorContainer = null!;
         private Spinner _spinner = null!;
 
-        private ILayoutItem CreateContent() {
+        protected override IReactiveComponent ConstructDialogContent() {
             return new Layout {
                 FlexController = {
                     FlexDirection = FlexDirection.Column,
@@ -104,14 +104,13 @@ namespace BeatLeader.UI.Hub {
                 },
 
                 FlexItem = {
-                    FlexGrow = 1f,
                     Size = new() { x = 64.pt, y = 20f }
                 },
 
                 Children = {
                     new Label {
                         FlexItem = {
-                            Size = new() { y = "auto" }
+                            Size = new() { y = YogaValue.Auto }
                         },
 
                         EnableWrapping = true
@@ -174,7 +173,6 @@ namespace BeatLeader.UI.Hub {
         protected override void OnInitialize() {
             base.OnInitialize();
             Title = "Download Beatmap";
-            Children.Add(CreateContent());
 
             OkButton.OnClick = HandleOkButtonClicked;
             CancelButton.OnClick = Close;

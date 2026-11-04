@@ -243,7 +243,11 @@ namespace BeatLeader.UI.Hub {
         private Label _label = null!;
 
         protected override GameObject Construct() {
-            var container = new ReactiveComponent();
+            var container = new ReactiveComponent {
+                FlexItem = {
+                    Size = new() { y = 5f }
+                }
+            };
 
             _deleteButtonScale = RememberAnimated(Vector3.zero, 200.ms, AnimationCurve.EaseInOut);
             _deleteButtonScale.OnFinish = x => {
@@ -321,7 +325,7 @@ namespace BeatLeader.UI.Hub {
                         // Text
                         new Label {
                             FlexItem = {
-                                Size = "auto"
+                                Size = YogaVector.Auto
                             },
 
                             FontSize = 3f,
@@ -345,7 +349,6 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override void OnInitialize() {
-            this.FlexItem.Size = new() { y = 5f };
             ReplayMetadataManager.TagUpdatedEvent += HandleTagUpdated;
         }
 

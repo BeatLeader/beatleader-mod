@@ -112,6 +112,10 @@ namespace BeatLeader.UI.Hub {
                             new ReplaysListPanel {
                                 FlexItem = {
                                     Size = new() { x = 60f }
+                                },
+
+                                ReplaysList = {
+                                    OnSelectedItemsChanged = HandleItemsSelected
                                 }
                             }.Bind(ref _replaysListPanel),
                             //scrollbar
@@ -168,8 +172,6 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override void OnInitialize() {
-            ReplaysList.OnSelectedItemsChanged = HandleItemsSelected;
-
             ReplayManager.ReplayDeletedEvent += HandleReplayDeleted;
             ReplayManager.LoadingStartedEvent += HandleReplaysLoadStarted;
             ReplayManager.LoadingFinishedEvent += HandleReplaysLoadFinished;

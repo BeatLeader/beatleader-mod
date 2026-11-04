@@ -162,6 +162,8 @@ namespace BeatLeader.UI.Replayer {
             var state = Remember(GraphicState.None);
             var color = state.MapColorSet(UIStyle.GlowingButtonColorSet);
 
+            _selectedView.AddCallback(x => state.IsActive = x == key);
+
             return new Background {
                     FlexController = {
                         FlexDirection = FlexDirection.Column,
@@ -208,8 +210,7 @@ namespace BeatLeader.UI.Replayer {
                     onEnter: _ => state.IsHovered = true,
                     onLeave: _ => state.IsHovered = false,
                     onDown: _ => _selectedView.Value = key
-                )
-                .On(_selectedView, (_, y) => state.IsActive = y == key);
+                );
         }
 
         #endregion

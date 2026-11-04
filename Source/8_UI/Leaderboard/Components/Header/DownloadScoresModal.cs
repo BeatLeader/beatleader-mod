@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 using BeatLeader.API;
 using BeatLeader.Models;
 using BeatLeader.Models.Replay;
-using BeatLeader.UI;
 using BeatLeader.UI.Reactive.Components;
 using BeatLeader.Utils;
 using BeatLeader.WebRequests;
 using Reactive;
+using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Yoga;
@@ -18,7 +18,7 @@ using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    internal class DownloadScoresModal : Dialog {
+    internal class DownloadScoresModal : DialogBase {
         #region Download
 
         public IReadOnlyCollection<IReplayHeader> Headers => _headers;
@@ -189,7 +189,7 @@ namespace BeatLeader.Components {
         private BsToggle _saveReplaysToggle = null!;
         private IReactiveComponent _saveReplaysContainer = null!;
 
-        private ILayoutItem CreateContent() {
+        protected override IReactiveComponent ConstructDialogContent() {
             return new Layout {
                 FlexController = {
                     FlexDirection = FlexDirection.Column,
@@ -200,7 +200,6 @@ namespace BeatLeader.Components {
                 },
 
                 FlexItem = {
-                    FlexGrow = 1f,
                     MinSize = new() { x = 52.pt, y = 16.pt }
                 },
 
@@ -244,8 +243,6 @@ namespace BeatLeader.Components {
             OkButton.Interactable = false;
             OkButton.OnClick = HandleOkButtonClicked;
             CancelButton.OnClick = HandleCancelButtonClicked;
-
-            Children.Add(CreateContent());
             OnPushed = HandlePushed;
         }
 
@@ -304,7 +301,7 @@ namespace BeatLeader.Components {
         private void SetWaitingForStart() {
             _progressLabel.Color = Color.white;
             _progressLabel.Text = "Let's clarify before we start";
-            _progressBar.Color = UIStyle.ControlButtonColorSet.GetColor(GraphicState.Active);
+            _progressBar.Color = BeatSaberStyle.BsToggleColors.KnobColors.GetColor(GraphicState.Active);
             _progressBar.Progress = 0f;
             _progressBar.Enabled = false;
             _saveReplaysContainer.Enabled = true;

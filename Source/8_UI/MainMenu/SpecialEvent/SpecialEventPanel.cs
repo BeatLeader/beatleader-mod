@@ -59,10 +59,10 @@ namespace BeatLeader.UI.MainMenu {
 
                     Children = {
                         new NewsHeader {
-                                sText = _event.Map(x => x.eventDescription.name).InLazy()
+                                sText = _event.Map(x => x.eventDescription.name).InLazy(),
+                                sAccent = _event.Map(static x => x.eventDescription.MainColor() ?? Color.black.ColorWithAlpha(0.5f)).InLazy()
                             }
-                            .WithAlpha(_spinnerAlpha, invert: true)
-                            .On(_event, (x, y) => x.Accent = y.eventDescription.MainColor() ?? x.Accent, lazy: true),
+                            .WithAlpha(_spinnerAlpha, invert: true),
 
                         new SpecialEventMapPanel()
                             .WithAlpha(_spinnerAlpha, invert: true)

@@ -14,6 +14,12 @@ namespace BeatLeader.UI.Hub {
 
         protected override GameObject Construct() {
             return new Background {
+                FlexItem = {
+                    Size = new() { y = 8f, x = 100.pct },
+                    Position = new() { top = 0f },
+                    PositionType = PositionType.Absolute
+                },
+
                 Children = {
                     new Label {
                         FontSize = 6f,
@@ -21,12 +27,6 @@ namespace BeatLeader.UI.Hub {
                     }.WithRectExpand().Bind(ref _label)
                 }
             }.AsBlurBackground().Use();
-        }
-
-        protected override void OnInitialize() {
-            this.FlexItem.Size = new() { y = 8f, x = "100%" };
-            this.FlexItem.Position = new() { top = 0f };
-            this.FlexItem.PositionType = PositionType.Absolute;
         }
     }
 }

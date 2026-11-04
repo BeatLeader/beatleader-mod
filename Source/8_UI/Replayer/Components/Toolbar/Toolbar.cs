@@ -134,7 +134,7 @@ namespace BeatLeader.UI.Replayer {
                             //text
                             new Label {
                                 FlexItem = {
-                                    Size = "auto",
+                                    Size = YogaVector.Auto,
                                     MinSize = new() { x = 12 },
                                     AlignSelf = Align.Center
                                 },

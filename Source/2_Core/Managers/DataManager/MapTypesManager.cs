@@ -45,16 +45,10 @@ namespace BeatLeader.DataManager {
             var image = await ImageLoader.LoadImage(description.Icon, CancellationToken.None);
 
             if (image != null) {
-                _sprites[description] = image.Sprite ?? GetFirstFrame(image);
+                _sprites[description] = image.GetFirstFrame();
             } else {
                 Plugin.Log.Error("Failed to load map type icon");
             }
-        }
-
-        private static Sprite GetFirstFrame(CachedImage image) {
-            var player = new GifPlayer { Image = image };
-            player.Stop();
-            return player.Sprite!;
         }
     }
 }

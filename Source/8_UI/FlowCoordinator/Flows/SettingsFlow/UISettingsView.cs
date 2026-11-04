@@ -36,10 +36,10 @@ namespace BeatLeader.UI.Hub {
 
         public void CancelSelection() {
             if (_menuButtonsTheme != null) {
-                _menuButtonsTheme.ReplayManagerButtonColors.HoveredColor = _initialReplayManagerButtonColor;
-                _menuButtonsTheme.BattleRoyaleButtonColors.HoveredColor = _initialBattleRoyaleButtonColor;
-                _menuButtonsTheme.SettingsButtonColors.HoveredColor = _initialSettingsButtonColor;
-                _menuButtonsTheme.EditAvatarButtonColors.HoveredColor = _initialAvatarButtonColor;
+                _menuButtonsTheme.ReplayManagerButtonColors = _menuButtonsTheme.ReplayManagerButtonColors with { HoveredColor = _initialReplayManagerButtonColor };
+                _menuButtonsTheme.BattleRoyaleButtonColors = _menuButtonsTheme.BattleRoyaleButtonColors with { HoveredColor = _initialBattleRoyaleButtonColor };
+                _menuButtonsTheme.SettingsButtonColors = _menuButtonsTheme.SettingsButtonColors with { HoveredColor = _initialSettingsButtonColor };
+                _menuButtonsTheme.EditAvatarButtonColors = _menuButtonsTheme.EditAvatarButtonColors with { HoveredColor = _initialAvatarButtonColor };
             }
             if (_replayManagerTheme != null) {
                 _replayManagerTheme.SearchHighlightColor = _initialSearchHighlightColor;
@@ -147,7 +147,7 @@ namespace BeatLeader.UI.Hub {
                     Children = {
                         new Label {
                             FlexItem = {
-                                Size = new() { y = "auto" }
+                                Size = new() { y = YogaValue.Auto }
                             },
 
                             Text = name,
@@ -274,22 +274,22 @@ namespace BeatLeader.UI.Hub {
 
         private void HandleReplayManagerButtonColorChanged(Color color) {
             if (_menuButtonsTheme == null) return;
-            _menuButtonsTheme.ReplayManagerButtonColors.HoveredColor = color;
+            _menuButtonsTheme.ReplayManagerButtonColors = _menuButtonsTheme.ReplayManagerButtonColors with { HoveredColor = color };
         }
 
         private void HandleBattleRoyaleButtonColorChanged(Color color) {
             if (_menuButtonsTheme == null) return;
-            _menuButtonsTheme.BattleRoyaleButtonColors.HoveredColor = color;
+            _menuButtonsTheme.BattleRoyaleButtonColors = _menuButtonsTheme.BattleRoyaleButtonColors with { HoveredColor = color };
         }
 
         private void HandleSettingsButtonColorChanged(Color color) {
             if (_menuButtonsTheme == null) return;
-            _menuButtonsTheme.SettingsButtonColors.HoveredColor = color;
+            _menuButtonsTheme.SettingsButtonColors = _menuButtonsTheme.SettingsButtonColors with { HoveredColor = color };
         }
 
         private void HandleAvatarButtonColorChanged(Color color) {
             if (_menuButtonsTheme == null) return;
-            _menuButtonsTheme.EditAvatarButtonColors.HoveredColor = color;
+            _menuButtonsTheme.EditAvatarButtonColors = _menuButtonsTheme.EditAvatarButtonColors with { HoveredColor = color };
         }
 
         #endregion

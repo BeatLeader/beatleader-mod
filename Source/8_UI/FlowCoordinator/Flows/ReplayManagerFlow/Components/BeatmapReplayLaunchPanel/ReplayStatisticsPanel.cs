@@ -70,15 +70,21 @@ namespace BeatLeader.UI.Hub {
                     }.AsBlurBackground(),
 
                     new ReeWrapperV2<ScoreInfoPanelControls> {
-                        FlexItem = {
-                            FlexGrow = 1f
+                            FlexItem = {
+                                FlexGrow = 1f
+                            }
                         }
-                    }.With(x => {
-                            var ree = x.ReeComponent;
-                            ree.followLeaderboardEvents = false;
-                            ree.TabChangedEvent += SwitchTab;
-                        }
-                    ).BindRee(ref _panelControls).InBlurBackground().AsFlexGroup(padding: 1f).AsFlexItem(size: new() { y = 6 }).Bind(ref _panelControlsContainer)
+                        .With(x => {
+                                var ree = x.ReeComponent;
+                                ree.followLeaderboardEvents = false;
+                                ree.TabChangedEvent += SwitchTab;
+                            }
+                        )
+                        .BindRee(ref _panelControls)
+                        .InBlurBackground()
+                        .AsFlexGroup(padding: 1f)
+                        .AsFlexItem(size: new() { y = 6 })
+                        .Bind(ref _panelControlsContainer)
                 }
             }.Use();
         }

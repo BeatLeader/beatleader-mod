@@ -117,13 +117,13 @@ namespace BeatLeader.UI.Hub {
                 },
 
                 Children = {
-                    new TagCreationDialog()
-                        .WithPlacement(RelativePlacement.Center)
-                        .Bind(ref _tagCreationDialog),
+                    new TagCreationDialog {
+                        PlacementData = new() { Placement = RelativePlacement.Center, Offset = new(0f, 0.5f) }
+                    }.Bind(ref _tagCreationDialog),
                     //
-                    new TagDeletionDialog()
-                        .WithPlacement(RelativePlacement.Center)
-                        .Bind(ref _tagDeletionDialog),
+                    new TagDeletionDialog {
+                        PlacementData = new() { Placement = RelativePlacement.Center, Offset = new(0f, 0.5f) }
+                    }.Bind(ref _tagDeletionDialog),
                     //
                     new ScrollArea {
                         FlexItem = {
@@ -143,7 +143,7 @@ namespace BeatLeader.UI.Hub {
                             },
 
                             FlexItem = {
-                                Size = new() { y = "auto" }
+                                Size = new() { y = YogaValue.Auto }
                             }
                         }.Bind(ref _tagsContainer)
                     },

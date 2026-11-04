@@ -24,7 +24,7 @@ namespace BeatLeader.UI.Hub {
         private BsAeroButton CreateActionButton(
             string text,
             Sprite icon,
-            SerializableColorSet colorSet,
+            IState<SerializableColorSet> colorSet,
             YogaFrame position,
             float iconMargin,
             float gap,
@@ -43,7 +43,7 @@ namespace BeatLeader.UI.Hub {
                 },
 
                 Skew = 0f,
-                sColors = colorSet.State.Map(UIStyle.AeroButtonColors),
+                sColors = colorSet.Map(static x => UIStyle.AeroButtonColors(x.ToColorSet())),
                 OnClick = () => {
                     beforePresent?.Invoke();
 
@@ -107,7 +107,7 @@ namespace BeatLeader.UI.Hub {
                     // Welcome label
                     new Label {
                             FlexItem = {
-                                Size = "auto"
+                                Size = YogaVector.Auto
                             },
 
                             Text = "Welcome to the Beat Leader Hub!",
@@ -131,7 +131,7 @@ namespace BeatLeader.UI.Hub {
                             CreateActionButton(
                                 text: "Battle Royale",
                                 icon: BundleLoader.BattleRoyaleIcon,
-                                colorSet: menuButtonsTheme.BattleRoyaleButtonColors,
+                                colorSet: menuButtonsTheme.State.Map(static x => x.BattleRoyaleButtonColors),
                                 position: YogaFrame.Undefined,
                                 iconMargin: 3f,
                                 gap: 2f,
@@ -142,7 +142,7 @@ namespace BeatLeader.UI.Hub {
                             CreateActionButton(
                                 text: "Replay Manager",
                                 icon: BundleLoader.ReplayerSettingsIcon,
-                                colorSet: menuButtonsTheme.ReplayManagerButtonColors,
+                                colorSet: menuButtonsTheme.State.Map(static x => x.ReplayManagerButtonColors),
                                 position: new() { bottom = 0f, left = 0f },
                                 iconMargin: 1f,
                                 gap: 1f,
@@ -152,7 +152,7 @@ namespace BeatLeader.UI.Hub {
                             CreateActionButton(
                                 text: "Settings",
                                 icon: BundleLoader.SettingsIcon,
-                                colorSet: menuButtonsTheme.SettingsButtonColors,
+                                colorSet: menuButtonsTheme.State.Map(static x => x.SettingsButtonColors),
                                 position: new() { bottom = 0f, right = 0f },
                                 iconMargin: 2.7f,
                                 gap: 2f,

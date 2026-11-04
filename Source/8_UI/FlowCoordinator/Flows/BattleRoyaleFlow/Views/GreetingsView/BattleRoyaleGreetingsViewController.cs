@@ -4,6 +4,7 @@ using BeatLeader.UI.Reactive.Components;
 using BeatLeader.Utils;
 using HMUI;
 using Reactive;
+using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Yoga;
@@ -105,16 +106,16 @@ namespace BeatLeader.UI.Hub {
                         Sprite = BundleLoader.Sprites.background,
                         Material = GameResources.UINoGlowMaterial,
                         PixelsPerUnit = 10f,
-                        Skew = UIStyle.Skew,
-                        sColor = _graphicState.MapColorSet(UIStyle.ControlColorSet),
+                        Skew = BeatSaberStyle.Skew,
+                        sColor = _graphicState.MapColorSet(BeatSaberStyle.BsSegmentedControlColors.CellBackgroundColors),
                         Children = {
                             new Label {
                                 FlexItem = {
-                                    Size = "auto"
+                                    Size = YogaVector.Auto
                                 },
 
                                 FontStyle = FontStyles.Italic,
-                                Color = UIStyle.SecondaryTextColor
+                                Color = BeatSaberStyle.SecondaryTextColor
                             }.Bind(ref _emptyLabel),
                         }
                     }
@@ -169,7 +170,7 @@ namespace BeatLeader.UI.Hub {
                             },
 
                             ShowDifficultyInsteadOfTime = true,
-                            Skew = UIStyle.Skew
+                            Skew = BeatSaberStyle.Skew
                         }.Bind(ref _beatmapPreviewPanel)
                     }.Bind(ref _beatmapPanel),
 
@@ -194,7 +195,7 @@ namespace BeatLeader.UI.Hub {
                         },
 
                         Text = "BATTLE",
-                        Skew = UIStyle.Skew,
+                        Skew = BeatSaberStyle.Skew,
                         Interactable = false,
                         OnClick = () => _battleRoyaleHost.LaunchBattle()
                     }.Bind(ref _battleButton)

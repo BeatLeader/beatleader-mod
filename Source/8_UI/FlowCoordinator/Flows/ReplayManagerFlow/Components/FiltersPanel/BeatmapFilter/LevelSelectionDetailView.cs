@@ -1,6 +1,7 @@
 ﻿using System;
 using IPA.Utilities;
 using Reactive;
+using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 using Reactive.Yoga;
 using UnityEngine;
@@ -49,7 +50,7 @@ namespace BeatLeader.UI.Hub {
                 Children = {
                     new Layout {
                         FlexItem = {
-                            Size = new() { x = "100%", y = 14f }
+                            Size = new() { x = 100.pct, y = 14f }
                         }
                     }.Bind(ref _levelBarContainer),
                     //
@@ -59,7 +60,7 @@ namespace BeatLeader.UI.Hub {
                         },
 
                         Text = "SELECT",
-                        Skew = UIStyle.Skew,
+                        Skew = BeatSaberStyle.Skew,
                         OnClick = () => OnClick?.Invoke()
                     }
                 }

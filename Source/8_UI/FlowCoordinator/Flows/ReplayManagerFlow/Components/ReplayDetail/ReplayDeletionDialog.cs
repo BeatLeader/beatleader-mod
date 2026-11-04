@@ -5,7 +5,7 @@ using Reactive.BeatSaber.Components;
 using Reactive.Yoga;
 
 namespace BeatLeader.UI.Hub {
-    internal class ReplayDeletionDialog : Dialog {
+    internal class ReplayDeletionDialog : DialogBase {
         #region Setup
 
         private IReplayHeader? _header;
@@ -18,20 +18,19 @@ namespace BeatLeader.UI.Hub {
 
         #region Construct
 
+        protected override IReactiveComponent ConstructDialogContent() {
+            return new Label {
+                FlexItem = {
+                    Size = new() { x = 60.pt, y = 14.pt }
+                },
+
+                Text = "Do you really want to delete this replay?\nYou won't be able to recover it."
+            };
+        }
+
         protected override void OnInitialize() {
             base.OnInitialize();
             Title = "Delete Replay";
-
-            Children.Add(
-                new Label {
-                    FlexItem = {
-                        FlexGrow = 1f,
-                        Size = new() { x = 60.pt, y = 14.pt }
-                    },
-
-                    Text = "Do you really want to delete this replay?\nYou won't be able to recover it."
-                }
-            );
 
             OkButton.OnClick = HandleOkButtonClicked;
             CancelButton.OnClick = () => IsPushed = false;

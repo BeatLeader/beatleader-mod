@@ -57,6 +57,10 @@ namespace BeatLeader.UI.Hub {
                     Gap = 1f
                 },
 
+                FlexItem = {
+                    Size = new() { y = 12f }
+                },
+
                 Children = {
                     //cover
                     new Image {
@@ -103,10 +107,6 @@ namespace BeatLeader.UI.Hub {
             }.AsBlurBackground(
                 color: Color.white.ColorWithAlpha(0.9f)
             ).Use();
-        }
-
-        protected override void OnInitialize() {
-            this.FlexItem.Size = new() { y = 12f };
         }
 
         #endregion

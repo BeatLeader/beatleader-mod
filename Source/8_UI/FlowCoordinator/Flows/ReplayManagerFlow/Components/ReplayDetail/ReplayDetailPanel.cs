@@ -38,14 +38,13 @@ namespace BeatLeader.UI.Hub {
 
                 Children = {
                     new BeatmapDownloadDialog {
-                            OnPopped = HandleDownloadBeatmapDialogClosed
-                        }
-                        .WithPlacement(RelativePlacement.Center)
-                        .Bind(ref _beatmapDownloadDialog),
+                        OnPopped = HandleDownloadBeatmapDialogClosed,
+                        PlacementData = new() { Placement = RelativePlacement.Center, Offset = new(0f, 0.5f) }
+                    }.Bind(ref _beatmapDownloadDialog),
                     //
-                    new ReplayDeletionDialog()
-                        .WithPlacement(RelativePlacement.Center)
-                        .Bind(ref _replayDeletionDialog),
+                    new ReplayDeletionDialog {
+                        PlacementData = new() { Placement = RelativePlacement.Center, Offset = new(0f, 0.5f) }
+                    }.Bind(ref _replayDeletionDialog),
                     //
                     new BsTextButton {
                         FlexItem = {

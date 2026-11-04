@@ -130,7 +130,7 @@ namespace BeatLeader.UI.Hub {
                             },
 
                             FlexItem = {
-                                Size = "auto"
+                                Size = YogaVector.Auto
                             },
 
                             Color = (Color.white * 0.9f).ColorWithAlpha(1f),
@@ -303,10 +303,9 @@ namespace BeatLeader.UI.Hub {
 
                 Children = {
                     new FiltersModal {
-                            OnClickOutside = () => _modal.IsPushed = false
-                        }
-                        .WithPlacement(RelativePlacement.BottomRight)
-                        .Bind(ref _modal),
+                        OnClickOutside = () => _modal.IsPushed = false,
+                        PlacementData = new() { Placement = RelativePlacement.BottomRight, Offset = new(0f, 0.5f) }
+                    }.Bind(ref _modal),
                     //
                     new BsInputField {
                         FlexItem = {

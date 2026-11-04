@@ -1,10 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BeatLeader.Models;
+using Reactive.Components.GIF;
 using UnityEngine;
 
 namespace BeatLeader.Utils {
     public static class UnityExtensions {
+        public static Sprite GetFirstFrame(this CachedImage image) {
+            if (image.Sprite != null) {
+                return image.Sprite;
+            }
+
+            var player = new GifPlayer { Image = image };
+            player.Stop();
+            return player.Sprite!;
+        }
+
         public static GameObject CreateChild(this GameObject go, string name) {
             var child = new GameObject(name);
             child.transform.SetParent(go.transform, false);

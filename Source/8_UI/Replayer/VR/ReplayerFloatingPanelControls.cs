@@ -98,6 +98,7 @@ namespace BeatLeader.UI.Replayer {
             //creating handle
             var handleGo = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             handleGo.layer = 5;
+            handleGo.GetComponent<MeshRenderer>().sharedMaterial = BundleLoader.Materials.uiHandleMaterial;
             var handleTransform = handleGo.transform;
             handleTransform.SetParent(_handleContainer, false);
             handleTransform.localEulerAngles = new(0f, 0f, 90f);

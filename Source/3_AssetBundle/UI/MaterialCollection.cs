@@ -10,5 +10,6 @@ namespace BeatLeader {
         public Material blurredBackgroundMaterial;
         public Material uiAdditiveGlowMaterial;
         public Material uiNoDepthMaterial;
+        public Material uiHandleMaterial;
     }
 }

@@ -1,16 +1,16 @@
 ManifestFileVersion: 0
-UnityVersion: 6000.3.2f1
-CRC: 319876445
+UnityVersion: 6000.1.15f1
+CRC: 2597825641
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 1f71729108748e1fc3a97929e3979e48
+    Hash: 83cb94103e20632bda661d870a4196ee
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 2b312e3e86afa73ac319994f252a516a
+    Hash: d4c7cca54364d7831be8f186c9a131a0
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: da1cf72bd4261a82a84d2d5dc76abc7d
+    Hash: 51dad31ab7bd6023387246353321768e
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -32,31 +32,31 @@ ClassTypes:
 - Class: 89
   Script: {instanceID: 0}
 - Class: 114
-  Script: {fileID: 11500000, guid: d0400e399a6742bc858c605ee902bbdb, type: 3}
-- Class: 114
-  Script: {fileID: 11500000, guid: 8b50e01eba5e485596534317df4ee0b1, type: 3}
+  Script: {fileID: 11500000, guid: cc69a054e53936e458bcbdeb4227f99c, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: b547d78db6e34321bf5445a4f721965b, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: 68f0bbbb3bcb4b47ac66420697a03c9f, type: 3}
-- Class: 114
   Script: {fileID: 11500000, guid: 51ef3cda08de43c2b8b3e2ebee0f5833, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: 300d4fe654494eb889b5d27c9884986b, type: 3}
+  Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: cc69a054e53936e458bcbdeb4227f99c, type: 3}
+  Script: {fileID: 11500000, guid: 68f0bbbb3bcb4b47ac66420697a03c9f, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: fdb916e3be6c4dbfa150878ad0fd54c8, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 6c66675d29834394ac49315dccfc14b8, type: 3}
 - Class: 114
+  Script: {fileID: 11500000, guid: d0400e399a6742bc858c605ee902bbdb, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 300d4fe654494eb889b5d27c9884986b, type: 3}
+- Class: 114
   Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
-- Class: 114
-  Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  Script: {fileID: 11500000, guid: 8b50e01eba5e485596534317df4ee0b1, type: 3}
 - Class: 115
   Script: {instanceID: 0}
 - Class: 128
@@ -106,6 +106,7 @@ Assets:
 - Assets/BeatLeader/5_Textures/Flags/cm.png
 - Assets/BeatLeader/5_Textures/Icons/Replayer/Settings/BL_OtherSettingsIcon.png
 - Assets/BeatLeader/5_Textures/Icons/Leaderboard/RowSeparatorIcon.png
+- Assets/BeatLeader/7_Fonts/Final/NotoSansJP-SemiBold SDF.asset
 - Assets/BeatLeader/5_Textures/Flags/gb-eng.png
 - Assets/BeatLeader/5_Textures/Flags/lb.png
 - Assets/BeatLeader/5_Textures/Flags/pr.png
@@ -136,11 +137,10 @@ Assets:
 - Assets/BeatLeader/5_Textures/Flags/ga.png
 - Assets/BeatLeader/5_Textures/Flags/sm.png
 - Assets/BeatLeader/5_Textures/Icons/Replayer/GameplayUI/BL_CrossIcon.png
-- Assets/BeatLeader/4_Materials/UI/UIRoundTexture10Material.mat
 - Assets/BeatLeader/3_Shaders/BattleRoyale/SaberHandle.shader
+- Assets/BeatLeader/5_Textures/Flags/pt.png
 - Assets/BeatLeader/5_Textures/Flags/mp.png
 - Assets/BeatLeader/5_Textures/Icons/MiniProfile/BL_YoutubeIcon.png
-- Assets/BeatLeader/5_Textures/Flags/pt.png
 - Assets/BeatLeader/5_Textures/Flags/bq.png
 - Assets/BeatLeader/4_Materials/Themes/TheStar/TheStar_Tier2.mat
 - Assets/BeatLeader/5_Textures/Flags/cd.png
@@ -241,6 +241,7 @@ Assets:
 - Assets/BeatLeader/5_Textures/Flags/in.png
 - Assets/BeatLeader/5_Textures/Flags/ar.png
 - Assets/BeatLeader/5_Textures/Flags/im.png
+- Assets/BeatLeader/4_Materials/UI/UIRoundTexture10Material.mat
 - Assets/BeatLeader/5_Textures/Flags/ng.png
 - Assets/BeatLeader/5_Textures/Flags/vu.png
 - Assets/BeatLeader/3_Shaders/UI/UIOpponentScoreBackground.shader
@@ -262,6 +263,7 @@ Assets:
 - Assets/BeatLeader/5_Textures/Flags/va.png
 - Assets/BeatLeader/5_Textures/Icons/Replayer/LayoutEditor/BL_AnchorBGDots.png
 - Assets/BeatLeader/4_Materials/Themes/Special/Special_Tier1.mat
+- Assets/BeatLeader/4_Materials/UI/UIRoundTextureMaterial.mat
 - Assets/BeatLeader/4_Materials/UI/UIOpponentScoreBackgroundMaterial.mat
 - Assets/BeatLeader/5_Textures/Flags/gq.png
 - Assets/BeatLeader/5_Textures/Icons/BL_SaveIcon.png
@@ -467,15 +469,15 @@ Assets:
 - Assets/BeatLeader/4_Materials/UI/UIExperienceBarMaterial.mat
 - Assets/BeatLeader/3_Shaders/TMP_SpriteCurved.shader
 - Assets/BeatLeader/5_Textures/Flags/id.png
-- Assets/BeatLeader/4_Materials/UI/UIRoundTextureMaterial.mat
 - Assets/BeatLeader/5_Textures/Icons/Replayer/BL_RotateLeftIcon.png
 - Assets/BeatLeader/5_Textures/Flags/vn.png
 - Assets/BeatLeader/5_Textures/Flags/gb.png
+- Assets/BeatLeader/4_Materials/UI/UIHandleMaterial.mat
 - Assets/BeatLeader/4_Materials/Themes/Special/Special_Tier2.mat
 - Assets/BeatLeader/5_Textures/Flags/bn.png
-- Assets/BeatLeader/7_Fonts/Final/NotoSansJP-SemiBold SDF.asset
 - Assets/BeatLeader/5_Textures/Icons/Replayer/GameplayUI/BL_SkullIcon.png
 - Assets/BeatLeader/5_Textures/Flags/lk.png
+- Assets/BeatLeader/3_Shaders/UI/UIHandle.shader
 - Assets/BeatLeader/5_Textures/Flags/de.png
 - Assets/BeatLeader/5_Textures/Flags/lr.png
 - Assets/BeatLeader/5_Textures/Flags/dm.png

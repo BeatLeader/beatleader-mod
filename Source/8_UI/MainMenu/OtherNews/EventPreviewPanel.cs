@@ -14,6 +14,7 @@ namespace BeatLeader.UI.MainMenu {
         public EventPreviewPanel(CellContext<PlatformEvent> context) : base(false) {
             _context = context;
             ConstructAndInit();
+            context.AddCallback(this, static (x, y) => x.UpdateBottomText(y.Item), lazy: true);
         }
 
         public Action<PlatformEvent>? OnClick { get; set; }
@@ -112,7 +113,6 @@ namespace BeatLeader.UI.MainMenu {
                         OnClick?.Invoke(_context.Item);
                     }
                 )
-                .On(_context, (_, ctx) => UpdateBottomText(ctx.Item), lazy: true)
                 .Use();
         }
 

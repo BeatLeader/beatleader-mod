@@ -276,8 +276,8 @@ namespace BeatLeader.UI.Hub {
                 HandleFilterRemoved
             );
 
-            this.On(_searchContext, static (x, y) => x.HandleSearchContextUpdated(y), lazy: true);
-            this.On(_filtersContext, static (x, y) => x.HandleFiltersContextUpdated(y), lazy: true);
+            _searchContext.AddCallback(this, static (x, y) => x.HandleSearchContextUpdated(y), lazy: true);
+            _filtersContext.AddCallback(this, static (x, y) => x.HandleFiltersContextUpdated(y), lazy: true);
         }
 
         #endregion

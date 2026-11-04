@@ -40,7 +40,11 @@ namespace BeatLeader.UI.Reactive.Components {
 
         public static T WithAlpha<T>(this T comp, IState<float> alphaState, bool invert = false) where T : IReactiveComponent {
             comp.WithNativeComponent(out CanvasGroup group);
-            comp.On(alphaState, (_, y) => group.alpha = invert ? 1f - y : y);
+            if (invert) {
+                alphaState.AddCallbackUnity(group, static (x, y) => x.alpha = 1f - y);
+            } else {
+                alphaState.AddCallbackUnity(group, static (x, y) => x.alpha = y);
+            }
 
             return comp;
         }

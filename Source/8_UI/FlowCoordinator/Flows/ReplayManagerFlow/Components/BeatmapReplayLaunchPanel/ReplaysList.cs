@@ -62,10 +62,10 @@ namespace BeatLeader.UI.Hub {
                 _context = context;
                 _replaysList = replaysList;
 
-                this.On(context, static (x, y) => x.HandleContextUpdated(y));
-                this.On(replaysList._highlightedItems, static (x, _) => x.RefreshHighlight(), lazy: true);
-                this.On(replaysList._filteredItems, static (x, _) => x.RefreshTexts(), lazy: true);
-                this.On(replaysList._theme, static (x, _) => x.RefreshTexts(), lazy: true);
+                context.AddCallback(this, static (x, y) => x.HandleContextUpdated(y));
+                replaysList._highlightedItems.AddCallback(this, static (x, _) => x.RefreshHighlight(), lazy: true);
+                replaysList._filteredItems.AddCallback(this, static (x, _) => x.RefreshTexts(), lazy: true);
+                replaysList._theme.AddCallback(this, static (x, _) => x.RefreshTexts(), lazy: true);
             }
 
             protected override void OnDestroy() {

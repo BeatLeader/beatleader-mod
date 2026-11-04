@@ -32,7 +32,7 @@ namespace BeatLeader.UI.Hub {
                         FontSize = 6f
                     }
                 }
-            }.WithNativeComponent(out CanvasGroup canvasGroup).On(_alpha, (_, y) => canvasGroup.alpha = y).Use();
+            }.WithAlpha(_alpha).Use();
         }
 
         protected override void OnInitialize() {

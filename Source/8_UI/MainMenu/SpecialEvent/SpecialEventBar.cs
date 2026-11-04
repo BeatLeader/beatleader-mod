@@ -94,15 +94,13 @@ internal class SpecialEventBar : ReactiveComponent {
                                     Skew = 0f,
                                     OnClick = () => OnBackClick?.Invoke()
                                 }
-                                .WithNativeComponent(out CanvasGroup backButtonGroup)
-                                .On(itemsAlpha, (_, y) => backButtonGroup.alpha = y, lazy: true),
+                                .WithAlpha(itemsAlpha),
 
                             new BsTextButton {
                                     Text = " Play ",
                                     OnClick = () => OnPlayClick?.Invoke()
                                 }
-                                .WithNativeComponent(out CanvasGroup playButtonGroup)
-                                .On(itemsAlpha, (_, y) => playButtonGroup.alpha = y, lazy: true),
+                                .WithAlpha(itemsAlpha),
 
                             // Calendar button
                             new Layout {

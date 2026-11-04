@@ -96,7 +96,7 @@ namespace BeatLeader.UI.Hub {
             RefreshFilterStatus();
 
             _tagSelectorModal.PlacementAnchor = _textArea.ContentTransform;
-            this.On(_textAreaContext, static (x, y) => x.HandleTextAreaContextUpdated(y), lazy: true);
+            _textAreaContext.AddCallback(this, static (x, y) => x.HandleTextAreaContextUpdated(y), lazy: true);
         }
 
         #endregion

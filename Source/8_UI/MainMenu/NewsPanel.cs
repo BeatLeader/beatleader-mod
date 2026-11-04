@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BeatLeader.UI.Reactive.Components;
 using BeatLeader.WebRequests;
 using Reactive;
 using Reactive.BeatSaber.Components;
@@ -117,8 +118,7 @@ namespace BeatLeader.UI.MainMenu {
                                 }
                             }
                         }
-                        .WithNativeComponent(out CanvasGroup group)
-                        .On(transitionAlpha, (_, y) => group.alpha = y)
+                        .WithAlpha(transitionAlpha)
                 }
             }.Use();
         }

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using BeatLeader.Components;
 using BeatLeader.Models;
-using BeatLeader.UI;
-using BeatLeader.UI.Reactive;
+using Reactive.BeatSaber;
+using Reactive.Components;
 using UnityEngine;
 
 namespace BeatLeader {
@@ -54,25 +54,25 @@ namespace BeatLeader {
 
         public static readonly BeatLeaderHubTheme HubTheme = new() {
             MenuButtonsTheme = {
-                ReplayManagerButtonColors = {
+                ReplayManagerButtonColors = new() {
                     HoveredColor = new Color(1f, 0.65f, 0f),
-                    Color = UIStyle.InputColorSet.Color,
-                    NotInteractableColor = UIStyle.InputColorSet.NotInteractableColor
+                    Color = BeatSaberStyle.BsSliderColors.BackgroundColors.Color,
+                    NotInteractableColor = BeatSaberStyle.BsSliderColors.BackgroundColors.GetColor(GraphicState.NonInteractable)
                 },
-                BattleRoyaleButtonColors = {
+                BattleRoyaleButtonColors = new() {
                     HoveredColor = Color.magenta,
-                    Color = UIStyle.InputColorSet.Color,
-                    NotInteractableColor = UIStyle.InputColorSet.NotInteractableColor
+                    Color = BeatSaberStyle.BsSliderColors.BackgroundColors.Color,
+                    NotInteractableColor = BeatSaberStyle.BsSliderColors.BackgroundColors.GetColor(GraphicState.NonInteractable)
                 },
-                SettingsButtonColors = {
+                SettingsButtonColors = new() {
                     HoveredColor = new Color(1f, 0.65f, 0f),
-                    Color = UIStyle.InputColorSet.Color,
-                    NotInteractableColor = UIStyle.InputColorSet.NotInteractableColor
+                    Color = BeatSaberStyle.BsSliderColors.BackgroundColors.Color,
+                    NotInteractableColor = BeatSaberStyle.BsSliderColors.BackgroundColors.GetColor(GraphicState.NonInteractable)
                 },
-                EditAvatarButtonColors = {
+                EditAvatarButtonColors = new() {
                     HoveredColor = new Color(0f, 0.65f, 0f),
-                    Color = UIStyle.InputColorSet.Color,
-                    NotInteractableColor = UIStyle.InputColorSet.NotInteractableColor
+                    Color = BeatSaberStyle.BsSliderColors.BackgroundColors.Color,
+                    NotInteractableColor = BeatSaberStyle.BsSliderColors.BackgroundColors.GetColor(GraphicState.NonInteractable)
                 }
             },
             ReplayManagerSearchTheme = {

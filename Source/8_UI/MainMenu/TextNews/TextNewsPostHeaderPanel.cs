@@ -7,67 +7,75 @@ using UnityEngine;
 
 namespace BeatLeader.UI.MainMenu {
     internal class TextNewsPostHeaderPanel : ReactiveComponent {
-        private string _nameValue = "Loading...";
-        public string Name {
-            get => _nameValue;
+        public string Owner {
+            get => _nameLabel.Text;
             set => _nameLabel.Text = value;
         }
 
-        private Label _nameLabel = null!;
-
         public long Timestamp {
-            get => 0;
-            set => _dateLabel.Text = FormatUtils.GetRelativeTimeString(value, false);
+            get;
+            set {
+                field = value;
+                _dateLabel.Text = FormatUtils.GetRelativeTimeString(value, false);
+            }
         }
 
+        public string? AvatarUrl {
+            get => _avatarImage.Src;
+            set => _avatarImage.Src = value;
+        }
+
+        private Label _nameLabel = null!;
         private Label _dateLabel = null!;
-
-        public string AvatarUrl {
-            get => "";
-            set => _avatarImage.WithWebSource(value);
-        }
-
-        private Image _avatarImage = null!;
+        private WebImage _avatarImage = null!;
 
         protected override GameObject Construct() {
             return new Background {
+                FlexController = {
+                    FlexDirection = FlexDirection.Row,
+                    JustifyContent = Justify.SpaceBetween,
+                    AlignItems = Align.Center,
+                    Padding = new() { left = 1, right = 1 }
+                },
+
+                FlexItem = {
+                    Size = new() { y = 5 }
+                },
+
                 Sprite = BundleLoader.Sprites.background,
                 Color = Color.black.ColorWithAlpha(0.5f),
                 PixelsPerUnit = 10f,
                 Children = {
                     new Layout {
+                        FlexController = {
+                            FlexDirection = FlexDirection.Row,
+                            Gap = 1,
+                            AlignItems = Align.Center
+                        },
+
                         Children = {
-                            new Image {
+                            new WebImage {
+                                FlexItem = {
+                                    AspectRatio = 1f,
+                                    Size = new() { x = 3, y = 3 }
+                                },
+
                                 Sprite = BundleLoader.UnknownIcon,
                                 Material = BundleLoader.RoundTextureMaterial
-                            }.AsFlexItem(
-                                aspectRatio: 1f, 
-                                size: new() { x = 3, y = 3 }
-                            ).Bind(ref _avatarImage),
+                            }.Bind(ref _avatarImage),
                             new Label {
                                 FontSize = 3f,
                                 Text = "Loading News..."
-                            }.AsFlexItem().Bind(ref _nameLabel),
+                            }.Bind(ref _nameLabel),
                         }
-                    }
-                    .AsFlexGroup(
-                        direction: FlexDirection.Row, 
-                        gap: 1,
-                        alignItems: Align.Center
-                    )
-                    .AsFlexItem(),
+                    },
                     new Label {
                         FontSize = 3f,
                         Color = new Color(0.53f, 0.53f, 0.53f),
                         Text = "Loading News..."
-                    }.AsFlexItem().Bind(ref _dateLabel)
+                    }.Bind(ref _dateLabel)
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Row, 
-                justifyContent: Justify.SpaceBetween,
-                alignItems: Align.Center,
-                padding: new() { left = 1, right = 1 }
-            ).AsBlurBackground().AsFlexItem(size: new() { y = 5 }).Use();
+            }.AsBlurBackground().Use();
         }
     }
 }

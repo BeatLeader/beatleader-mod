@@ -1,6 +1,8 @@
 using System.Linq;
 using BeatLeader.Models;
+using BeatLeader.UI.Reactive.Components;
 using Reactive;
+using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Yoga;
@@ -122,7 +124,9 @@ namespace BeatLeader.UI.Hub {
             }
 
             panel.Interactable = false;
-            panel.SetTag(tag, animated);
+            panel.Animated = animated;
+            panel.Tag = tag;
+            panel.IsPresent = true;
 
             _tagsContainer.Children.Add(panel);
         }
@@ -133,7 +137,8 @@ namespace BeatLeader.UI.Hub {
             }
 
             panel.DisappearAnimationFinishedEvent += HandleTagDisappearAnimationFinished;
-            panel.SetTagPresented(false, !animated);
+            panel.Animated = animated;
+            panel.IsPresent = false;
         }
 
         private void RefreshTagsLabel() {
@@ -156,62 +161,97 @@ namespace BeatLeader.UI.Hub {
         private Image _editButtonContainer = null!;
 
         protected override GameObject Construct() {
-            new TagSelectorModal()
-                .With(x => x.BuildImmediate())
-                .WithAnchor(this, RelativePlacement.BottomCenter)
-                .WithBeforeOpenListener(x => x.AsFlexItem(size: new() { x = 50.pt(), y = 36.pt() }))
-                .WithOpenListener(HandleTagSelectorOpened)
-                .WithCloseListener(HandleTagSelectorClosed)
-                .Bind(ref _tagSelectorModal);
+            var editButtonState = Remember(GraphicState.None);
 
             return new Layout {
+                FlexController = {
+                    Gap = 0.5f
+                },
+
                 Children = {
+                    new TagSelectorModal {
+                        OnPushed = HandleTagSelectorOpened,
+                        OnClickOutside = HandleTagSelectorClickedOutside,
+                        PlacementData = new() { Placement = RelativePlacement.BottomCenter, Offset = new(0f, 0.5f) },
+                        Component = {
+                            FlexItem = {
+                                Size = new() { x = 50.pt, y = 36.pt }
+                            }
+                        }
+                    }.Bind(ref _tagSelectorModal),
+
                     new Background {
+                            FlexController = {
+                                JustifyContent = Justify.SpaceAround
+                            },
+
+                            FlexItem = {
+                                FlexGrow = 1f
+                            },
+
                             Sprite = BundleLoader.Sprites.backgroundLeft,
                             Children = {
                                 //tags container
-                                new Layout()
-                                    .AsFlexGroup(
-                                        gap: 1f,
-                                        alignItems: Align.Center,
-                                        justifyContent: Justify.SpaceAround,
-                                        padding: new() { left = 1f }
-                                    )
-                                    .AsFlexItem(flexGrow: 1f)
-                                    .Bind(ref _tagsContainer),
+                                new Layout {
+                                    FlexController = {
+                                        Gap = 1f,
+                                        AlignItems = Align.Center,
+                                        JustifyContent = Justify.SpaceAround,
+                                        Padding = new() { left = 1f }
+                                    },
+
+                                    FlexItem = {
+                                        FlexGrow = 1f
+                                    }
+                                }.Bind(ref _tagsContainer),
                                 //tags label
                                 new Label {
-                                        Color = UIStyle.SecondaryTextColor,
-                                        FontSize = 3.5f,
-                                        Alignment = TextAlignmentOptions.Capline
-                                    }
-                                    .AsFlexItem(margin: new() { left = 1f, right = 1f })
-                                    .Bind(ref _tagsLabel)
+                                    FlexItem = {
+                                        Margin = new() { left = 1f, right = 1f }
+                                    },
+
+                                    Color = BeatSaberStyle.SecondaryTextColor,
+                                    FontSize = 3.5f,
+                                    Alignment = TextAlignmentOptions.Capline
+                                }.Bind(ref _tagsLabel)
                             }
                         }
                         .AsBlurBackground()
-                        .AsFlexGroup(justifyContent: Justify.SpaceAround)
-                        .AsFlexItem(flexGrow: 1f)
                         .Bind(ref _contentContainer),
                     //
                     new Background {
+                            FlexController = {
+                                Padding = 1f
+                            },
+
                             Sprite = BundleLoader.Sprites.backgroundRight,
                             Children = {
-                                new ImageButton {
-                                    Image = {
-                                        Sprite = BundleLoader.Sprites.editIcon,
-                                        Material = BundleLoader.Materials.uiAdditiveGlowMaterial
+                                new Image {
+                                    FlexItem = {
+                                        Size = 3f
                                     },
-                                    Colors = UIStyle.GlowingButtonColorSet
-                                }.WithModal(_tagSelectorModal).AsFlexItem(size: 3f)
+
+                                    Sprite = BundleLoader.Sprites.editIcon,
+                                    Material = BundleLoader.Materials.uiAdditiveGlowMaterial,
+                                    sColor = editButtonState.MapColorSet(UIStyle.GlowingButtonColorSet)
+                                }.WithPointerEvents(
+                                        onEnter: _ => editButtonState.IsHovered = true,
+                                        onLeave: _ => editButtonState.IsHovered = false,
+                                        onDown: _ => {
+                                            global::Reactive.BeatSaber.GameResources.ButtonClickSignal.Raise();
+                                            _tagSelectorModal.IsPushed = true;
+                                        }
+                                    )
                             }
                         }
                         .AsBlurBackground()
-                        .AsFlexGroup(padding: 1f)
-                        .AsFlexItem()
                         .Bind(ref _editButtonContainer)
                 }
-            }.WithNativeComponent(out _containerGroup).AsFlexGroup(gap: 0.5f).Use();
+            }.WithNativeComponent(out _containerGroup).Use();
+        }
+
+        protected override void OnInitialize() {
+            _tagSelectorModal.PlacementAnchor = ContentTransform;
         }
 
         protected override void OnDestroy() {
@@ -225,8 +265,7 @@ namespace BeatLeader.UI.Hub {
 
         #region Callbacks
 
-        private void HandleTagSelectorOpened(IModal modal, bool finished) {
-            if (finished) return;
+        private void HandleTagSelectorOpened() {
             var tagSelector = _tagSelectorModal.Component;
 
             if (_metadata == null) {
@@ -238,8 +277,9 @@ namespace BeatLeader.UI.Hub {
             tagSelector.SelectedTagRemovedEvent += HandleSelectedTagRemoved;
         }
 
-        private void HandleTagSelectorClosed(IModal modal, bool finished) {
-            if (finished) return;
+        private void HandleTagSelectorClickedOutside() {
+            _tagSelectorModal.IsPushed = false;
+
             var tagSelector = _tagSelectorModal.Component;
             tagSelector.SelectedTagAddedEvent -= HandleSelectedTagAdded;
             tagSelector.SelectedTagRemovedEvent -= HandleSelectedTagRemoved;

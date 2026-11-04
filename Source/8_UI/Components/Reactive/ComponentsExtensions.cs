@@ -1,60 +1,11 @@
 using System.Collections.Generic;
-using System.Linq;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
-using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
     internal static class ComponentsExtensions {
-        #region Button
-
-        public static T WithLocalizedLabel<T>(
-            this T button,
-            string token,
-            float fontSize = 4f,
-            bool richText = true,
-            TextOverflowModes overflow = TextOverflowModes.Overflow
-        ) where T : ButtonBase, ILayoutDriver {
-            return WithLocalizedLabel(
-                button,
-                out _,
-                token,
-                fontSize,
-                richText,
-                overflow
-            );
-        }
-
-        public static T WithLocalizedLabel<T>(
-            this T button,
-            out Label label,
-            string token,
-            float fontSize = 4f,
-            bool richText = true,
-            TextOverflowModes overflow = TextOverflowModes.Overflow
-        ) where T : ButtonBase, ILayoutDriver {
-            return button.WithLabel(
-                out label,
-                BLLocalization.GetTranslation(token),
-                fontSize,
-                richText,
-                overflow
-            );
-        }
-
-        #endregion
-
-        #region Label
-
-        public static T SetLocalizedText<T>(this T comp, string token) where T : Label {
-            comp.Text = BLLocalization.GetTranslation(token);
-            return comp;
-        }
-
-        #endregion
-
         #region ReeWrapper
 
         public static ReeWrapperV2<TRee> BindRee<TRee>(this ReeWrapperV2<TRee> comp, ref TRee variable)
@@ -69,32 +20,51 @@ namespace BeatLeader.UI.Reactive.Components {
 
         public static LoadingContainer InLoadingContainer(this ILayoutItem comp) {
             return new LoadingContainer {
-                LayoutModifier = comp.LayoutModifier?.CreateCopy(),
                 Component = comp
             };
         }
 
         #endregion
 
-        #region TextArea
+        #region InputField
 
-        public static T WithItemsText<T>(this T comp, IEnumerable<string> items, bool silent = false) where T : TextArea {
-            var text = string.Join(string.Empty, items.Select((x, idx) => $"{(idx > 0 ? ", " : "")}{x}"));
-            if (silent) {
-                comp.SetTextSilent(text);
-            } else {
-                comp.Text = text;
-            }
-            return comp;
+        public static BsInputFieldContext WithItemsText(this BsInputFieldContext context, IEnumerable<string> items) {
+            var text = string.Join(", ", items);
+            context.Text = text.Length > 0 ? text : null;
+            return context;
         }
 
         #endregion
 
-        public static T WithAlpha<T>(this T comp, INotifyValueChanged<float> alphaState, bool invert = false) where T : IReactiveComponent {
+        #region Effects
+
+        public static T WithAlpha<T>(this T comp, IState<float> alphaState, bool invert = false) where T : IReactiveComponent {
             comp.WithNativeComponent(out CanvasGroup group);
-            comp.Animate(alphaState, (_, y) => group.alpha = invert ? 1f - y : y, applyImmediately: true);
+            if (invert) {
+                alphaState.AddCallbackUnity(group, static (x, y) => x.alpha = 1f - y);
+            } else {
+                alphaState.AddCallbackUnity(group, static (x, y) => x.alpha = y);
+            }
 
             return comp;
         }
+
+        public static T WithHoverScale<T>(this T comp, float baseScale, float hoverScale) where T : IReactiveComponent, IGraphic {
+            var scale = StateUtils.RememberAnimatedFloat(comp, baseScale, 10.fact);
+
+            comp.WithPointerEvents(
+                onEnter: _ => {
+                    if (comp is IInteractableComponent { Interactable: false }) {
+                        return;
+                    }
+                    scale.TargetValue = hoverScale;
+                },
+                onLeave: _ => scale.TargetValue = baseScale
+            );
+
+            return comp.On(scale, static (x, y) => x.ContentTransform.localScale = Vector3.one * y);
+        }
+
+        #endregion
     }
 }

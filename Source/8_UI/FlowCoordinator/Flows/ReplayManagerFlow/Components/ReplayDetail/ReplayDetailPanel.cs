@@ -24,42 +24,51 @@ namespace BeatLeader.UI.Hub {
         private ReplayDeletionDialog _replayDeletionDialog = null!;
         private BeatmapDownloadDialog _beatmapDownloadDialog = null!;
         private LoadingContainer _watchButtonContainer = null!;
-        private BsPrimaryButton _watchButton = null!;
+        private BsPrimaryTextButton _watchButton = null!;
 
         protected override ILayoutItem ConstructButtons() {
-            var canvasTransform = Lazy(() => (RectTransform)Canvas!.transform);
-            
             return new Layout {
+                FlexController = {
+                    Gap = 2f
+                },
+
+                FlexItem = {
+                    Size = new() { y = 8f }
+                },
+
                 Children = {
-                    new BeatmapDownloadDialog()
-                        .WithCloseListener(HandleDownloadBeatmapDialogClosed)
-                        .WithAnchor(canvasTransform, RelativePlacement.Center)
-                        .WithAlphaAnimation(() => Canvas!.gameObject)
-                        .WithJumpAnimation()
-                        .Bind(ref _beatmapDownloadDialog),
+                    new BeatmapDownloadDialog {
+                        OnPopped = HandleDownloadBeatmapDialogClosed,
+                        PlacementData = new() { Placement = RelativePlacement.Center, Offset = new(0f, 0.5f) }
+                    }.Bind(ref _beatmapDownloadDialog),
                     //
-                    new ReplayDeletionDialog()
-                        .WithAnchor(canvasTransform, RelativePlacement.Center)
-                        .WithAlphaAnimation(() => Canvas!.gameObject)
-                        .WithJumpAnimation()
-                        .Bind(ref _replayDeletionDialog),
+                    new ReplayDeletionDialog {
+                        PlacementData = new() { Placement = RelativePlacement.Center, Offset = new(0f, 0.5f) }
+                    }.Bind(ref _replayDeletionDialog),
                     //
-                    new BsButton {
+                    new BsTextButton {
+                        FlexItem = {
+                            FlexGrow = 1f
+                        },
+
                         Text = BLLocalization.GetTranslation("ls-delete"),
                         OnClick = HandleDeleteButtonClicked
-                    }.AsFlexItem(flexGrow: 1f),
+                    },
                     //
-                    new BsPrimaryButton {
+                    new BsPrimaryTextButton {
+                            FlexItem = {
+                                FlexGrow = 1f
+                            },
+
                             Text = BLLocalization.GetTranslation(WatchTextToken),
                             OnClick = () => _ = HandleWatchButtonClicked().RunCatching()
                         }
-                        .AsFlexItem(flexGrow: 1f)
                         .Bind(ref _watchButton)
                         .InLoadingContainer()
                         .AsFlexItem(flexGrow: 1f)
                         .Bind(ref _watchButtonContainer)
                 }
-            }.AsFlexGroup(gap: 2f).AsFlexItem(size: new() { y = 8f });
+            };
         }
 
         protected override bool AllowTagsEdit => true;
@@ -102,14 +111,14 @@ namespace BeatLeader.UI.Hub {
 
         #region Callbacks
 
-        private void HandleDownloadBeatmapDialogClosed(IModal modal, bool closed) {
-            if (closed) return;
+        private void HandleDownloadBeatmapDialogClosed() {
             SetDataInternalAsync(Header!, CancellationToken).ConfigureAwait(true);
         }
 
         private void HandleDeleteButtonClicked() {
             _replayDeletionDialog.SetHeader(Header!);
-            _replayDeletionDialog.Present(ContentTransform);
+            _replayDeletionDialog.PlacementAnchor = CanvasTransform;
+            _replayDeletionDialog.IsPushed = true;
         }
 
         private async Task HandleWatchButtonClicked() {
@@ -119,7 +128,8 @@ namespace BeatLeader.UI.Hub {
             
             if (_needToDownloadBeatmap) {
                 _beatmapDownloadDialog.SetHash(Header.ReplayInfo.SongHash);
-                _beatmapDownloadDialog.Present(ContentTransform);
+                _beatmapDownloadDialog.PlacementAnchor = CanvasTransform;
+                _beatmapDownloadDialog.IsPushed = true;
                 return;
             }
             

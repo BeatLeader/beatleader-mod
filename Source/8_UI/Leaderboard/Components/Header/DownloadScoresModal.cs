@@ -6,17 +6,16 @@ using System.Threading.Tasks;
 using BeatLeader.API;
 using BeatLeader.Models;
 using BeatLeader.Models.Replay;
-using BeatLeader.UI;
 using BeatLeader.UI.Reactive.Components;
 using BeatLeader.Utils;
 using BeatLeader.WebRequests;
 using Reactive;
+using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Yoga;
 using TMPro;
 using UnityEngine;
-using Random = System.Random;
 
 namespace BeatLeader.Components {
     internal class DownloadScoresModal : DialogBase {
@@ -34,7 +33,6 @@ namespace BeatLeader.Components {
 
         private int _totalRequests;
         private int _currentRequests;
-        private bool _saveReplays;
 
         public void SetData(IReadOnlyCollection<Score> scores) {
             _scores = scores;
@@ -113,7 +111,7 @@ namespace BeatLeader.Components {
                 var replay = request.Result.Result!;
 
                 IReplayHeader? header;
-                if (_saveReplays) {
+                if (_saveReplaysToggle.Toggled) {
                     var result = await ReplayManager.SaveAnyReplayAsync(replay, null, token);
 
                     // For cases when id in a replay is different from the id in a score.
@@ -188,72 +186,77 @@ namespace BeatLeader.Components {
 
         private Label _progressLabel = null!;
         private ProgressBar _progressBar = null!;
-        private Toggle _saveReplaysToggle = null!;
+        private BsToggle _saveReplaysToggle = null!;
         private IReactiveComponent _saveReplaysContainer = null!;
 
-        protected override ILayoutItem ConstructContent() {
+        protected override IReactiveComponent ConstructDialogContent() {
             return new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    JustifyContent = Justify.Center,
+                    AlignItems = Align.Stretch,
+                    Padding = new() { left = 3f, right = 3f },
+                    Gap = new() { y = 1f }
+                },
+
+                FlexItem = {
+                    MinSize = new() { x = 52.pt, y = 16.pt }
+                },
+
                 Children = {
                     new Label {
+                        FlexItem = {
+                            AlignSelf = Align.Center
+                        },
+
                         Overflow = TextOverflowModes.Ellipsis
-                    }.AsFlexItem(alignSelf: Align.Center).Bind(ref _progressLabel),
+                    }.Bind(ref _progressLabel),
 
                     new Layout {
+                        FlexController = {
+                            FlexDirection = FlexDirection.Column,
+                            Padding = new() { bottom = 1f },
+                            Gap = new() { y = 1f }
+                        },
+
                         Children = {
-                            new Toggle()
-                                .WithListener(x => x.Active, x => _saveReplays = x)
+                            new BsToggle()
                                 .Bind(ref _saveReplaysToggle)
                                 .InNamedRail("Save replays?")
                         }
-                    }.AsFlexGroup(
-                        direction: FlexDirection.Column,
-                        padding: new() { bottom = 1f },
-                        gap: new() { y = 1f }
-                    ).AsFlexItem().Bind(ref _saveReplaysContainer),
+                    }.Bind(ref _saveReplaysContainer),
 
-                    new ProgressBar()
-                        .AsFlexItem(margin: new() { left = 2f, right = 2f })
-                        .Bind(ref _progressBar)
+                    new ProgressBar {
+                        FlexItem = {
+                            Margin = new() { left = 2f, right = 2f }
+                        }
+                    }.Bind(ref _progressBar)
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Column,
-                justifyContent: Justify.Center,
-                alignItems: Align.Stretch,
-                padding: new() { left = 3f, right = 3f },
-                gap: new() { y = 1f }
-            );
+            };
         }
 
         protected override void OnInitialize() {
-            OkButtonInteractable = false;
-            OkButtonText = "Proceed";
-            Title = "Download Scores";
-
-            Content.GetOrAddComponent<CanvasGroup>().ignoreParentGroups = true;
-
-            if (LayoutController is YogaLayoutController yoga) {
-                yoga.ConstrainVertical = false;
-                yoga.ConstrainHorizontal = false;
-            }
-            
-            this.AsFlexItem(minSize: new() { x = 52.pt(), y = 30.pt() });
             base.OnInitialize();
+
+            Title = "Download Scores";
+            OkButton.Text = "Proceed";
+            OkButton.Interactable = false;
+            OkButton.OnClick = HandleOkButtonClicked;
+            CancelButton.OnClick = HandleCancelButtonClicked;
+            OnPushed = HandlePushed;
         }
 
-        protected override void OnOpen(bool opened) {
-            if (opened) {
-                return;
-            }
-
-            _saveReplaysToggle.SetActive(false, false);
+        private void HandlePushed() {
+            _saveReplaysToggle.Toggled = false;
             CheckReplaysDownloaded().RunCatching();
         }
 
-        protected override void OnClose(bool closed) {
+        private void Close() {
             _downloadingWasEverStarted = false;
+            IsPushed = false;
         }
 
-        protected override void OnOkButtonClicked() {
+        private void HandleOkButtonClicked() {
             if (!_downloadingWasEverStarted) {
                 StartDownloading();
                 SetDownloading();
@@ -262,12 +265,12 @@ namespace BeatLeader.Components {
             }
 
             DownloadingFinishedCallback?.Invoke();
-            CloseInternal();
+            Close();
         }
 
-        protected override void OnCancelButtonClicked() {
+        private void HandleCancelButtonClicked() {
             CancelDownloading();
-            CloseInternal();
+            Close();
         }
 
         #endregion
@@ -291,29 +294,29 @@ namespace BeatLeader.Components {
         private void SetChecking() {
             _progressLabel.Text = "Wait just a little bit...";
             _progressLabel.Color = Color.white;
-            CancelButtonInteractable = false;
-            OkButtonInteractable = false;
+            CancelButton.Interactable = false;
+            OkButton.Interactable = false;
         }
 
         private void SetWaitingForStart() {
             _progressLabel.Color = Color.white;
             _progressLabel.Text = "Let's clarify before we start";
-            _progressBar.Color = UIStyle.ControlButtonColorSet.ActiveColor;
+            _progressBar.Color = BeatSaberStyle.BsToggleColors.KnobColors.GetColor(GraphicState.Active);
             _progressBar.Progress = 0f;
             _progressBar.Enabled = false;
             _saveReplaysContainer.Enabled = true;
 
-            CancelButtonInteractable = true;
-            OkButtonInteractable = true;
-            ShowOkButton = true;
+            CancelButton.Interactable = true;
+            OkButton.Interactable = true;
+            OkButton.Enabled = true;
         }
 
         private void SetPanicking(string reason) {
             _progressLabel.Text = $"{reason}";
             _progressLabel.Color = Color.red;
             _progressBar.Color = Color.red;
-            OkButtonInteractable = false;
-            ShowOkButton = false;
+            OkButton.Interactable = false;
+            OkButton.Enabled = false;
         }
 
         private void SetDownloadingFinished() {
@@ -321,21 +324,21 @@ namespace BeatLeader.Components {
             _progressBar.Progress = 1f;
             _progressBar.TotalProgress = 1f;
             _progressBar.Color = Color.green * 0.8f;
-            OkButtonInteractable = true;
+            OkButton.Interactable = true;
         }
 
         private void SetInitiallyReady() {
             _progressLabel.Text = "Everything is ready!";
             _progressBar.Enabled = false;
             _saveReplaysContainer.Enabled = false;
-            CancelButtonInteractable = true;
-            OkButtonInteractable = true;
+            CancelButton.Interactable = true;
+            OkButton.Interactable = true;
             _downloadingWasEverStarted = true;
         }
 
         private void SetSaving() {
             _progressLabel.Text = "Saving replays...";
-            OkButtonInteractable = false;
+            OkButton.Interactable = false;
         }
 
         #endregion

@@ -1,20 +1,23 @@
 using Reactive.BeatSaber;
+using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using UnityEngine;
 
 namespace BeatLeader.UI {
     internal static class UIStyle {
-        public static float Skew => BeatSaberStyle.Skew;
-        public static Color SecondaryTextColor => BeatSaberStyle.SecondaryTextColor;
+        private static readonly Color PrimaryButtonColor = new(0f, 0.5f, 1f);
 
-        public static SimpleColorSet InputColorSet => BeatSaberStyle.InputColorSet;
-        public static SimpleColorSet ControlColorSet => BeatSaberStyle.ControlColorSet;
-        public static SimpleColorSet ControlButtonColorSet => BeatSaberStyle.ControlButtonColorSet;
-
-        public static ReadOnlyColorSet GlowingButtonColorSet => new() {
-            ActiveColor = BeatSaberStyle.PrimaryButtonColor,
-            HoveredColor = BeatSaberStyle.PrimaryButtonColor,
-            Color = (Color.white * 0.8f).ColorWithAlpha(0.2f)
+        public static readonly ColorSet GlowingButtonColorSet = new() {
+            ActiveColor = PrimaryButtonColor,
+            HoveredColor = PrimaryButtonColor,
+            Color = (Color.white * 0.8f).ColorWithAlpha(0.2f),
+            NotInteractableColor = Color.clear
         };
+
+        public static BsAeroButtonColors AeroButtonColors(ColorSet backgroundColors) {
+            return BeatSaberStyle.BsAeroButtonColors with {
+                BackgroundColors = BeatSaberStyle.BsAeroButtonColors.BackgroundColors with { Colors = backgroundColors }
+            };
+        }
     }
 }

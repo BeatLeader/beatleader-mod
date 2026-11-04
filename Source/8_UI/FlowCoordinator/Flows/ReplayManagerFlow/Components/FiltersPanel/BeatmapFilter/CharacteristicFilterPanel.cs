@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using BeatLeader.Models;
 using Reactive;
 using UnityEngine;
@@ -38,8 +39,7 @@ namespace BeatLeader.UI.Hub {
         }
 
         public void SetBeatmapLevel(BeatmapLevel? level) {
-            var characteristics = level?.GetCharacteristics();
-            _characteristicPanel.SetData(characteristics);
+            _characteristicPanel.SetData(level?.GetCharacteristics().ToArray());
         }
 
         protected override void OnInitialize() {

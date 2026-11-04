@@ -1,11 +1,8 @@
 ﻿using BeatLeader.Models;
-using BeatLeader.UI.Reactive.Components;
 using BeatLeader.Utils;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Yoga;
-using UnityEngine;
-using UnityExtensions = BeatLeader.Utils.UnityExtensions;
 
 namespace BeatLeader.UI.Hub {
     internal class ReplayDeletionDialog : DialogBase {
@@ -21,22 +18,26 @@ namespace BeatLeader.UI.Hub {
 
         #region Construct
 
-        protected override ILayoutItem ConstructContent() {
+        protected override IReactiveComponent ConstructDialogContent() {
             return new Label {
+                FlexItem = {
+                    Size = new() { x = 60.pt, y = 14.pt }
+                },
+
                 Text = "Do you really want to delete this replay?\nYou won't be able to recover it."
             };
         }
 
         protected override void OnInitialize() {
             base.OnInitialize();
-            this.AsFlexItem(size: new() { x = 60.pt(), y = 28.pt() });
-            
-            Content.GetOrAddComponent<CanvasGroup>().ignoreParentGroups = true;
             Title = "Delete Replay";
+
+            OkButton.OnClick = HandleOkButtonClicked;
+            CancelButton.OnClick = () => IsPushed = false;
         }
 
-        protected override void OnOkButtonClicked() {
-            base.OnOkButtonClicked();
+        private void HandleOkButtonClicked() {
+            IsPushed = false;
 
             if (_header != null) {
                 ReplayManager.DeleteReplay(_header);

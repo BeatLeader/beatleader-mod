@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive.Components;
 using BeatLeader.Utils;
 using Reactive;
 using Reactive.BeatSaber.Components;
@@ -23,42 +22,46 @@ namespace BeatLeader.UI.Replayer {
         private readonly List<ICameraViewParams> _cameraViewParams = new();
         private ICameraViewParams? _selectedViewParams;
 
-        private void TryShowCameraParams() {
-            if (_selectedCameraView == null) {
-                _viewContainer.Select(null);
-                return;
-            }
+        private ICameraViewParams? FindCameraParams(ICameraView view) {
+            return _cameraViewParams.FirstOrDefault(x => x.SupportsCameraView(view));
+        }
+
+        private void ShowCameraParams(ICameraView view) {
             _selectedViewParams?.Setup(null);
-            if (!_viewContainer.Select(_selectedCameraView)) {
-                var viewParams = _cameraViewParams.FirstOrDefault(x => x.SupportsCameraView(_selectedCameraView));
-                if (viewParams == null) return;
-                _viewContainer.Items.Add(_selectedCameraView, viewParams);
-                _viewContainer.Select(_selectedCameraView);
-                _selectedViewParams = viewParams;
-            } else {
-                _selectedViewParams = (ICameraViewParams)_viewContainer.Items[_selectedCameraView];
-            }
-            _selectedViewParams.Setup(_selectedCameraView);
+            _selectedViewParams = FindCameraParams(view);
+            _viewContainer.Key = _selectedViewParams == null ? null : view;
+            _selectedViewParams?.Setup(view);
         }
 
         #endregion
 
         #region Camera Views
 
-        private IEnumerable<ICameraView> CameraViews => _cameraController!.Views;
+        private BsListControl<ICameraView> _viewSelector = null!;
 
-        private ICameraView? _selectedCameraView;
-        private bool _isInitialized;
+        private void LoadCameraViews(ICameraController cameraController) {
+            var views = cameraController.Views;
 
-        private void RefreshCameraViews() {
-            _viewSelector.Items.Clear();
-            foreach (var view in CameraViews) {
-                _viewSelector.Items.Add(view, view.Name);
+            var viewParams = new Dictionary<ICameraView, IReactiveComponent>();
+            foreach (var view in views) {
+                if (FindCameraParams(view) is { } param) {
+                    viewParams[view] = param;
+                }
             }
-            _selectedCameraView = _cameraController!.SelectedView;
-            if (_selectedCameraView == null) return;
-            _viewSelector.Select(_selectedCameraView);
-            TryShowCameraParams();
+            _viewContainer.Views = viewParams;
+
+            _viewSelectorRail.Component = new BsListControl<ICameraView> {
+                FlexItem = {
+                    Size = new() { x = 40f, y = 6f }
+                },
+
+                Items = views.Select(static x => new BsListControlItem<ICameraView>(x, x.Name, null)).ToArray(),
+                Key = cameraController.SelectedView,
+                Skew = 0f,
+                OnKeyChanged = HandleViewSelectorKeyChanged
+            }.Bind(ref _viewSelector);
+
+            ShowCameraParams(cameraController.SelectedView);
         }
 
         #endregion
@@ -77,32 +80,33 @@ namespace BeatLeader.UI.Replayer {
             }
 
             _cameraController = cameraController;
-            _isInitialized = false;
 
-            if (_cameraController != null && cameraSettings != null) {
-                _fovSlider.ValueRange = new(cameraSettings.MinCameraFOV, cameraSettings.MaxCameraFOV);
-                _fovSlider.Value = cameraSettings.CameraFOV;
-                _fovSlider.Interactable = InputUtils.UsesFPFC;
-
-                _cameraController.CameraFovChangedEvent += HandleCameraFovChanged;
-                _cameraController.CameraViewChangedEvent += HandleCameraViewChanged;
-                RefreshCameraViews();
-                SetUnavailableTextActive(false);
-
-                _isInitialized = true;
-            } else {
+            if (cameraController == null || cameraSettings == null) {
                 SetUnavailableTextActive(true);
+                return;
             }
+
+            _syncingControls = true;
+            _fovSlider.MinValue = cameraSettings.MinCameraFOV;
+            _fovSlider.MaxValue = cameraSettings.MaxCameraFOV;
+            _fovSlider.Value = cameraSettings.CameraFOV;
+            _syncingControls = false;
+            _fovSlider.Interactable = InputUtils.UsesFPFC;
+
+            LoadCameraViews(cameraController);
+            cameraController.CameraFovChangedEvent += HandleCameraFovChanged;
+            cameraController.CameraViewChangedEvent += HandleCameraViewChanged;
+            SetUnavailableTextActive(false);
         }
 
         #endregion
 
         #region Construct
 
-        private TextListControl<ICameraView> _viewSelector = null!;
         private KeyedContainer<ICameraView> _viewContainer = null!;
+        private NamedRail _viewSelectorRail = null!;
         private Label _unavailableLabel = null!;
-        private Slider _fovSlider = null!;
+        private BsSlider _fovSlider = null!;
         private Layout _container = null!;
 
         private void SetUnavailableTextActive(bool active) {
@@ -114,72 +118,83 @@ namespace BeatLeader.UI.Replayer {
 
         protected override GameObject Construct() {
             return new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    Gap = 2f
+                },
+
                 Children = {
                     new Label {
+                        FlexItem = {
+                            AlignSelf = Align.Center
+                        },
+
                         Text = "Camera controls are not available while using an external camera",
                         Enabled = false
-                    }.Bind(ref _unavailableLabel).AsFlexItem(alignSelf: Align.Center),
+                    }.Bind(ref _unavailableLabel),
                     //
-                    new Slider {
-                            ValueStep = 5f
+                    new BsSlider {
+                            FlexItem = {
+                                Size = new() { x = 40f, y = 6f }
+                            },
+
+                            ValueStep = 5f,
+                            OnValueChanged = HandleFOVSliderValueChanged
                         }
-                        .WithListener(x => x.Value, HandleFOVSliderValueChanged)
-                        .AsFlexItem(size: new() { x = 40f, y = 6f })
                         .Bind(ref _fovSlider)
                         .InNamedRail("Camera FOV"),
                     //
-                    new TextListControl<ICameraView>()
-                        .WithListener(x => x.SelectedKey, HandleViewSelectorViewChanged)
-                        .AsFlexItem(size: new() { x = 40f, y = 6f })
-                        .Bind(ref _viewSelector)
-                        .InNamedRail("Camera View"),
+                    new NamedRail {
+                        Label = { Text = "Camera View" }
+                    }.Bind(ref _viewSelectorRail),
                     //
                     new KeyedContainer<ICameraView> {
+                            FlexItem = {
+                                FlexGrow = 1f
+                            },
+
                             DummyView = new Label {
                                 Text = "Monke has nothing to show here",
                                 RaycastTarget = false
-                            }
+                            },
+                            Views = new Dictionary<ICameraView, IReactiveComponent>(),
+                            Key = null
                         }
-                        .AsFlexItem(flexGrow: 1f)
                         .Bind(ref _viewContainer)
                         .InBackground(color: (Color.white * 0.1f).ColorWithAlpha(1f))
                         .AsFlexGroup(padding: 2f)
                         .AsFlexItem(flexGrow: 1f)
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Column,
-                gap: 2f
-            ).Bind(ref _container).Use();
+            }.Bind(ref _container).Use();
         }
 
         #endregion
 
         #region Callbacks
 
+        private bool _syncingControls;
+
         private void HandleCameraFovChanged(int fov) {
-            _fovSlider.SetValueSilent(fov);
+            _syncingControls = true;
+            _fovSlider.Value = fov;
+            _syncingControls = false;
         }
 
         private void HandleCameraViewChanged(ICameraView view) {
-            _viewSelector.SelectSilent(view);
-            HandleViewSelectorViewChangedInternal(view);
+            _syncingControls = true;
+            _viewSelector.Key = view;
+            _syncingControls = false;
+            ShowCameraParams(view);
         }
 
         private void HandleFOVSliderValueChanged(float value) {
-            if (!_isInitialized) return;
+            if (_syncingControls) return;
             _cameraController?.SetFov((int)value);
         }
 
-        private void HandleViewSelectorViewChanged(ICameraView view) {
-            if (_isInitialized) {
-                _cameraController?.SetView(view);
-            }
-            HandleViewSelectorViewChangedInternal(view);
-        }
-
-        private void HandleViewSelectorViewChangedInternal(ICameraView view) {
-            _selectedCameraView = view;
-            TryShowCameraParams();
+        private void HandleViewSelectorKeyChanged(ICameraView view) {
+            if (_syncingControls) return;
+            _cameraController?.SetView(view);
         }
 
         #endregion

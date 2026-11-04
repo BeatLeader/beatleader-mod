@@ -8,7 +8,7 @@ using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatLeader.Results;
 using BeatLeader.UI.MainMenu;
-using Reactive.BeatSaber;
+using Reactive;
 using UnityEngine;
 using Zenject;
 
@@ -28,7 +28,11 @@ namespace BeatLeader.ViewControllers {
         private void Awake() {
             _newsViewController = Resources.FindObjectsOfTypeAll<BeatLeaderNewsViewController>().FirstOrDefault();
             if (_newsViewController != null) {
-                _newsViewController.HappeningEvent.ValueChangedEvent += HandleEventStatusUpdated;
+                _newsViewController.HappeningEvent.AddCallbackUnity(
+                    this,
+                    static (self, status) => self.HandleEventStatusUpdated(status),
+                    lazy: true
+                );
             }
 
             _eventResultsPanel = new();
@@ -69,12 +73,13 @@ namespace BeatLeader.ViewControllers {
         #region Callbacks
 
         private void HandleEventStatusUpdated(PlatformEventStatus? status) {
-            if (status != null) {
-                _eventResultsPanel.SetEvent(status);
-                _eventResultsPanel.Enabled = true;
-            } else {
-                _eventResultsPanel.Enabled = false;
+            // RefreshEventsCache's null arrives after Setup has shown the panel, so it must not hide it
+            if (status == null) {
+                return;
             }
+
+            _eventResultsPanel.SetEvent(status);
+            _eventResultsPanel.Enabled = true;
         }
 
         private void HandleReplayButtonClicked() {

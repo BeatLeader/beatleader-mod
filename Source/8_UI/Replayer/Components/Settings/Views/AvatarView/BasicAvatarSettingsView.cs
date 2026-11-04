@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using BeatLeader.Models;
 using Reactive;
+using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Yoga;
@@ -19,84 +21,103 @@ namespace BeatLeader.UI.Replayer {
 
             _bodySettings = bodySettings;
 
-            var basicSettings = bodySettings.RequireConfig<BasicBodySettings>();
-            _basicView = CreateBasicView(basicSettings, null);
-
-            _keyedContainer.Items[0] = _basicView;
+            var views = new Dictionary<int, IReactiveComponent> {
+                [0] = CreateBasicView(bodySettings.RequireConfig<BasicBodySettings>(), null)
+            };
 
             if (battleRoyaleEnabled) {
-                var royaleSettings = bodySettings.RequireConfig<BattleRoyaleBodySettings>();
-                _royaleView = CreateRoyaleView(royaleSettings);
-
-                _keyedContainer.Items[1] = _royaleView;
-                _segmentedControlContainer.Enabled = true;
+                views[1] = CreateRoyaleView(bodySettings.RequireConfig<BattleRoyaleBodySettings>());
+                _segmentedControl.Enabled = true;
             }
+
+            _keyedContainer.Views = views;
         }
 
         #endregion
 
         #region Construct
 
-        private ScrollArea _scrollArea = null!;
-        private Image _segmentedControlContainer = null!;
-        private TextSegmentedControl<int> _segmentedControl = null!;
+        private static readonly BsSegmentedControlColors segmentedControlColors = BeatSaberStyle.BsSegmentedControlColors with {
+            CellBackgroundColors = new ColorSet {
+                Color = new(0.1f, 0.1f, 0.1f, 1f),
+                HoveredColor = new(0.28f, 0.28f, 0.28f, 1f),
+                ActiveColor = new(0.19f, 0.19f, 0.19f, 1f)
+            }
+        };
+
+        private ScrollContext _scrollContext = null!;
+        private BsSegmentedControl<int> _segmentedControl = null!;
         private KeyedContainer<int> _keyedContainer = null!;
 
-        private Layout? _basicView;
-        private Layout? _royaleView;
-
         protected override GameObject Construct() {
+            _scrollContext = new ScrollContext();
+
             return new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    Gap = 1f
+                },
+
                 Children = {
-                    new TextSegmentedControl<int> {
-                            Items = {
-                                [0] = "Main Player",
-                                [1] = "Other Players"
-                            }
+                    new BsSegmentedControl<int> {
+                            FlexItem = {
+                                FlexBasis = 6f
+                            },
+
+                            Items = new Dictionary<int, BsSegmentedControlItem> {
+                                [0] = new("Main Player", null),
+                                [1] = new("Other Players", null)
+                            },
+                            Key = 0,
+                            Skew = 0f,
+                            Colors = segmentedControlColors,
+                            OnKeyChanged = HandleSegmentedControlKeyChanged
                         }
-                        .WithRectExpand()
-                        .Bind(ref _segmentedControl)
-                        .InBackground(
-                            color: new(0.1f, 0.1f, 0.1f, 1f),
-                            pixelsPerUnit: 10f
-                        )
-                        .AsFlexItem(basis: 6f)
                         .With(x => x.Enabled = false)
-                        .Bind(ref _segmentedControlContainer),
+                        .Bind(ref _segmentedControl),
 
                     new Layout {
+                        FlexController = {
+                            Gap = 1f
+                        },
+
+                        FlexItem = {
+                            FlexGrow = 1f
+                        },
+
                         Children = {
                             new ScrollArea {
-                                    ScrollContent = new KeyedContainer<int> {
-                                            Control = _segmentedControl
-                                        }
-                                        .AsFlexGroup(justifyContent: Justify.FlexStart, constrainVertical: false)
-                                        .AsFlexItem()
-                                        .Bind(ref _keyedContainer)
-                                }
-                                .AsFlexItem(flexGrow: 1f)
-                                .Export(out var area)
-                                .Bind(ref _scrollArea),
+                                FlexItem = {
+                                    FlexGrow = 1f
+                                },
+
+                                ScrollContext = _scrollContext,
+                                ScrollContent = new KeyedContainer<int> {
+                                    FlexController = {
+                                        JustifyContent = Justify.FlexStart,
+                                        ConstrainVertical = false
+                                    },
+
+                                    Key = 0,
+                                    Views = new Dictionary<int, IReactiveComponent>()
+                                }.Bind(ref _keyedContainer),
+                                LineSize = 1f
+                            },
 
                             new Scrollbar {
+                                ScrollContext = _scrollContext,
+                                HideIfNothingToScroll = true,
                                 WithinLayoutIfDisabled = false
-                            }.With(x => area.Scrollbar = x)
+                            }
                         }
-                    }.AsFlexGroup(gap: 1f).AsFlexItem(flexGrow: 1f)
+                    }
                 }
-            }.AsFlexGroup(direction: FlexDirection.Column, gap: 1f).Use();
+            }.Use();
         }
 
-        protected override void OnInitialize() {
-            _segmentedControl.WhenKeySelected += RefreshScrollArea;
-        }
-
-        protected override void OnDestroy() {
-            _segmentedControl.WhenKeySelected -= RefreshScrollArea;
-        }
-
-        private void RefreshScrollArea(int _) {
-            _scrollArea.ScrollToStart(true);
+        private void HandleSegmentedControlKeyChanged(int key) {
+            _keyedContainer.Key = key;
+            _scrollContext.ScrollTo(0f, immediately: true);
         }
 
         #endregion
@@ -137,6 +158,16 @@ namespace BeatLeader.UI.Replayer {
 
         private Layout CreateBasicView(BasicBodySettings settings, ILayoutItem? additionalComponent) {
             return new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    AlignItems = Align.Stretch,
+                    Gap = 2f
+                },
+
+                FlexItem = {
+                    Size = new() { x = 100.pct }
+                },
+
                 Children = {
                     CreateContainer(
                         CreateToggle(
@@ -180,13 +211,7 @@ namespace BeatLeader.UI.Replayer {
                         )
                     )
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Column,
-                alignItems: Align.Stretch,
-                gap: 2f
-            ).AsFlexItem(
-                size: new() { x = "100%" }
-            ).With(
+            }.With(
                 x => {
                     if (additionalComponent != null) {
                         x.Children.Add(additionalComponent);
@@ -196,17 +221,18 @@ namespace BeatLeader.UI.Replayer {
         }
 
         private static Background CreateContainer(params ILayoutItem[] components) {
-            var image = new Background()
-                .AsBackground(
+            var image = new Background {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    AlignItems = Align.Stretch,
+                    Padding = 2f,
+                    Gap = 1f
+                }
+            }.AsBackground(
                     sprite: BundleLoader.Sprites.background,
                     color: new(0.1f, 0.1f, 0.1f, 1f),
                     pixelsPerUnit: 7f
-                ).AsFlexGroup(
-                    direction: FlexDirection.Column,
-                    alignItems: Align.Stretch,
-                    padding: 2f,
-                    gap: 1f
-                ).AsFlexItem();
+                );
 
             image.Children.AddRange(components);
 
@@ -214,16 +240,13 @@ namespace BeatLeader.UI.Replayer {
         }
 
         private NamedRail CreateToggle(BasicBodySettings settings, string name, bool initial, Action<bool> callback) {
-            return new Toggle()
-                .With(x => x.SetActive(initial, false))
-                .WithListener(
-                    x => x.Active,
-                    x => {
-                        callback(x);
-                        _bodySettings!.NotifyConfigUpdated(settings);
-                    }
-                )
-                .InNamedRail(name);
+            return new BsToggle {
+                Toggled = initial,
+                OnToggleStateChanged = x => {
+                    callback(x);
+                    _bodySettings!.NotifyConfigUpdated(settings);
+                }
+            }.InNamedRail(name);
         }
 
         private NamedRail CreateSlider(
@@ -235,19 +258,16 @@ namespace BeatLeader.UI.Replayer {
             float initial,
             Action<float> callback
         ) {
-            return new Slider {
-                    ValueRange = new(from, to),
-                    ValueStep = step,
-                    Value = initial,
+            return new BsSlider {
+                MinValue = from,
+                MaxValue = to,
+                ValueStep = step,
+                Value = initial,
+                OnValueChanged = x => {
+                    callback(x);
+                    _bodySettings!.NotifyConfigUpdated(settings);
                 }
-                .WithListener(
-                    x => x.Value,
-                    x => {
-                        callback(x);
-                        _bodySettings!.NotifyConfigUpdated(settings);
-                    }
-                )
-                .InNamedRail(name);
+            }.InNamedRail(name);
         }
 
         #endregion

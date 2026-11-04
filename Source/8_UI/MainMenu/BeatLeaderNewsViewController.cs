@@ -46,7 +46,7 @@ namespace BeatLeader.UI.MainMenu {
 
         #region Data
 
-        public INotifyValueChanged<PlatformEventStatus?> HappeningEvent => _newsPanel.HappeningEvent;
+        public IState<PlatformEventStatus?> HappeningEvent => _newsPanel.HappeningEvent;
         
         public void RefreshEventsCache() {
             _newsPanel.RefreshEventsCache();

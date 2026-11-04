@@ -7,7 +7,6 @@ using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using BeatLeader.Models.Replay;
-using BeatLeader.UI;
 using BeatLeader.Utils;
 using Reactive;
 using TMPro;
@@ -16,6 +15,7 @@ using UnityEngine.UI;
 using Image = Reactive.BeatSaber.Components.Image;
 using BeatLeader.API;
 using HMUI;
+using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 
 namespace BeatLeader.Components {
@@ -77,7 +77,7 @@ namespace BeatLeader.Components {
                 Sprite = BundleLoader.SaveIcon,
                 Color = Color.white * 0.8f,
                 PreserveAspect = true,
-                Skew = UIStyle.Skew
+                Skew = BeatSaberStyle.Skew
             }.With(x => {
                     x.WithNativeComponent(out LayoutElement el);
                     el.preferredHeight = 6f;
@@ -325,17 +325,8 @@ namespace BeatLeader.Components {
         private bool _playCanBeInteractable;
 
         private void RefreshPlayButton(PlayButtonState state) {
-            if (state is PlayButtonState.Unavailable || !_playCanBeInteractable) {
-                _playButton.interactable = false;
-                return;
-            }
-
-            _playButton.interactable = true;
-            _playButtonText.text = state switch {
-                PlayButtonState.ReadyToDownloadOrStart => "<bll>ls-watch-replay</bll>",
-                PlayButtonState.Downloading => "<bll>ls-cancel</bll>",
-                _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
-            };
+            _playButton.interactable = state is not PlayButtonState.Unavailable && _playCanBeInteractable;
+            _playButtonText.text = state is PlayButtonState.Downloading ? "<bll>ls-cancel</bll>" : "<bll>ls-watch-replay</bll>";
         }
 
         #endregion

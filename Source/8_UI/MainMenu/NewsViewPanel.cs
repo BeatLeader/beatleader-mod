@@ -14,9 +14,9 @@ internal class NewsViewPanel : ReactiveComponent {
     #region Public API
 
     //TODO: Oh my god please forgive me for this
-    public INotifyValueChanged<PlatformEventStatus?> HappeningEvent => _eventDetailsStatus;
+    public IState<PlatformEventStatus?> HappeningEvent => _eventDetailsStatus;
 
-    private PlatformEvent? eventToAutoopen = null;
+    private PlatformEvent? eventToAutoopen;
 
     public void SetEvents(RequestState state, IReadOnlyList<PlatformEvent>? events) {
         _eventNewsPanel.SetData(state, events);
@@ -74,6 +74,8 @@ internal class NewsViewPanel : ReactiveComponent {
             _statusRequest = PlatformEventStatusRequest.Send(evt.id);
             _statusRequest.StateChangedEvent += HandleRequestUpdated;
         }
+
+        _eventDetailsStatus.EnforceInvalidation();
     }
 
     private void HandleRequestUpdated(IWebRequest<PlatformEventStatus> instance, RequestState state, string? failReason) {
@@ -99,30 +101,43 @@ internal class NewsViewPanel : ReactiveComponent {
     #region Construct
 
     private EventNewsPanel _eventNewsPanel = null!;
-    private ObservableValue<PlatformEventStatus?> _eventDetailsStatus = null!;
-    private ObservableValue<bool> _eventDetailsPresented = null!;
+    private State<PlatformEventStatus?> _eventDetailsStatus = null!;
+    private State<bool> _eventDetailsPresented = null!;
 
     protected override GameObject Construct() {
         _eventDetailsStatus = Remember<PlatformEventStatus?>(null);
         _eventDetailsPresented = Remember(false);
 
         var eventNews = new Layout {
-                Children = {
-                    new EventNewsPanel {
-                        OnEventSelected = HandleEventSelected
-                    }.Bind(ref _eventNewsPanel)
-                    .AsFlexItem(size: new() { y = 12f }),
+            FlexController = {
+                FlexDirection = FlexDirection.Column,
+                Gap = 1f
+            },
 
-                    new MapNewsPanel(),
-                }
+            FlexItem = {
+                Size = new() { x = 70f }
+            },
+
+            Children = {
+                new EventNewsPanel {
+                    FlexItem = {
+                        Size = new() { y = 12f }
+                    },
+
+                    OnEventSelected = HandleEventSelected
+                }.Bind(ref _eventNewsPanel),
+
+                new MapNewsPanel {
+                    FlexItem = {
+                        FlexBasis = 14.5f
+                    }
+                },
             }
-            .AsFlexGroup(direction: FlexDirection.Column, gap: 1f)
-            .AsFlexItem(size: new() { x = 70f });
+        };
 
         var specialNews = new SpecialEventPanel {
-                OnBackClick = () => _eventDetailsPresented.Value = false
-            }
-            .Animate(
+            OnBackClick = () => _eventDetailsPresented.Value = false
+        }.On(
                 _eventDetailsStatus,
                 (x, y) => {
                     if (y == null) {
@@ -130,39 +145,42 @@ internal class NewsViewPanel : ReactiveComponent {
                     } else {
                         x.SetData(y);
                     }
-                }
+                },
+                lazy: true
             );
 
         return new Layout {
-                Children = {
-                    new TextNewsPanel(),
+            FlexController = {
+                FlexDirection = FlexDirection.Row,
+                ConstrainHorizontal = false,
+                ConstrainVertical = false,
+                Gap = 1f,
+                Padding = new() { left = 30f }
+            },
 
-                    new BBillboard()
-                        .AsFlexItem(flex: 1, size: new() { y = 70f })
-                        .With(x => x.Push(eventNews))
-                        .Animate(
-                            _eventDetailsPresented,
-                            (billboard, y) => {
-                                if (y) {
-                                    billboard.Push(specialNews);
-                                    specialNews.PlayPreview();
-                                } else {
-                                    billboard.Pop();
-                                    specialNews.CancelPreview();
-                                }
-                            }
-                        )
-                }
+            Children = {
+                new TextNewsPanel(),
+
+                new BBillboard {
+                    FlexItem = {
+                        Flex = 1,
+                        Size = new() { y = 70f }
+                    }
+                }.With(x => x.Push(eventNews)).On(
+                    _eventDetailsPresented,
+                    (billboard, y) => {
+                        if (y) {
+                            billboard.Push(specialNews);
+                            specialNews.PlayPreview();
+                        } else {
+                            billboard.Pop();
+                            specialNews.CancelPreview();
+                        }
+                    },
+                    lazy: true
+                )
             }
-            .AsFlexGroup(
-                direction: FlexDirection.Row,
-                constrainHorizontal: false,
-                constrainVertical: false,
-                gap: 1f,
-                padding: new() { left = 30f }
-            )
-            .AsFlexItem()
-            .Use();
+        }.Use();
     }
 
     #endregion

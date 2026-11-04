@@ -16,9 +16,7 @@ namespace BeatLeader.UI.Hub {
                 }
                 _openedView = value;
                 if (_openedView != null) {
-                    if (_openedView is ReactiveComponent comp) {
-                        comp.WithinLayoutIfDisabled = true;
-                    }
+                    PrepareView(_openedView);
                     _backgroundImage.Children.Add(_openedView);
                 }
             }
@@ -32,9 +30,7 @@ namespace BeatLeader.UI.Hub {
                 }
                 _closedView = value;
                 if (_closedView != null) {
-                    if (_closedView is ReactiveComponent comp) {
-                        comp.WithinLayoutIfDisabled = true;
-                    }
+                    PrepareView(_closedView);
                     _backgroundImage.Children.Add(_closedView);
                 }
             }
@@ -49,17 +45,17 @@ namespace BeatLeader.UI.Hub {
             }
         }
 
-        public Color Color {
-            get => _backgroundImage.Color;
-            set => _backgroundImage.Color = value;
-        }
-
         private ILayoutItem? _openedView;
         private ILayoutItem? _closedView;
 
-        public void Push() {
-            _opened = !_opened;
-            _progress = 0f;
+        private static void PrepareView(ILayoutItem view) {
+            if (view is not ReactiveComponent comp) {
+                return;
+            }
+            comp.WithinLayoutIfDisabled = true;
+            if (comp.LayoutModifier == null) {
+                comp.IgnoreLayout = true;
+            }
         }
 
         #endregion
@@ -72,12 +68,11 @@ namespace BeatLeader.UI.Hub {
         private CanvasGroup _canvasGroup = null!;
 
         protected override GameObject Construct() {
-            return new Background()
-                .AsFlexGroup(justifyContent: Justify.Center)
-                .AsBlurBackground()
-                .Bind(ref _backgroundImage)
-                .WithNativeComponent(out _canvasGroup)
-                .Use();
+            return new Background {
+                FlexController = {
+                    JustifyContent = Justify.Center
+                }
+            }.AsBlurBackground().Bind(ref _backgroundImage).WithNativeComponent(out _canvasGroup).Use();
         }
 
         protected override void OnInitialize() {
@@ -103,16 +98,12 @@ namespace BeatLeader.UI.Hub {
             _canvasGroup.blocksRaycasts = _opened;
             _canvasGroup.interactable = _opened;
 
-            if (OpenedView is ReactiveComponent opened) {
+            if (OpenedView is IReactiveComponent opened) {
                 opened.Enabled = _opened;
-            } else if (OpenedView != null) {
-                OpenedView.WithinLayout = _opened;
             }
 
-            if (ClosedView is ReactiveComponent closed) {
+            if (ClosedView is IReactiveComponent closed) {
                 closed.Enabled = !_opened;
-            } else if (ClosedView != null) {
-                ClosedView.WithinLayout = !_opened;
             }
         }
 

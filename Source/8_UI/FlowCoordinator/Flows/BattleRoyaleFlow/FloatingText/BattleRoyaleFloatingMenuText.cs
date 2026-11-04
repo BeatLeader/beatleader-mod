@@ -1,5 +1,4 @@
-﻿using BeatLeader.UI.Reactive;
-using BeatLeader.UI.Reactive.Components;
+﻿using BeatLeader.UI.Reactive.Components;
 using HMUI;
 using Reactive;
 using Reactive.BeatSaber;
@@ -11,38 +10,29 @@ namespace BeatLeader.UI.Hub {
     internal class BattleRoyaleFloatingMenuText : ReactiveComponent {
         #region Animation
 
-        private readonly ValueAnimator _animator = new() { LerpCoefficient = 15f };
-
-        public void Present() {
-            _animator.Push();
+        public bool IsPresent {
+            set => _alpha.TargetValue = value ? 1f : 0f;
         }
 
-        public void Hide() {
-            _animator.Pull();
-        }
-
-        protected override void OnUpdate() {
-            _animator.Update();
-            _canvasGroup.alpha = _animator.Progress;
-        }
+        private AnimatedState<float> _alpha = null!;
 
         #endregion
 
         #region Construct
 
-        private CanvasGroup _canvasGroup = null!;
-
         protected override GameObject Construct() {
+            _alpha = RememberAnimated(0f, 15.fact);
+
             return new Layout {
                 Children = {
                     new Label {
                         Text = "Did you see it?! Monke stole all players and mystically disappeared!\n" +
                             "But don't be upset, add some by yourself!",
-                        Color = UIStyle.SecondaryTextColor,
+                        Color = BeatSaberStyle.SecondaryTextColor,
                         FontSize = 6f
                     }
                 }
-            }.WithNativeComponent(out _canvasGroup).Use();
+            }.WithAlpha(_alpha).Use();
         }
 
         protected override void OnInitialize() {

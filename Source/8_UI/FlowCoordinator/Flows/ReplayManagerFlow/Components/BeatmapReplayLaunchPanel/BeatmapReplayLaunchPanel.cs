@@ -44,15 +44,13 @@ namespace BeatLeader.UI.Hub {
         void IBeatmapReplayLaunchPanel.RemoveSelectedReplay(IReplayHeader header) => RemoveSelectedReplay(header, true);
 
         public void AddSelectedReplay(IReplayHeader header, bool notify) {
-            ReplaysList.HighlightedItems.Add(header);
-            ReplaysList.Refresh(false);
+            ReplaysList.SetItemHighlighted(header, true);
             SelectedReplaysUpdatedEvent?.Invoke();
             ReplaySelectedEvent?.Invoke(header);
         }
 
         public void RemoveSelectedReplay(IReplayHeader header, bool notify) {
-            ReplaysList.HighlightedItems.Remove(header);
-            ReplaysList.Refresh(false);
+            ReplaysList.SetItemHighlighted(header, false);
             SelectedReplaysUpdatedEvent?.Invoke();
             ReplayDeselectedEvent?.Invoke(header);
         }
@@ -90,7 +88,7 @@ namespace BeatLeader.UI.Hub {
 
         #region Construct
 
-        private Image _loadingContainer = null!;
+        private Background _loadingContainer = null!;
         private Layout _detailPanelContainer = null!;
         private CanvasGroup _mainContainerCanvasGroup = null!;
         private Label _detailMissingLabel = null!;
@@ -98,55 +96,79 @@ namespace BeatLeader.UI.Hub {
 
         protected override GameObject Construct() {
             return new Layout {
+                FlexController = {
+                    JustifyContent = Justify.SpaceAround
+                },
+
                 Children = {
                     //main container
                     new Layout {
+                        FlexController = {
+                            Gap = 2f
+                        },
+
                         Children = {
                             //replays list
-                            new ReplaysListPanel()
-                                .With(
-                                    x => x.ReplaysList.WithListener(
-                                        y => y.SelectedIndexes,
-                                        HandleItemsSelected
-                                    )
-                                )
-                                .AsFlexItem(size: new() { x = 60f })
-                                .Bind(ref _replaysListPanel),
+                            new ReplaysListPanel {
+                                FlexItem = {
+                                    Size = new() { x = 60f }
+                                },
+
+                                ReplaysList = {
+                                    OnSelectedItemsChanged = HandleItemsSelected
+                                }
+                            }.Bind(ref _replaysListPanel),
                             //scrollbar
-                            new Scrollbar()
-                                .With(x => _replaysListPanel.ReplaysList.Scrollbar = x)
-                                .AsFlexItem(margin: new() { left = 1f, right = 2f }),
+                            new Scrollbar {
+                                FlexItem = {
+                                    Margin = new() { left = 1f, right = 2f }
+                                },
+
+                                ScrollContext = _replaysListPanel.ReplaysList.ScrollContext,
+                                HideIfNothingToScroll = true
+                            },
                             //detail panel container
                             new Layout {
+                                FlexItem = {
+                                    Size = new() { x = 50f }
+                                },
+
                                 Children = {
                                     new Label {
                                         Text = "Monke didn't find anything to show",
                                         EnableWrapping = true
                                     }.WithRectExpand().Bind(ref _detailMissingLabel)
                                 }
-                            }.AsFlexItem(size: new() { x = 50f }).Bind(ref _detailPanelContainer)
+                            }.Bind(ref _detailPanelContainer)
                         }
-                    }.WithNativeComponent(out _mainContainerCanvasGroup).AsFlexGroup(gap: 2f).AsFlexItem(),
+                    }.WithNativeComponent(out _mainContainerCanvasGroup),
                     //loading container
                     new Background {
+                        FlexController = {
+                            FlexDirection = FlexDirection.Column,
+                            JustifyContent = Justify.Center,
+                            AlignItems = Align.Center,
+                            Gap = 2f
+                        },
+
                         Enabled = false,
+                        IgnoreLayout = true,
                         Sprite = BundleLoader.Sprites.transparentPixel,
                         Children = {
-                            new Spinner().AsFlexItem(size: 8f),
+                            new Spinner {
+                                FlexItem = {
+                                    Size = 8f
+                                }
+                            },
                             //
-                            new BsButton {
+                            new BsTextButton {
                                 Text = "Cancel",
                                 OnClick = () => ReplayManager.CancelLoading()
-                            }.AsFlexItem()
+                            }
                         }
-                    }.AsFlexGroup(
-                        direction: FlexDirection.Column,
-                        justifyContent: Justify.Center,
-                        alignItems: Align.Center,
-                        gap: 2f
-                    ).WithRectExpand().Bind(ref _loadingContainer)
+                    }.WithRectExpand().Bind(ref _loadingContainer)
                 }
-            }.AsFlexGroup(justifyContent: Justify.SpaceAround).Use();
+            }.Use();
         }
 
         protected override void OnInitialize() {
@@ -187,14 +209,13 @@ namespace BeatLeader.UI.Hub {
             _detailPanel?.SetData(null);
         }
 
-        private void HandleItemsSelected(IReadOnlyCollection<int> items) {
+        private void HandleItemsSelected(IReadOnlyCollection<IReplayHeader> items) {
             if (items.Count is 0) {
                 _detailPanel?.SetData(null);
                 _previewLoader?.StopPreview();
                 return;
             }
-            var index = items.First();
-            var header = _replaysListPanel.ReplaysList.FilteredItems[index];
+            var header = items.First();
             _previewLoader?.LoadPreview(header);
             _detailPanel?.SetData(header);
         }

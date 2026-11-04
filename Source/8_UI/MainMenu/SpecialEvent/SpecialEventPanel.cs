@@ -3,6 +3,7 @@ using BeatLeader.Models;
 using BeatLeader.UI.Reactive.Components;
 using Reactive;
 using Reactive.BeatSaber.Components;
+using Reactive.Compiler;
 using Reactive.Yoga;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,11 +17,12 @@ namespace BeatLeader.UI.MainMenu {
 
         public void SetData(PlatformEventStatus evt) {
             _event.Value = evt;
-            _spinnerAlpha.Value = 0f;
+            _event.EnforceInvalidation();
+            _spinnerAlpha.TargetValue = 0f;
         }
 
         public void SetLoading() {
-            _spinnerAlpha.Value = 1f;
+            _spinnerAlpha.TargetValue = 1f;
         }
 
         public void PlayPreview() {
@@ -35,52 +37,62 @@ namespace BeatLeader.UI.MainMenu {
 
         #region Construct
 
-        private ObservableValue<PlatformEventStatus> _event = null!;
-        private AnimatedValue<float> _spinnerAlpha = null!;
+        private State<PlatformEventStatus> _event = null!;
+        private AnimatedState<float> _spinnerAlpha = null!;
         private SpecialEventMapPanel _mapPanel = null!;
 
         protected override GameObject Construct() {
             _event = Remember<PlatformEventStatus>(null!);
-            _spinnerAlpha = RememberAnimated(0f, 200.ms(), AnimationCurve.EaseInOut);
+            _spinnerAlpha = RememberAnimated(0f, 200.ms, AnimationCurve.EaseInOut);
 
             return new Background {
+                    FlexController = {
+                        FlexDirection = FlexDirection.Column,
+                        JustifyContent = Justify.Center,
+                        Padding = 1.pt
+                    },
+
+                    FlexItem = {
+                        Flex = 1f,
+                        Size = new() { x = 52.pt }
+                    },
+
                     Children = {
-                        new NewsHeader()
-                            .WithAlpha(_spinnerAlpha, invert: true)
-                            .Animate(_event, (x, y) => x.Accent = y.eventDescription.MainColor() ?? x.Accent)
-                            .Animate(_event, (x, y) => x.Text = y.eventDescription.name),
+                        new NewsHeader {
+                                sText = _event.Map(x => x.eventDescription.name).InLazy(),
+                                sAccent = _event.Map(static x => x.eventDescription.MainColor() ?? Color.black.ColorWithAlpha(0.5f)).InLazy()
+                            }
+                            .WithAlpha(_spinnerAlpha, invert: true),
 
                         new SpecialEventMapPanel()
                             .WithAlpha(_spinnerAlpha, invert: true)
-                            .Animate(_event, (x, y) => x.SetData(y.today))
-                            .Bind(ref _mapPanel)
-                            .Export(out var mapPanel),
+                            .On(_event, (x, y) => x.SetData(y.today), lazy: true)
+                            .Bind(ref _mapPanel),
 
                         new SpecialEventBar {
                                 OnBackClick = () => OnBackClick?.Invoke(),
-                                OnPlayClick = () => MapDownloadDialog.OpenSongOrDownloadDialog(mapPanel._map.Value.song, ContentTransform),
-                                OnDayChanged = x => mapPanel.SetData(x)
+                                OnPlayClick = () => MapDownloadDialog.OpenSongOrDownloadDialog(_mapPanel._map.Value.song, ContentTransform),
+                                OnDayChanged = x => _mapPanel.SetData(x)
                             }
                             .WithAlpha(_spinnerAlpha, invert: true)
-                            .Animate(_event, (x, y) => x.SetData(y)),
+                            .On(_event, (x, y) => x.SetData(y), lazy: true),
 
                         new Spinner {
-                                Image = {
-                                    RaycastTarget = false
-                                }
+                            FlexItem = {
+                                Position = new() { left = 0.pt, right = 0.pt },
+                                PositionType = PositionType.Absolute,
+                                Size = new() { y = 15.pt },
+                                Margin = YogaFrame.Auto
+                            },
+
+                            Image = {
+                                RaycastTarget = false
                             }
-                            .WithAlpha(_spinnerAlpha)
-                            .AsFlexItem(
-                                position: new() { left = 0.pt(), right = 0.pt() },
-                                size: new() { y = 15.pt() },
-                                margin: YogaFrame.Auto
-                            )
+                        }.WithAlpha(_spinnerAlpha)
                     }
                 }
                 .AsBackground(color: Color.black.ColorWithAlpha(0.5f))
                 .AsRectMask()
-                .AsFlexGroup(direction: FlexDirection.Column, justifyContent: Justify.Center, padding: 1.pt())
-                .AsFlexItem(flex: 1f, size: new() { x = 52.pt() })
                 .Use();
         }
 

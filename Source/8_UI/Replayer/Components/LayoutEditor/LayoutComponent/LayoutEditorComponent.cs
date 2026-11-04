@@ -60,6 +60,7 @@ namespace BeatLeader.Components {
             _componentTransform.sizeDelta = _layoutData.size;
             _componentTransform.localPosition = _layoutData.position;
             _componentTransform.SetSiblingIndex(_layoutData.layer);
+            _layoutData.layer = _componentTransform.GetSiblingIndex();
             // Applying state immediately only if outside the Edit mode
             if (!_wrapperActive) {
                 Content.SetActive(_layoutData.visible);

@@ -27,7 +27,7 @@ namespace BeatLeader.UI.Hub {
 
         bool ITableFilter<T>.Matches(T value) {
             var filterMatches = _modal.ActiveFilters.All(x => x.Matches(value));
-            var text = _searchInputField.Text.ToLower();
+            var text = SearchText.ToLower();
             if (!filterMatches) return false;
             if (!string.IsNullOrEmpty(text) && SearchContract != null) {
                 var strings = SearchContract(value);
@@ -39,7 +39,7 @@ namespace BeatLeader.UI.Hub {
         }
 
         public string? GetMatchedPhrase(T value) {
-            if (string.IsNullOrEmpty(_searchInputField.Text)) return null;
+            if (string.IsNullOrEmpty(SearchText)) return null;
             _matchedItems.TryGetValue(value, out var res);
             return res;
         }
@@ -62,7 +62,7 @@ namespace BeatLeader.UI.Hub {
             public bool FilterEnabled {
                 get => _enableToggle.Active;
                 set {
-                    _enableToggle.SetActive(value);
+                    _enableToggle.Active = value;
                     HandleButtonClicked(true);
                 }
             }
@@ -104,8 +104,16 @@ namespace BeatLeader.UI.Hub {
 
             protected override GameObject Construct() {
                 return new Layout {
+                    FlexController = {
+                        Gap = 1f
+                    },
+
                     Children = {
                         new PushContainer {
+                            FlexItem = {
+                                FlexGrow = 1f
+                            },
+
                             ClosedView = new Label()
                                 .WithRectExpand()
                                 .Bind(ref _placeholder),
@@ -113,23 +121,31 @@ namespace BeatLeader.UI.Hub {
                             BackgroundImage = {
                                 Color = (Color.white * 0.9f).ColorWithAlpha(1f)
                             }
-                        }.AsFlexItem(flexGrow: 1f).Bind(ref _filterContainer),
+                        }.Bind(ref _filterContainer),
                         //
                         new Background {
+                            FlexController = {
+                                AlignItems = Align.Center,
+                                Padding = 1f
+                            },
+
+                            FlexItem = {
+                                Size = YogaVector.Auto
+                            },
+
                             Color = (Color.white * 0.9f).ColorWithAlpha(1f),
                             Children = {
                                 new CheckCircle {
+                                    FlexItem = {
+                                        Size = 3f
+                                    },
+
                                     OnStateChanged = _ => HandleButtonClicked(false)
-                                }.AsFlexItem(size: 3f).Bind(ref _enableToggle)
+                                }.Bind(ref _enableToggle)
                             }
-                        }.AsFlexGroup(
-                            alignItems: Align.Center,
-                            padding: 1f
-                        ).AsFlexItem(
-                            size: "auto"
-                        ).AsBlurBackground()
+                        }.AsBlurBackground()
                     }
-                }.AsFlexGroup(gap: 1f).Use();
+                }.Use();
             }
 
             #endregion
@@ -187,7 +203,6 @@ namespace BeatLeader.UI.Hub {
 
             public void AddFilter(IPanelListFilter<T> filter) {
                 var comp = _filtersPool.Spawn(filter);
-                comp.AsFlexItem();
                 comp.Setup(filter);
                 AddDependentFilter(filter.DependsOn, filter);
                 comp.FilterUpdatedEvent += HandleFilterUpdated;
@@ -220,19 +235,20 @@ namespace BeatLeader.UI.Hub {
             private readonly ReactivePool<IPanelListFilter<T>, FilterContainer> _filtersPool = new();
             private Background _container = null!;
 
-            protected override GameObject Construct() {
-                return new Background()
-                    .AsFlexGroup(
-                        direction: FlexDirection.Column,
-                        justifyContent: Justify.FlexStart,
-                        alignItems: Align.Stretch,
-                        padding: 2f,
-                        gap: 1f
-                    )
-                    .AsBlurBackground()
-                    .AsFlexItem(size: new() { x = 64.pt(), y = 60.pt() })
-                    .Bind(ref _container)
-                    .Use();
+            protected override IReactiveComponent ConstructContent() {
+                return new Background {
+                    FlexController = {
+                        FlexDirection = FlexDirection.Column,
+                        JustifyContent = Justify.FlexStart,
+                        AlignItems = Align.Stretch,
+                        Padding = 2f,
+                        Gap = 1f
+                    },
+
+                    FlexItem = {
+                        Size = new() { x = 64.pt, y = 60.pt }
+                    }
+                }.AsBlurBackground().Bind(ref _container);
             }
 
             #endregion
@@ -243,79 +259,109 @@ namespace BeatLeader.UI.Hub {
         #region Setup
 
         private void RefreshFiltersCaption() {
-            _filtersTextArea.WithItemsText(
+            _filtersContext.WithItemsText(
                 _modal.ActiveFilters.Select(static x => x.FilterStatus)
             );
+            _filtersText = _filtersContext.Text;
         }
 
         protected override void OnInitialize() {
             _modal.FilterUpdatedEvent += HandleFilterUpdated;
+            _modal.PlacementAnchor = ContentTransform;
+            _searchKeyboard.PlacementAnchor = _searchInputField.ContentTransform;
+
             _filters = new(
                 new List<IPanelListFilter<T>>(),
                 HandleFilterAdded,
                 HandleFilterRemoved
             );
+
+            _searchContext.AddCallback(this, static (x, y) => x.HandleSearchContextUpdated(y), lazy: true);
+            _filtersContext.AddCallback(this, static (x, y) => x.HandleFiltersContextUpdated(y), lazy: true);
         }
 
         #endregion
 
         #region Construct
 
+        private string SearchText => _searchContext.Text ?? string.Empty;
+
+        private readonly BsInputFieldContext _searchContext = new();
+        private readonly BsInputFieldContext _filtersContext = new();
+        private string? _searchText;
+        private string? _filtersText;
+
         private FiltersModal _modal = null!;
-        private InputField _searchInputField = null!;
-        private TextArea _filtersTextArea = null!;
+        private BsInputField _searchInputField = null!;
+        private BsKeyboardModal _searchKeyboard = null!;
 
         protected override GameObject Construct() {
             return new Layout {
+                FlexController = {
+                    Gap = 1f
+                },
+
                 Children = {
-                    new FiltersModal()
-                        .WithShadow()
-                        .WithJumpAnimation()
-                        .WithCloseListener(() => _filtersTextArea.Focused = false)
-                        .WithAnchor(this, RelativePlacement.BottomRight)
-                        .Bind(ref _modal),
+                    new FiltersModal {
+                        OnClickOutside = () => _modal.IsPushed = false,
+                        PlacementData = new() { Placement = RelativePlacement.BottomRight, Offset = new(0f, 0.5f) }
+                    }.Bind(ref _modal),
                     //
-                    new InputField {
-                            Placeholder = "Search",
-                            Icon = GameResources.Sprites.SearchIcon,
-                            Keyboard = new KeyboardModal<Keyboard, InputField> {
-                                Offset = new(0f, 32f)
-                            }
+                    new BsInputField {
+                        FlexItem = {
+                            FlexGrow = 1f
+                        },
+
+                        Context = _searchContext,
+                        Placeholder = "Search"
+                    }.Bind(ref _searchInputField),
+
+                    new BsKeyboardModal {
+                        Context = _searchContext,
+                        PlacementData = new() {
+                            Placement = RelativePlacement.BottomCenter,
+                            Offset = new(0f, 32f),
+                            Clip = true
                         }
-                        .AsFlexItem(flexGrow: 1f)
-                        .WithListener(
-                            x => x.Text,
-                            _ => FilterUpdatedEvent?.Invoke()
-                        )
-                        .Bind(ref _searchInputField),
+                    }.Bind(ref _searchKeyboard),
                     //filter panel
-                    new TextArea {
-                            Placeholder = "Filters",
-                            Icon = GameResources.Sprites.FilterIcon
-                        }
-                        .WithListener(
-                            x => x.Focused,
-                            x => {
-                                if (x) _modal.Present(ContentTransform);
-                            }
-                        )
-                        .WithListener(
-                            x => x.Text,
-                            x => {
-                                if (!string.IsNullOrEmpty(x)) return;
-                                _modal.DisableAllFilters();
-                                FilterUpdatedEvent?.Invoke();
-                            }
-                        )
-                        .AsFlexItem(flexGrow: 1f)
-                        .Bind(ref _filtersTextArea)
+                    new BsInputField {
+                        FlexItem = {
+                            FlexGrow = 1f
+                        },
+
+                        Context = _filtersContext,
+                        Placeholder = "Filters",
+                        Icon = GameResources.Sprites.FilterIcon
+                    }
                 }
-            }.AsFlexGroup(gap: 1f).Use();
+            }.Use();
         }
 
         #endregion
 
         #region Callbacks
+
+        private void HandleSearchContextUpdated(BsInputFieldContext context) {
+            if (context.Text == _searchText) return;
+            _searchText = context.Text;
+            FilterUpdatedEvent?.Invoke();
+        }
+
+        private void HandleFiltersContextUpdated(BsInputFieldContext context) {
+            if (context.Focused) {
+                _modal.IsPushed = true;
+                context.Focused = false;
+            }
+
+            if (context.Text != _filtersText) {
+                _filtersText = context.Text;
+                if (string.IsNullOrEmpty(_filtersText)) {
+                    _modal.DisableAllFilters();
+                    FilterUpdatedEvent?.Invoke();
+                }
+            }
+        }
 
         private void HandleFilterAdded(IPanelListFilter<T> filter) {
             _modal.AddFilter(filter);

@@ -23,7 +23,7 @@ namespace BeatLeader.UI {
                         break;
                     case Justify.Center:
                         _railsLayoutModifier.FlexGrow = 0;
-                        _railsLayoutModifier.Size = new() { x = "auto" };
+                        _railsLayoutModifier.Size = new() { x = YogaValue.Auto };
                         break;
                     default:
                         throw new Exception("Only FlexStart and Center are supported");
@@ -89,16 +89,17 @@ namespace BeatLeader.UI {
                 out Image background,
                 params ILayoutItem[] children
             ) {
-                var layout = new Background()
-                    .Export(out background)
-                    .AsBlurBackground(pixelsPerUnit: 12f)
-                    .AsFlexGroup(
-                        padding: new() { left = 1f, right = 1f },
-                        gap: new() { x = 1f }
-                    ).AsFlexItem(
-                        size: "auto",
-                        maxSize: "100%"
-                    );
+                var layout = new Background {
+                    FlexController = {
+                        Padding = new() { left = 1f, right = 1f },
+                        Gap = new() { x = 1f }
+                    },
+
+                    FlexItem = {
+                        Size = YogaVector.Auto,
+                        MaxSize = 100.pct
+                    }
+                }.Export(out background).AsBlurBackground(pixelsPerUnit: 12f);
                 layout.Children.AddRange(children);
                 return layout;
             }
@@ -106,39 +107,61 @@ namespace BeatLeader.UI {
             static ReactiveComponent CreateRail(
                 params ILayoutItem[] children
             ) {
-                var layout = new Layout()
-                    .AsFlexGroup(
-                        justifyContent: Justify.FlexStart,
-                        gap: new() { x = 0.5f }
-                    );
+                var layout = new Layout {
+                    FlexController = {
+                        JustifyContent = Justify.FlexStart,
+                        Gap = new() { x = 0.5f }
+                    }
+                };
                 layout.Children.AddRange(children);
                 return layout;
             }
 
             return new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Row,
+                    Gap = new() { x = 2f },
+                    Padding = 1f
+                },
+
                 Children = {
                     //avatar
-                    new ReeWrapperV2<PlayerAvatar>()
-                        .AsFlexItem(aspectRatio: 1f)
-                        .BindRee(ref _playerAvatar),
+                    new ReeWrapperV2<PlayerAvatar> {
+                        FlexItem = {
+                            AspectRatio = 1f
+                        }
+                    }.BindRee(ref _playerAvatar),
                     //infos
                     new Layout {
+                        FlexController = {
+                            FlexDirection = FlexDirection.Column,
+                            JustifyContent = Justify.Center,
+                            AlignItems = Align.FlexStart,
+                            Gap = new() { y = 1f }
+                        },
+
                         Children = {
                             //player & country
                             CreateRail(
                                 CreateFitter(
                                     out _nameFitterBackground,
                                     //flag
-                                    new ReeWrapperV2<CountryFlag>()
-                                        .AsFlexItem(minSize: new() { x = 4f })
-                                        .BindRee(ref _playerCountryFlag),
+                                    new ReeWrapperV2<CountryFlag> {
+                                        FlexItem = {
+                                            MinSize = new() { x = 4f }
+                                        }
+                                    }.BindRee(ref _playerCountryFlag),
                                     //name text
                                     new Label {
+                                        FlexItem = {
+                                            Size = YogaVector.Auto
+                                        },
+
                                         Overflow = TextOverflowModes.Ellipsis,
                                         FontSize = 3
-                                    }.AsFlexItem(size: "auto").Bind(ref _playerNameLabel)
+                                    }.Bind(ref _playerNameLabel)
                                 )
-                            ).AsFlexItem(size: new() { y = "auto" }),
+                            ).AsFlexItem(size: new() { y = YogaValue.Auto }),
                             //rank & pp
                             CreateRail(
                                 //rank container
@@ -146,32 +169,30 @@ namespace BeatLeader.UI {
                                     out _rankFitterBackground,
                                     //rank text
                                     new Label {
+                                        FlexItem = {
+                                            Size = YogaVector.Auto
+                                        },
+
                                         FontSize = 3
-                                    }.AsFlexItem(size: "auto").Bind(ref _playerGlobalRankLabel)
+                                    }.Bind(ref _playerGlobalRankLabel)
                                 ),
                                 //pp container
                                 CreateFitter(
                                     out _ppFitterBackground,
                                     //pp text
                                     new Label {
+                                        FlexItem = {
+                                            Size = YogaVector.Auto
+                                        },
+
                                         FontSize = 3
-                                    }.AsFlexItem(size: "auto").Bind(ref _playerPpLabel)
+                                    }.Bind(ref _playerPpLabel)
                                 )
-                            ).AsFlexItem(size: new() { y = "auto" })
+                            ).AsFlexItem(size: new() { y = YogaValue.Auto })
                         }
-                    }.AsFlexGroup(
-                        direction: FlexDirection.Column,
-                        justifyContent: Justify.Center,
-                        alignItems: Align.FlexStart,
-                        gap: new() { y = 1f }
-                    ).AsFlexItem(modifier: out _railsLayoutModifier)
+                    }.AsFlexItem(out _railsLayoutModifier)
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Row,
-                gap: new() { x = 2f },
-                padding: 1f,
-                layoutController: out _layoutController
-            ).Use();
+            }.AsFlexGroup(out _layoutController).Use();
         }
 
         protected override void OnInitialize() {

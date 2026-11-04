@@ -39,33 +39,42 @@ namespace BeatLeader.UI.MainMenu {
 
         #region Construct
 
-        private NewsPanel<TrendingMapData, MapPreviewPanel> _newsPanel = null!;
+        private NewsPanel<TrendingMapData> _newsPanel = null!;
 
         protected override GameObject Construct() {
             return new Background {
+                    FlexController = {
+                        Padding = 0.5f,
+                        FlexDirection = FlexDirection.Column
+                    },
+
+                    FlexItem = {
+                        Size = new() { x = 70 },
+                        FlexGrow = 1f
+                    },
+
                     Children = {
                         new NewsHeader {
                             Text = "Trending Maps"
-                        }.AsFlexItem(),
+                        },
 
-                        new NewsPanel<TrendingMapData, MapPreviewPanel> {
+                        new NewsPanel<TrendingMapData> {
+                            FlexItem = {
+                                FlexGrow = 1f
+                            },
+
                             EmptyMessage = "No trending maps",
-                            OnCellConstructed = cell => {
-                                cell.ButtonAction = item => MapDownloadDialog.OpenSongOrDownloadDialog(item.song, ContentTransform);
-                                cell.BackgroundAction = item => MapPreviewDialog.OpenSongOrDownloadDialog(item, ContentTransform);
+                            ConstructCell = ctx => new MapPreviewPanel(ctx) {
+                                ButtonAction = item => MapDownloadDialog.OpenSongOrDownloadDialog(item.song, ContentTransform),
+                                BackgroundAction = item => MapPreviewDialog.OpenSongOrDownloadDialog(item, ContentTransform)
                             }
-                        }.AsFlexItem(flexGrow: 1f).Bind(ref _newsPanel)
+                        }.Bind(ref _newsPanel)
                     }
                 }
-                .AsFlexGroup(
-                    padding: 0.5f,
-                    direction: FlexDirection.Column
-                )
                 .AsBackground(
                     color: Color.black.ColorWithAlpha(0.33f),
                     pixelsPerUnit: 7f
                 )
-                .AsFlexItem(size: new() { x = 70 }, flexGrow: 1f)
                 .Use();
         }
 

@@ -9,35 +9,37 @@ namespace BeatLeader.UI.Hub {
 
         private TagEditorPanel _tagEditorPanel = null!;
 
-        protected override ILayoutItem ConstructContent() {
-            return new TagEditorPanel()
-                .WithListener(
-                    x => x.IsValid,
-                    x => OkButtonInteractable = x
-                )
-                .AsFlexItem(flexGrow: 1f, margin: new() { top = 2f, left = 2f, right = 2f, bottom = 1f})
-                .Bind(ref _tagEditorPanel);
+        protected override IReactiveComponent ConstructDialogContent() {
+            return new TagEditorPanel {
+                FlexItem = {
+                    Size = new() { x = 42.pt, y = 8.pt },
+                    Margin = new() { top = 2f, left = 2f, right = 2f, bottom = 1f }
+                }
+            }.Bind(ref _tagEditorPanel);
         }
 
         protected override void OnInitialize() {
             base.OnInitialize();
-            this.AsFlexItem(size: new() { x = 46.pt() });
             Title = "Create Tag";
-            _tagEditorPanel.ValidationContract = ReplayMetadataManager.ValidateTagName;
+
+            _tagEditorPanel.Validity.AddCallback(this, static (x, y) => x.OkButton.Interactable = y);
+
+            OkButton.OnClick = HandleOkButtonClicked;
+            CancelButton.OnClick = () => IsPushed = false;
+            OnPushed += HandlePushed;
         }
 
         #endregion
 
         #region Callbacks
 
-        protected override void OnOpen(bool finished) {
-            if (finished) return;
+        private void HandlePushed() {
             _tagEditorPanel.Clear();
         }
 
-        protected override void OnOkButtonClicked() {
+        private void HandleOkButtonClicked() {
             ReplayMetadataManager.CreateTag(_tagEditorPanel.TagName, _tagEditorPanel.TagColor);
-            CloseInternal();
+            IsPushed = false;
         }
 
         #endregion

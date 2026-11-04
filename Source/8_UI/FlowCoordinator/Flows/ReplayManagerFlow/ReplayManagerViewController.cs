@@ -40,13 +40,20 @@ namespace BeatLeader.UI.Hub {
 
         private void Awake() {
             new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    JustifyContent = Justify.Center,
+                    Gap = 2f
+                },
+
                 Children = {
                     new ListFiltersPanel<IReplayHeader> {
-                        SearchContract = x => {
-                            var info = x.ReplayInfo;
-                            var str = new[] { info.PlayerName, info.SongName };
-                            return str;
+                        FlexItem = {
+                            Size = new() { x = 100f, y = 8f },
+                            AlignSelf = Align.Center
                         },
+
+                        SearchContract = static x => new[] { x.ReplayInfo.PlayerName, x.ReplayInfo.SongName },
                         Filters = {
                             new TagFilter()
                         }
@@ -57,21 +64,15 @@ namespace BeatLeader.UI.Hub {
                             beatmapFilters.Setup(_replayManagerFlowCoordinator, _levelSelectionFlowCoordinator);
                             CollectionExtensions.AddRange(x.Filters, beatmapFilters.Filters);
                         }
-                    ).AsFlexItem(
-                        size: new() { x = 100f, y = 8f },
-                        alignSelf: Align.Center
                     ).Export(out var filtersPanel),
                     //
-                    new BeatmapReplayLaunchPanel()
-                        .AsFlexItem(basis: 68f)
-                        .Bind(ref _replayPanel)
-                        .With(x => x.ReplaysList.Filter = filtersPanel)
+                    new BeatmapReplayLaunchPanel {
+                        FlexItem = {
+                            FlexBasis = 68f
+                        }
+                    }.Bind(ref _replayPanel).With(x => x.ReplaysList.Filter = filtersPanel)
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Column,
-                justifyContent: Justify.Center,
-                gap: 2f
-            ).WithRectExpand().Use(transform);
+            }.WithRectExpand().Use(transform);
 
             var navigator = new ReplayerViewNavigatorWrapper(_replayerViewNavigator, _replayManagerFlowCoordinator);
 

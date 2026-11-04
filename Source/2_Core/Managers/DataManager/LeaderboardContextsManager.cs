@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using BeatLeader.API;
 using BeatLeader.Models;
 using BeatLeader.Utils;
-using Reactive.Components;
+using Reactive.Components.GIF;
 
 namespace BeatLeader.DataManager {
     public static class LeaderboardContextsManager {
@@ -48,7 +48,7 @@ namespace BeatLeader.DataManager {
             var image = await ImageLoader.LoadImage(url, CancellationToken.None);
 
             if (image != null) {
-                context.Icon = image.Sprite;
+                context.Icon = image.GetFirstFrame();
             } else {
                 Plugin.Log.Error("Failed to load context icon");
             }

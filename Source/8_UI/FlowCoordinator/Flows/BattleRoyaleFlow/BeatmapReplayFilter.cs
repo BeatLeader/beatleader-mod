@@ -1,6 +1,5 @@
 ﻿using System;
 using BeatLeader.Models;
-using Reactive.Components;
 
 namespace BeatLeader.UI.Hub {
     internal class BeatmapReplayFilter : ITableFilter<IReplayHeader> {

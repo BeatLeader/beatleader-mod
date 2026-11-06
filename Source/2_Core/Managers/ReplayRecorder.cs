@@ -81,10 +81,10 @@ namespace BeatLeader {
         private BeatmapObjectSpawnController _beatSpawnController;
 
         [Inject, UsedImplicitly]
-        private StandardLevelScenesTransitionSetupDataSO _transitionSetup;
+        private StandardLevelScenesTransitionSetupData _transitionSetup;
 
         [Inject, UsedImplicitly]
-        private MultiplayerLevelScenesTransitionSetupDataSO _mpTransitionSetup;
+        private MultiplayerLevelScenesTransitionSetupData _mpTransitionSetup;
 
         [Inject, UsedImplicitly]
         private AudioTimeSyncController _timeSyncController;
@@ -465,11 +465,11 @@ namespace BeatLeader {
         [PublicAPI]
         public event Action OnFinalizeReplay;
 
-        private void OnTransitionSetupOnDidFinishEvent(StandardLevelScenesTransitionSetupDataSO data, LevelCompletionResults results) {
+        private void OnTransitionSetupOnDidFinishEvent(StandardLevelScenesTransitionSetupData data, LevelCompletionResults results) {
             FinalizeReplay(results);
         }
 
-        private void OnMultiplayerTransitionSetupOnDidFinishEvent(MultiplayerLevelScenesTransitionSetupDataSO data, MultiplayerResultsData results) {
+        private void OnMultiplayerTransitionSetupOnDidFinishEvent(MultiplayerLevelScenesTransitionSetupData data, MultiplayerResultsData results) {
             var mpResults = results?.localPlayerResultData?.multiplayerLevelCompletionResults;
             if (_replay == null || mpResults == null) return;
             if (mpResults.playerLevelEndState != MultiplayerLevelCompletionResults.MultiplayerPlayerLevelEndState.SongFinished) return;

@@ -1,79 +1,48 @@
-﻿using System;
-using System.Collections;
+using System;
 using System.Reflection;
 using BeatLeader.Utils;
 using SiraUtil.Tools.FPFC;
-using SiraUtil.Zenject;
-using UnityEngine;
-using Zenject;
 
 namespace BeatLeader.Replayer.Tweaking {
     internal class SiraFPFCTweak : GameTweak {
-        [Inject] private readonly IFPFCSettings _fpfcSettings = null!;
-        [Inject] private readonly DiContainer _container = null!;
+        private HarmonySilencer? _toggleSilencer;
+        private HarmonySilencer? _cameraSilencer;
+        private HarmonySilencer? _smoothCameraSilencer;
 
-        private HarmonySilencer _tickSilencer = null!;
-        private HarmonyAutoPatch? _togglePatch;
-
-        private static MethodInfo? _togglePatchMethod;
-        private static MethodInfo? _togglePrefixMethod;
-
-        private static MethodInfo? _settingsControllerTickMethod;
-        private static FieldInfo? _cameraControllerField;
-        private static Type? _cameraListenerType;
-        private static Type? _toggleListenerType;
+        private static MethodInfo? _toggleActionMethod;
+        private static MethodInfo? _cameraUpdateMethod;
+        private static MethodInfo? _smoothCameraUpdateMethod;
         private static bool _isInitialized;
 
         public override void Initialize() {
             InitIfNeeded();
-            var listeners = _container.ResolveAll<IAsyncInitializable>();
-            _container.UnbindInterfacesTo(_cameraListenerType);
-            _container.UnbindInterfacesTo(_toggleListenerType);
-            //if in fpfc disabling fpfc camera controller
-            if (_fpfcSettings.Enabled) {
-                var toggle = FindToggle(listeners);
-                var cameraController = _cameraControllerField!.GetValue(toggle) as MonoBehaviour;
-                //preventing further enabling if not enabled yet
-                if (cameraController == null) {
-                    _togglePatch = new HarmonyPatchDescriptor(_togglePatchMethod!, _togglePrefixMethod);
-                } else {
-                    cameraController.enabled = false;
-                }
-            }
-            _tickSilencer = new(_settingsControllerTickMethod!);
+            //preventing toggling fpfc using the toggle key
+            _toggleSilencer = new(_toggleActionMethod!);
+            //stopping the fpfc camera controller from moving the camera
+            _cameraSilencer = new(_cameraUpdateMethod!);
+            //preventing the smooth camera from being activated by fpfc
+            _smoothCameraSilencer = new(_smoothCameraUpdateMethod!);
         }
 
         public override void Dispose() {
-            _tickSilencer.Dispose();
-            _togglePatch?.Dispose();
+            _toggleSilencer?.Dispose();
+            _cameraSilencer?.Dispose();
+            _smoothCameraSilencer?.Dispose();
         }
 
-        private static bool ToggleEnablePrefix() {
-            return false;
-        }
-
-        private static object FindToggle(IEnumerable listeners) {
-            object? toggle = null;
-            foreach (var listener in listeners) {
-                if (listener.GetType() != _toggleListenerType) continue;
-                toggle = listener;
-            }
-            return toggle ?? throw new InvalidOperationException("The toggle type was not represented in the container");
+        private static MethodInfo GetMethod(Assembly assembly, string typeName, string methodName) {
+            var type = assembly.GetType($"SiraUtil.Tools.FPFC.{typeName}")
+                ?? throw new InvalidOperationException($"{typeName} was not found");
+            return type.GetMethod(methodName, ReflectionUtils.DefaultFlags)
+                ?? throw new InvalidOperationException($"{typeName}.{methodName} was not found");
         }
 
         private static void InitIfNeeded() {
             if (_isInitialized) return;
             var assembly = typeof(IFPFCSettings).Assembly;
-            var controllerType = assembly.GetType("SiraUtil.Tools.FPFC.FPFCSettingsController");
-            //
-            _settingsControllerTickMethod = controllerType.GetMethod("Tick", ReflectionUtils.DefaultFlags);
-            _cameraListenerType = assembly.GetType("SiraUtil.Tools.FPFC.SmoothCameraListener");
-            _toggleListenerType = assembly.GetType("SiraUtil.Tools.FPFC.FPFCToggle");
-            _cameraControllerField = _toggleListenerType.GetField("_simpleCameraController", ReflectionUtils.DefaultFlags);
-            //
-            _togglePrefixMethod = typeof(SiraFPFCTweak).GetMethod(nameof(ToggleEnablePrefix), ReflectionUtils.StaticFlags);
-            _togglePatchMethod = _toggleListenerType.GetMethod("EnableFPFC", ReflectionUtils.DefaultFlags);
-            //
+            _toggleActionMethod = GetMethod(assembly, "FPFCSettingsController", "OnToggleActionPerformed");
+            _cameraUpdateMethod = GetMethod(assembly, "CameraController", "OnBeforeUpdate");
+            _smoothCameraUpdateMethod = GetMethod(assembly, "SmoothCameraListener", "UpdateState");
             _isInitialized = true;
         }
     }

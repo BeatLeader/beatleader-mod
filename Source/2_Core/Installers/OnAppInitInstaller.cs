@@ -25,7 +25,7 @@ namespace BeatLeader.Installers {
             }
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-                OpenXRAcquirer.Init(_vrPlatformHelper.vrPlatformSDK);
+                OpenXRAcquirer.Init(_vrPlatformHelper.IsOpenXR());
             }
 
             Container.BindInterfacesAndSelfTo<LeaderboardManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();

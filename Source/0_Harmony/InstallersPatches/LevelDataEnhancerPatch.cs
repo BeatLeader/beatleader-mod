@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace BeatLeader
 {
-    [HarmonyPatch(typeof(StandardLevelScenesTransitionSetupDataSO), "Init")]
+    [HarmonyPatch(typeof(StandardLevelScenesTransitionSetupData), "Init")]
 
     class LevelDataEnhancerPatch {
         public static void Postfix(
@@ -21,7 +21,7 @@ namespace BeatLeader
         EnvironmentsListModel environmentsListModel) {
             Plugin.Log.Debug($"LevelDataEnhancerPatch.postfix {beatmapKey.levelId} {beatmapLevel.songName}");
 
-            string environmentName = beatmapLevel.GetEnvironmentName(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);
+            string environmentName = beatmapLevel.GetEnvironmentName(beatmapKey.characteristic, beatmapKey.difficulty);
 
             if (overrideEnvironmentSettings?.overrideEnvironments == true) {
                 environmentName = overrideEnvironmentSettings

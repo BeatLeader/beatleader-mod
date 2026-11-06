@@ -270,7 +270,7 @@ namespace BeatLeader.Replayer {
             await StartReplayAsync(replay!, ProfileManager.Profile);
         }
 
-        private void HandleReplayWasFinished(StandardLevelScenesTransitionSetupDataSO transitionData, ReplayLaunchData launchData) {
+        private void HandleReplayWasFinished(StandardLevelScenesTransitionSetupData transitionData, ReplayLaunchData launchData) {
             launchData.ReplayWasFinishedEvent -= HandleReplayWasFinished;
             _scenesManager.PopScenes(0.3f);
 
@@ -353,13 +353,9 @@ namespace BeatLeader.Replayer {
             var beatmapLevel = await GetBeatmapLevelByHashAsync(hash, token);
             if (beatmapLevel == null) return default;
 
-            var characteristic = beatmapLevel.GetCharacteristics()
-                .FirstOrDefault(x => x.serializedName == mode);
-            if (characteristic == null || token.IsCancellationRequested) return default;
-
             var beatmapKey = beatmapLevel.GetBeatmapKeys()
-                .FirstOrDefault(k => k.beatmapCharacteristic == characteristic && k.difficulty == cdifficulty);
-            if (beatmapKey == null || token.IsCancellationRequested) return default;
+                .FirstOrDefault(k => k.characteristic.SerializedName() == mode && k.difficulty == cdifficulty);
+            if (!beatmapKey.IsValid() || token.IsCancellationRequested) return default;
 
             _cachedBeatmap = new(beatmapLevel, beatmapKey);
             _cachedBeatmapHash = hash;

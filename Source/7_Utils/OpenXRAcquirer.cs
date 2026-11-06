@@ -80,15 +80,15 @@ namespace BeatLeader.Utils {
         }
 
         private const string DLLName = "openxr_loader";
-        private const long DLLGetLoaderInstanceFuncPtr = 0x00038610;
+        private const long DLLGetLoaderInstanceFuncPtr = 0x00051480;
 
         public static XrSystemProperties? SystemProperties { get; private set; }
         public static string? SystemName { get; private set; }
 
-        public static void Init(VRPlatformSDK vRPlatformSDK) {
+        public static void Init(bool isOpenXR) {
             try {
                 var res = InitInternal();
-                if (vRPlatformSDK is VRPlatformSDK.OpenXR && SystemName?.ToLower().Contains("pico") != true) {
+                if (isOpenXR && SystemName?.ToLower().Contains("pico") != true) {
                     SteamVRSettings.UpdateAsync();
                 }
                 if (res == XrResult.XR_SUCCESS) {
@@ -139,7 +139,7 @@ namespace BeatLeader.Utils {
                 buffer[i] = Marshal.ReadByte(funcAddress, i);
             }
             string result = Convert.ToBase64String(buffer);
-            if (result != "SIPsKIsNonA=") { return null; }
+            if (result != "SIPsKIsNsrM=") { return null; }
 
             var getLoaderInstanceFunc = Marshal.GetDelegateForFunctionPointer<XrInstanceFuncDelegate>(funcAddress);
             if (getLoaderInstanceFunc == null) throw new InvalidPointerException(funcAddress);

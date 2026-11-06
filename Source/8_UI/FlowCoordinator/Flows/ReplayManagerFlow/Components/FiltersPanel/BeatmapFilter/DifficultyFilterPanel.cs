@@ -36,16 +36,16 @@ namespace BeatLeader.UI.Hub {
         #region Setup
 
         private BeatmapLevel? _beatmapLevel;
-        private BeatmapCharacteristicSO? _characteristic;
+        private BeatmapCharacteristic? _characteristic;
 
         public void SetBeatmapLevel(BeatmapLevel? level) {
             _beatmapLevel = level;
             if (_characteristic != null) {
-                SetCharacteristic(_characteristic);
+                SetCharacteristic(_characteristic.Value);
             }
         }
 
-        public void SetCharacteristic(BeatmapCharacteristicSO characteristic) {
+        public void SetCharacteristic(BeatmapCharacteristic characteristic) {
             _characteristic = characteristic;
             var sets = _beatmapLevel?.GetDifficulties(characteristic).ToArray();
             _difficultyPanel.SetData(sets);

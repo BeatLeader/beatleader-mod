@@ -56,7 +56,7 @@ namespace BeatLeader.Models {
         private BeatmapLevelWithKey? _beatmapLevel;
         private ReplayerSettings? _settings;
 
-        public event Action<StandardLevelScenesTransitionSetupDataSO, ReplayLaunchData>? ReplayWasFinishedEvent;
+        public event Action<StandardLevelScenesTransitionSetupData, ReplayLaunchData>? ReplayWasFinishedEvent;
 
         public void Init(
             IReplay replay,
@@ -82,7 +82,7 @@ namespace BeatLeader.Models {
             Settings = settings;
         }
 
-        public void FinishReplay(StandardLevelScenesTransitionSetupDataSO transitionData) {
+        public void FinishReplay(StandardLevelScenesTransitionSetupData transitionData) {
             ReplayWasFinishedEvent?.Invoke(transitionData, this);
         }
 

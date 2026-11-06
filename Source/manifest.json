@@ -3,9 +3,9 @@
   "id": "BeatLeader",
   "name": "BeatLeader",
   "author": "",
-  "version": "0.10.0",
+  "version": "0.10.101",
   "description": "beatleader.com | In-game leaderboards for custom and OST maps | Score replays | Clans, events, playlists and much more",
-  "gameVersion": "1.42.0",
+  "gameVersion": "1.45.2",
   "dependsOn": {
     "SongCore": "^3.15.2",
     "LeaderboardCore": "^1.7.0",
@@ -15,7 +15,7 @@
     "BS Utils": "^1.12.1",
     "System.IO.Compression": "^4.6.0",
     "System.IO.Compression.FileSystem": "^4.6.0",
-    "Reactive.BeatSaberSDK": "^0.2.0"
+    "Reactive": "^1.0.0"
   },
   "loadAfter": [
     "BetterSongList",

@@ -32,7 +32,7 @@
                 hash = hash.Substring(0, 40);
             }
             var diff = beatmapKey.difficulty.ToString();
-            var mode = beatmapKey.beatmapCharacteristic.serializedName;
+            var mode = beatmapKey.characteristic.SerializedName();
             return new LeaderboardKey(hash, diff, mode);
         }
 

@@ -16,7 +16,7 @@ namespace BeatLeader.Replayer {
         [Inject] private readonly SaberManager _saberManager = null!;
         [Inject] private readonly IGamePause _gamePause = null!;
 
-        [Inject] private readonly IVRPlatformHelper _vrPlatformHelper = null!;
+        [Inject] private readonly IXRSystemState _xrSystemState = null!;
         [Inject] private readonly IMenuButtonTrigger _pauseButtonTrigger = null!;
         [Inject] private readonly ILevelStartController _levelStartController = null!;
 
@@ -35,16 +35,14 @@ namespace BeatLeader.Replayer {
 
         private void Awake() {
             UnsubscribeStandardEvents();
-            _vrPlatformHelper.hmdUnmountedEvent += HandleHMDUnmounted;
-            _vrPlatformHelper.inputFocusWasCapturedEvent += HandleInputFocusWasLost;
+            _xrSystemState.AddListener(HandleSystemStateChange, Array.Empty<XRSystemEventType>());
             _pauseButtonTrigger.menuButtonTriggeredEvent += HandleMenuButtonTriggered;
             pauseControllerDidPause += HandlePausedFromController;
             _pauseMenuManager.didPressContinueButtonEvent += HandleResumeFromPauseManager;
         }
 
         private void OnDestroy() {
-            _vrPlatformHelper.hmdUnmountedEvent -= HandleHMDUnmounted;
-            _vrPlatformHelper.inputFocusWasCapturedEvent -= HandleInputFocusWasLost;
+            _xrSystemState.RemoveListener(HandleSystemStateChange);
             _pauseButtonTrigger.menuButtonTriggeredEvent -= HandleMenuButtonTriggered;
             pauseControllerDidPause -= HandlePausedFromController;
             _pauseMenuManager.didPressContinueButtonEvent -= HandleResumeFromPauseManager;
@@ -53,10 +51,9 @@ namespace BeatLeader.Replayer {
         }
 
         private void UnsubscribeStandardEvents() {
-            _vrPlatformHelper.inputFocusWasCapturedEvent -= _pauseController.HandleFocusWasCaptured;
-            _vrPlatformHelper.hmdUnmountedEvent -= _pauseController.HandleHMDUnmounted;
+            _xrSystemState.RemoveListener(_pauseController.HandleSystemStateChange);
             _pauseMenuManager.didFinishResumeAnimationEvent -= _pauseController.HandlePauseMenuManagerDidFinishResumeAnimation;
-            _pauseMenuManager.didPressContinueButtonEvent -= _pauseController.HandlePauseMenuManagerDidPressContinueButton;
+            _pauseMenuManager.didPressContinueButtonEvent -= _pauseController.Resume;
             _pauseMenuManager.didPressRestartButtonEvent -= _pauseController.HandlePauseMenuManagerDidPressRestartButton;
             _levelStartController.levelDidStartEvent -= _pauseController.HandleLevelDidStart;
         }
@@ -103,11 +100,10 @@ namespace BeatLeader.Replayer {
             else
                 Resume();
         }
-        private void HandleHMDUnmounted() {
-            Pause(true);
-        }
-        private void HandleInputFocusWasLost() {
-            Pause(true);
+        private void HandleSystemStateChange(XRSystemEventType eventType) {
+            if (eventType is XRSystemEventType.HmdUnmounted or XRSystemEventType.InputFocusLost) {
+                Pause(true);
+            }
         }
         private void HandlePausedFromController() {
             Pause();

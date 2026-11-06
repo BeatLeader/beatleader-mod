@@ -54,7 +54,7 @@ namespace BeatLeader.API {
         ) {
             mapHash = beatmapKey.levelId.Replace(CustomLevelLoader.kCustomLevelPrefixId, "");
             mapDiff = beatmapKey.difficulty.ToString();
-            mapMode = beatmapKey.beatmapCharacteristic.serializedName;
+            mapMode = beatmapKey.characteristic.SerializedName();
         }
 
         public static string ToHttpParams(Dictionary<string, object> param) {

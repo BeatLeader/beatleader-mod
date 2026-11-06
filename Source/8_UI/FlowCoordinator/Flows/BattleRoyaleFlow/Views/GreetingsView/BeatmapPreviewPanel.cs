@@ -45,7 +45,8 @@ namespace BeatLeader.UI.Hub {
         public async Task SetBeatmap(BeatmapLevelWithKey beatmap) {
             await SetBeatmapLevel(beatmap.Level);
             _songDifficultyLabel.Text = beatmap.Key.difficulty.ToString();
-            _songDifficultyImage.Sprite = beatmap.Key.beatmapCharacteristic.icon;
+            _songDifficultyImage.Sprite = SongCore.Loader.beatmapCharacteristicCollection
+                .GetBeatmapCharacteristicIcon(beatmap.Key.characteristic);
         }
 
         public async Task SetBeatmapLevel(BeatmapLevel level) {

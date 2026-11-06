@@ -11,15 +11,15 @@ namespace BeatLeader.UI.Hub {
     internal class BeatmapCharacteristicPanel : ReactiveComponent {
         #region Construct
 
-        public event Action<BeatmapCharacteristicSO>? CharacteristicSelectedEvent;
+        public event Action<BeatmapCharacteristic>? CharacteristicSelectedEvent;
 
-        private IconSegmentedControl<BeatmapCharacteristicSO> _segmentedControl = null!;
+        private IconSegmentedControl<BeatmapCharacteristic> _segmentedControl = null!;
         private Label _emptyLabel = null!;
 
         protected override GameObject Construct() {
             return new Background {
                     Children = {
-                        new IconSegmentedControl<BeatmapCharacteristicSO> {
+                        new IconSegmentedControl<BeatmapCharacteristic> {
                             WhenKeySelected = x => CharacteristicSelectedEvent?.Invoke(x),
                             WhenCellSpawned = (_, cell) => {
                                 cell.Colors = BeatSaberStyle.TextColorSet.With(
@@ -52,7 +52,7 @@ namespace BeatLeader.UI.Hub {
 
         #region SetData
 
-        public void SetData(IEnumerable<BeatmapCharacteristicSO>? beatmapCharacteristics) {
+        public void SetData(IEnumerable<BeatmapCharacteristic>? beatmapCharacteristics) {
             var empty = beatmapCharacteristics == null;
             _emptyLabel.Enabled = empty;
             _segmentedControl.Enabled = !empty;
@@ -62,8 +62,9 @@ namespace BeatLeader.UI.Hub {
                 items.Clear();
 
                 // ReSharper disable PossibleMultipleEnumeration
+                var collection = SongCore.Loader.beatmapCharacteristicCollection;
                 foreach (var characteristic in beatmapCharacteristics!) {
-                    items.Add(characteristic, characteristic.icon);
+                    items.Add(characteristic, collection.GetBeatmapCharacteristicIcon(characteristic));
                 }
 
                 _segmentedControl.Select(beatmapCharacteristics.First());

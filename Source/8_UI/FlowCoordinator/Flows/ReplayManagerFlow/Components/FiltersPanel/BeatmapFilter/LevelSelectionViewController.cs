@@ -111,7 +111,7 @@ namespace BeatLeader.UI.Hub {
             _originalBeatmapLevelPack = _levelSelectionNavigationController.selectedBeatmapLevelPack;
             //presenting
             _levelCollectionNavigationController._levelCollectionViewController._levelCollectionTableView.ClearSelection();
-            _levelSelectionNavigationController._notAllowedCharacteristics = Array.Empty<BeatmapCharacteristicSO>();
+            _levelSelectionNavigationController._notAllowedCharacteristics = Array.Empty<BeatmapCharacteristic>();
             _levelSelectionNavigationController._allowedBeatmapDifficultyMask = BeatmapDifficultyMask.All;
 
             _levelFilteringNavigationController.Setup(

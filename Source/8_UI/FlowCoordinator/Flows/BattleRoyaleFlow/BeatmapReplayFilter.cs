@@ -22,7 +22,7 @@ namespace BeatLeader.UI.Hub {
             if (!_beatmap.HasValue) return false;
 
             var level = _beatmap.Level.levelID;
-            var characteristic = _beatmap.Key.beatmapCharacteristic.serializedName;
+            var characteristic = _beatmap.Key.characteristic.SerializedName();
             var diff = _beatmap.Key.difficulty;
 
             var hashMatches = level is null || level.Replace("custom_level_", "") == info.SongHash;

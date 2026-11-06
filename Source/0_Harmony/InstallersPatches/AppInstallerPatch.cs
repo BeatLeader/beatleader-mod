@@ -1,5 +1,5 @@
 ﻿using BeatLeader.Installers;
-using BGLib.AppFlow;
+using BGLib.AppFlow.Initialization;
 using HarmonyLib;
 using JetBrains.Annotations;
 using System;

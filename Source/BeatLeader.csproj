@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <OutputType>Library</OutputType>
     <LocalRefsDir Condition="Exists('..\Refs')">..\Refs</LocalRefsDir>
     <BeatSaberDir>$(LocalRefsDir)</BeatSaberDir>
@@ -30,9 +30,10 @@
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="Reactive.BeatSaber.Components">
-      <HintPath>$(BeatSaberDir)\Plugins\Reactive.BeatSaber.Components.dll</HintPath>
+    <Reference Include="Reactive.BeatSaber">
+      <HintPath>$(BeatSaberDir)\Plugins\Reactive.BeatSaber.dll</HintPath>
       <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="Reactive.Components">
       <HintPath>$(BeatSaberDir)\Libs\Reactive.Components.dll</HintPath>
@@ -50,6 +51,16 @@
     <Reference Include="BeatmapCore">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="BeatSaber.Audio.Common">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.Audio.Common.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="BeatSaber.Common.Pause">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.Common.Pause.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="BeatSaber.Init">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.Init.dll</HintPath>
@@ -147,9 +158,6 @@
     <Reference Include="HMUI" Publicize="True">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMUI.dll</HintPath>
       <Private>False</Private>
-    </Reference>
-    <Reference Include="Interactable">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Interactable.dll</HintPath>
     </Reference>
     <Reference Include="Main" Publicize="true">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Main.dll</HintPath>

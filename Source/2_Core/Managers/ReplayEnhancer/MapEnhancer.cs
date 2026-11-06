@@ -24,7 +24,7 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
             info.mapper = string.Join(",", beatmapLevel.allMappers);
             info.difficulty = beatmapKey.difficulty.ToString();
 
-            info.mode = beatmapKey.beatmapCharacteristic.serializedName;
+            info.mode = beatmapKey.characteristic.SerializedName();
             info.environment = environmentName;
             info.modifiers = string.Join(",", modifiers());
             info.leftHanded = playerSpecificSettings.leftHanded;

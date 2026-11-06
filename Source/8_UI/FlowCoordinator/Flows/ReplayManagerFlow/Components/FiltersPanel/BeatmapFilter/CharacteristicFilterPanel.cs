@@ -15,24 +15,24 @@ namespace BeatLeader.UI.Hub {
         public IEnumerable<IPanelListFilter<IReplayHeader>>? DependsOn { get; }
         public string FilterName => "Characteristic Filter";
         public string FilterStatus { get; private set; } = null!;
-        public BeatmapCharacteristicSO? BeatmapCharacteristic { get; private set; }
+        public BeatmapCharacteristic? Characteristic { get; private set; }
 
         public event Action? FilterUpdatedEvent;
 
         public bool Matches(IReplayHeader value) {
-            var characteristic = BeatmapCharacteristic?.serializedName;
+            var characteristic = Characteristic?.SerializedName();
             return characteristic == null || value.ReplayInfo.SongMode == characteristic;
         }
 
         private void RefreshFilterStatus() {
-            FilterStatus = BeatmapCharacteristic == null ? "No Mode" : BeatmapCharacteristic.serializedName;
+            FilterStatus = Characteristic == null ? "No Mode" : Characteristic.Value.SerializedName();
         }
 
         #endregion
 
         #region Setup
 
-        public event Action<BeatmapCharacteristicSO>? CharacteristicSelectedEvent {
+        public event Action<BeatmapCharacteristic>? CharacteristicSelectedEvent {
             add => _characteristicPanel.CharacteristicSelectedEvent += value;
             remove => _characteristicPanel.CharacteristicSelectedEvent -= value;
         }
@@ -62,8 +62,8 @@ namespace BeatLeader.UI.Hub {
 
         #region Callbacks
 
-        private void HandleBeatmapCharacteristicSelected(BeatmapCharacteristicSO characteristic) {
-            BeatmapCharacteristic = characteristic;
+        private void HandleBeatmapCharacteristicSelected(BeatmapCharacteristic characteristic) {
+            Characteristic = characteristic;
             RefreshFilterStatus();
             FilterUpdatedEvent?.Invoke();
         }

@@ -12,6 +12,7 @@ namespace BeatLeader.Replayer {
         #region Injection
 
         [Inject] private readonly GameScenesManager _gameScenesManager = null!;
+        [Inject] private readonly StandardLevelScenesTransitionSetupData _standardLevelScenesTransitionSetupData = null!;
         [Inject] private readonly PlayerDataModel _playerDataModel = null!;
         [Inject] private readonly EnvironmentsListModel _environmentsListModel = null!;
         [Inject] private readonly BeatmapDataLoader _beatmapDataLoader = null!;
@@ -63,16 +64,9 @@ namespace BeatLeader.Replayer {
         #region CreateTransitionData
 
         private static readonly EnvironmentType normalEnvironmentType = EnvironmentType.Normal;
-        private static StandardLevelScenesTransitionSetupDataSO? _standardLevelScenesTransitionSetupDataSo;
         private static SettingsManager? _settingsManager;
 
         private void Awake() {
-            if (!_standardLevelScenesTransitionSetupDataSo) {
-                _standardLevelScenesTransitionSetupDataSo = Resources
-                    .FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>()
-                    .First();
-            }
-
             if (_settingsManager == null) {
                 _settingsManager = Resources
                     .FindObjectsOfTypeAll<MainSystemInit>()
@@ -80,8 +74,8 @@ namespace BeatLeader.Replayer {
             }
         }
 
-        private StandardLevelScenesTransitionSetupDataSO? CreateTransitionData(ReplayLaunchData launchData) {
-            var transitionData = _standardLevelScenesTransitionSetupDataSo;
+        private StandardLevelScenesTransitionSetupData? CreateTransitionData(ReplayLaunchData launchData) {
+            var transitionData = _standardLevelScenesTransitionSetupData;
             var playerData = _playerDataModel.playerData;
 
             var overrideEnv = launchData.EnvironmentInfo != null;
@@ -141,7 +135,7 @@ namespace BeatLeader.Replayer {
         #region Callbacks
 
         private static void HandleLevelFinish(
-            StandardLevelScenesTransitionSetupDataSO transitionData,
+            StandardLevelScenesTransitionSetupData transitionData,
             LevelCompletionResults completionResults
         ) {
             transitionData.didFinishEvent -= HandleLevelFinish;

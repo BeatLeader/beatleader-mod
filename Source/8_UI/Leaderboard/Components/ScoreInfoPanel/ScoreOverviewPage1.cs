@@ -19,11 +19,12 @@ namespace BeatLeader.Components {
         public void SetScore(Score score) {
             TimeSetText = GetTimeSetString(score);
             ScoreText = GetStringWithLabel(FormatUtils.FormatScore(score.modifiedScore), "<bll>ls-score</bll>");
+            var isLocal = score.id == -1;
             _accText.Text1 = GetStringWithLabel(
-                FormatUtils.FormatAcc(score.accuracy),
+                FormatUtils.FormatAcc(score.accuracy, isLocal),
                 "<bll>ls-accuracy</bll> " + (!score.fullCombo ? $"<size=60%><color={Good}>[?]</color></size>" : ""));
             _accText.Text2 = GetStringWithLabel(
-                FormatUtils.FormatAcc(score.fcAccuracy),
+                FormatUtils.FormatAcc(score.fcAccuracy, isLocal),
                 $"<color={Good}>FC <bll>ls-accuracy</bll></color>");
             _accText.HoverEnabled = !score.fullCombo;
             _ppText.Text1 = GetStringWithLabel(

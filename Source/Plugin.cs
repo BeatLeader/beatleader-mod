@@ -1,4 +1,5 @@
 ﻿using BeatLeader.DataManager;
+using BeatLeader.EyeTracking;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Util;
 using Hive.Versioning;
@@ -49,6 +50,7 @@ namespace BeatLeader {
             OnEnabledChanged(PluginConfig.Enabled);
             MainMenuAwaiter.MainMenuInitializing += MainMenuInit;
             InteropLoader.Init();
+            EyeTrackingManager.Initialize();
 
             UserAgent = $"PC mod {Plugin.Version} / {Application.version}";
         }
@@ -76,6 +78,7 @@ namespace BeatLeader {
         [OnExit]
         [UsedImplicitly]
         public void OnApplicationQuit() {
+            EyeTrackingManager.Dispose();
             LeaderboardsCache.Save();
             ReplayManager.SaveCache();
             ConfigFileData.Instance.LastSessionModVersion = Version.ToString();

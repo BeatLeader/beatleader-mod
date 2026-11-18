@@ -12,7 +12,7 @@ namespace BeatLeader.UI.Replayer {
 
         private BodySettings? _bodySettings;
 
-        public void Setup(BodySettings bodySettings, bool battleRoyaleEnabled) {
+        public void Setup(BodySettings bodySettings, bool battleRoyaleEnabled, bool hasEyeTracking) {
             if (_bodySettings != null) {
                 return;
             }
@@ -20,7 +20,17 @@ namespace BeatLeader.UI.Replayer {
             _bodySettings = bodySettings;
 
             var basicSettings = bodySettings.RequireConfig<BasicBodySettings>();
-            _basicView = CreateBasicView(basicSettings, null);
+            var eyeTrackingContainer = hasEyeTracking ?
+                CreateContainer(
+                    CreateToggle(
+                        basicSettings,
+                        "Eye Tracking",
+                        basicSettings.EyeTrackingEnabled,
+                        x => basicSettings.EyeTrackingEnabled = x
+                    )
+                ) :
+                null;
+            _basicView = CreateBasicView(basicSettings, eyeTrackingContainer);
 
             _keyedContainer.Items[0] = _basicView;
 

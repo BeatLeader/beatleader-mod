@@ -10,5 +10,7 @@ namespace BeatLeader.Models {
 
         public bool LeftSaberEnabled { get; set; }
         public bool RightSaberEnabled { get; set; }
+
+        public bool EyeTrackingEnabled { get; set; } = true;
     }
 }

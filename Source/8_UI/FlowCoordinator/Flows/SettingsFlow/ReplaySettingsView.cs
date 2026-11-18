@@ -1,4 +1,5 @@
 ﻿using BeatLeader.Components;
+using BeatLeader.EyeTracking;
 using BeatLeader.Models;
 using BeatLeader.UI.Reactive.Components;
 using BeatLeader.Utils;
@@ -140,17 +141,35 @@ namespace BeatLeader.UI.Hub {
 
         private ReplaySaveOption _initialReplaySavingOptions;
         private bool _initialOverrideOldReplays;
+        private bool _initialRecordEyeTracking;
 
         public void CancelSelection() {
             ConfigFileData.Instance.ReplaySavingOptions = _initialReplaySavingOptions;
             ConfigFileData.Instance.OverrideOldReplays = _initialOverrideOldReplays;
+            ConfigFileData.Instance.RecordEyeTracking = _initialRecordEyeTracking;
 
             _saveOnFailToggle.SetActive(GetReplaySaveFlag(ReplaySaveOption.Fail), false);
             _saveOnExitToggle.SetActive(GetReplaySaveFlag(ReplaySaveOption.Exit), false);
             _saveOnPracticeToggle.SetActive(GetReplaySaveFlag(ReplaySaveOption.Practice), false);
             _keepLatestToggle.SetActive(ConfigFileData.Instance.OverrideOldReplays, false);
-
+            _eyeTrackingToggle.SetActive(ConfigFileData.Instance.RecordEyeTracking, false);
         }
+
+        #region EyeTracking
+
+        private float _nextEyeTrackingStatusRefresh;
+
+        protected override void OnUpdate() {
+            if (!_eyeTrackingStatusLabel.Enabled || Time.unscaledTime < _nextEyeTrackingStatusRefresh) return;
+            _nextEyeTrackingStatusRefresh = Time.unscaledTime + 0.5f;
+
+            var text = EyeTrackingManager.GetStatusText();
+            if (_eyeTrackingStatusLabel.Text != text) {
+                _eyeTrackingStatusLabel.Text = text;
+            }
+        }
+
+        #endregion
 
         #region Construct
 
@@ -159,6 +178,9 @@ namespace BeatLeader.UI.Hub {
         private Toggle _saveOnExitToggle = null!;
         private Toggle _saveOnPracticeToggle = null!;
         private Toggle _keepLatestToggle = null!;
+        private Toggle _eyeTrackingToggle = null!;
+        private NamedRail _eyeTrackingRail = null!;
+        private Label _eyeTrackingStatusLabel = null!;
 
         protected override GameObject Construct() {
             new DeletionModal()
@@ -208,6 +230,26 @@ namespace BeatLeader.UI.Hub {
                         .Bind(ref _keepLatestToggle)
                         .InNamedRail("Keep Latest Only"),
 
+                    //eye tracking toggle
+                    new Toggle()
+                        .With(x => x.SetActive(ConfigFileData.Instance.RecordEyeTracking, false))
+                        .WithListener(
+                            x => x.Active,
+                            x => ConfigFileData.Instance.RecordEyeTracking = x
+                        )
+                        .Bind(ref _eyeTrackingToggle)
+                        .InNamedRail("Record Eye Tracking")
+                        .Bind(ref _eyeTrackingRail),
+
+                    //eye tracking status
+                    new Label {
+                            FontSize = 3f,
+                            Color = UIStyle.SecondaryTextColor,
+                            EnableWrapping = true
+                        }
+                        .AsFlexItem(size: new() { y = "auto" })
+                        .Bind(ref _eyeTrackingStatusLabel),
+
                     //delete all button
                     new BsPrimaryButton {
                             Text = "Delete All Replays",
@@ -230,6 +272,11 @@ namespace BeatLeader.UI.Hub {
         protected override void OnInitialize() {
             _initialReplaySavingOptions = ConfigFileData.Instance.ReplaySavingOptions;
             _initialOverrideOldReplays = ConfigFileData.Instance.OverrideOldReplays;
+            _initialRecordEyeTracking = ConfigFileData.Instance.RecordEyeTracking;
+
+            var showEyeTracking = EyeTrackingManager.IsSupported || ConfigFileData.Instance.RecordEyeTracking;
+            _eyeTrackingRail.Enabled = showEyeTracking;
+            _eyeTrackingStatusLabel.Enabled = showEyeTracking;
         }
 
         #endregion

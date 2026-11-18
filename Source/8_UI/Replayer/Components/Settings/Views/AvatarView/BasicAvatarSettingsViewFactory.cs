@@ -1,4 +1,6 @@
-﻿using BeatLeader.Models;
+﻿using System.Linq;
+using BeatLeader.Models;
+using BeatLeader.Replayer.Emulation;
 using Reactive;
 using Zenject;
 
@@ -11,7 +13,8 @@ namespace BeatLeader.UI.Replayer {
 
             view.Setup(
                 _launchData.Settings.BodySettings,
-                _launchData.IsBattleRoyale
+                _launchData.IsBattleRoyale,
+                _launchData.Replays.Any(EyeTrackingPlayer.HasData)
             );
 
             return view;

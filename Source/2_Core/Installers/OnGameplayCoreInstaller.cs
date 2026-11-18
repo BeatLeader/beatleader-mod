@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using BeatLeader.Replayer;
 using BeatLeader.Core.Managers.ReplayEnhancer;
+using BeatLeader.EyeTracking;
 using BeatLeader.Utils;
 using HarmonyLib;
 using SiraUtil.Submissions;
@@ -56,6 +58,10 @@ namespace BeatLeader.Installers {
 
                 Container.BindInterfacesAndSelfTo<ReplayRecorder>().AsSingle();
                 Container.BindInterfacesAndSelfTo<TrackingDeviceEnhancer>().AsTransient();
+
+                if (EyeTrackingManager.ShouldRecord) {
+                    Container.BindInterfacesTo<EyeTrackingRecorder>().AsSingle();
+                }
             } else {
                 //Plugin.Log.Info("Unknown flow detected, recording would not be started.");
             }
@@ -93,6 +99,9 @@ namespace BeatLeader.Installers {
             //Players
             Container.BindMemoryPool<VirtualPlayer, VirtualPlayer.Pool>().WithInitialSize(replaysCount);
             Container.BindInterfacesTo<VirtualPlayersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            if (launchData.Replays.Any(EyeTrackingPlayer.HasData)) {
+                Container.Bind<EyeTrackingPlayer>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            }
 
             //Event Processing
             Container.BindMemoryPool<ReplayBeatmapEventsProcessor, ReplayBeatmapEventsProcessor.Pool>().WithInitialSize(replaysCount);

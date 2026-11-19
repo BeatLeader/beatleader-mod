@@ -27,8 +27,17 @@ namespace BeatLeader.UI.Hub {
 
         protected override GameObject Construct() {
             return new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    Gap = 0.5f
+                },
+
                 Children = {
                     new Background {
+                        FlexItem = {
+                            FlexGrow = 1f
+                        },
+
                         Children = {
                             new ReeWrapperV2<ScoreStatsLoadingScreen>()
                                 .WithRectExpand()
@@ -58,23 +67,26 @@ namespace BeatLeader.UI.Hub {
                                 .WithRectExpand()
                                 .BindRee(ref _replaySettingsPanel)
                         }
-                    }.AsBlurBackground().AsFlexItem(flexGrow: 1f),
+                    }.AsBlurBackground(),
 
-                    new ReeWrapperV2<ScoreInfoPanelControls>()
+                    new ReeWrapperV2<ScoreInfoPanelControls> {
+                            FlexItem = {
+                                FlexGrow = 1f
+                            }
+                        }
                         .With(x => {
                                 var ree = x.ReeComponent;
                                 ree.followLeaderboardEvents = false;
                                 ree.TabChangedEvent += SwitchTab;
                             }
                         )
-                        .AsFlexItem(flexGrow: 1f)
                         .BindRee(ref _panelControls)
                         .InBlurBackground()
                         .AsFlexGroup(padding: 1f)
                         .AsFlexItem(size: new() { y = 6 })
                         .Bind(ref _panelControlsContainer)
                 }
-            }.AsFlexGroup(direction: FlexDirection.Column, gap: 0.5f).Use();
+            }.Use();
         }
 
         #endregion

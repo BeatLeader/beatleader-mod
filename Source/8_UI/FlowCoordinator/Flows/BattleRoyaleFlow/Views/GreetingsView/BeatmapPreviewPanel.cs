@@ -100,6 +100,10 @@ namespace BeatLeader.UI.Hub {
                 ref Label variable
             ) {
                 return new Label {
+                    FlexItem = {
+                        FlexGrow = size
+                    },
+
                     Overflow = overflow,
                     Alignment = alignment,
                     FontStyle = FontStyles.Italic,
@@ -107,23 +111,56 @@ namespace BeatLeader.UI.Hub {
                     FontSizeMax = maxFontSize,
                     EnableAutoSizing = true,
                     Color = color
-                }.AsFlexItem(flexGrow: size).Bind(ref variable);
+                }.Bind(ref variable);
             }
 
             var primaryColor = Color.white;
             var secondaryColor = Color.white.ColorWithAlpha(0.75f);
 
             return new Layout {
+                FlexController = {
+                    Gap = 0.8f
+                },
+
+                FlexItem = {
+                    Size = new() { x = 50f, y = 10f }
+                },
+
                 Children = {
                     new Image {
+                        FlexItem = {
+                            AspectRatio = 1f
+                        },
+
                         Sprite = BundleLoader.UnknownIcon,
                         Material = GameResources.UINoGlowRoundEdgeMaterial
-                    }.AsFlexItem(aspectRatio: 1f).Bind(ref _songImage),
+                    }.Bind(ref _songImage),
                     //
                     new Layout {
+                        FlexController = {
+                            FlexDirection = FlexDirection.Column,
+                            JustifyContent = Justify.Center
+                        },
+
+                        FlexItem = {
+                            FlexGrow = 1f,
+                            MinSize = new() { y = 8f },
+                            MaxSize = new() { y = 100.pct },
+                            Size = new() { y = 12f },
+                            Margin = new() { right = 2f },
+                            AlignSelf = Align.Center
+                        },
+
                         Children = {
                             //top rail
                             new Layout {
+                                FlexItem = {
+                                    Position = new() { top = 0f },
+                                    PositionType = PositionType.Absolute,
+                                    Size = new() { x = 100.pct, y = 70.pct },
+                                    Margin = new() { left = 0.7f, right = 1.5f }
+                                },
+
                                 Children = {
                                     //song name
                                     Label(
@@ -146,13 +183,16 @@ namespace BeatLeader.UI.Hub {
                                         ref _songTimeLabel
                                     )
                                 }
-                            }.AsFlexGroup().AsFlexItem(
-                                position: new() { top = 0f },
-                                size: new() { x = 100.pct(), y = 70.pct() },
-                                margin: new() { left = 0.7f, right = 1.5f }
-                            ),
+                            }.AsFlexGroup(),
                             //bottom rail
                             new Layout {
+                                FlexItem = {
+                                    Position = new() { bottom = 0f },
+                                    PositionType = PositionType.Absolute,
+                                    Size = new() { x = 100.pct, y = 50.pct },
+                                    Margin = new() { right = 2.5f }
+                                },
+
                                 Children = {
                                     //song author
                                     Label(
@@ -175,51 +215,49 @@ namespace BeatLeader.UI.Hub {
                                         ref _songBpmLabel
                                     )
                                 }
-                            }.AsFlexGroup().AsFlexItem(
-                                position: new() { bottom = 0f },
-                                size: new() { x = 100.pct(), y = 50.pct() },
-                                margin: new() { right = 2.5f }
-                            ),
+                            }.AsFlexGroup(),
                             //difficulty
                             new Layout {
+                                FlexController = {
+                                    AlignItems = Align.Center,
+                                    Gap = 1f
+                                },
+
+                                FlexItem = {
+                                    Size = new() { y = 100.pct },
+                                    Position = new() { right = 0f },
+                                    PositionType = PositionType.Absolute
+                                },
+
                                 Children = {
                                     new Label {
+                                        FlexItem = {
+                                            Size = YogaVector.Auto
+                                        },
+
                                         FontSize = 4f,
                                         Color = secondaryColor
-                                    }.AsFlexItem(size: "auto").Bind(ref _songDifficultyLabel),
+                                    }.Bind(ref _songDifficultyLabel),
                                     //
                                     new Image {
+                                        FlexItem = {
+                                            Size = 4f
+                                        },
+
                                         Sprite = BundleLoader.Sprites.transparentPixel,
                                         Color = secondaryColor,
                                         PreserveAspect = true
-                                    }.AsFlexItem(size: 4f).Bind(ref _songDifficultyImage)
+                                    }.Bind(ref _songDifficultyImage)
                                 }
-                            }.AsFlexGroup(
-                                alignItems: Align.Center,
-                                gap: 1f
-                            ).AsFlexItem(
-                                size: new() { y = "100%" },
-                                position: new() { right = 0f }
-                            ).Bind(ref _songDifficultyContainer)
+                            }.Bind(ref _songDifficultyContainer)
                             //
                         }
-                    }.AsFlexGroup(
-                        direction: FlexDirection.Column,
-                        justifyContent: Justify.Center
-                    ).AsFlexItem(
-                        flexGrow: 1f,
-                        minSize: new() { y = 8f },
-                        maxSize: new() { y = "100%" },
-                        size: new() { y = 12f },
-                        margin: new() { right = 2f },
-                        alignSelf: Align.Center
-                    )
+                    }
                 }
-            }.AsFlexGroup(gap: 0.8f).Bind(ref _background).Use();
+            }.Bind(ref _background).Use();
         }
 
         protected override void OnInitialize() {
-            this.AsFlexItem(size: new() { x = 50f, y = 10f });
             ShowDifficultyInsteadOfTime = false;
         }
 

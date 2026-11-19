@@ -30,8 +30,8 @@
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="Reactive.BeatSaber.Components">
-      <HintPath>$(BeatSaberDir)\Plugins\Reactive.BeatSaber.Components.dll</HintPath>
+    <Reference Include="Reactive.BeatSaber">
+      <HintPath>$(BeatSaberDir)\Plugins\Reactive.BeatSaber.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Reactive.Components">
@@ -372,5 +372,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Reactive.Compiler" Version="1.0.0" PrivateAssets="all" />
   </ItemGroup>
 </Project>

@@ -1,14 +1,18 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using BeatLeader.Models;
 using Reactive;
+using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
+using Reactive.Components.Basic;
 using Reactive.Yoga;
 using TMPro;
 using UnityEngine;
 using static BeatLeader.Models.LevelEndType;
+using Background = Reactive.BeatSaber.Components.Background;
+using Label = Reactive.BeatSaber.Components.Label;
 
 namespace BeatLeader.UI.Hub {
     internal enum ReplaysListSorter {
@@ -18,97 +22,77 @@ namespace BeatLeader.UI.Hub {
         Date
     }
 
-    internal interface IReplaysList : IModifiableTableComponent<IReplayHeader> {
+    internal interface IReplaysList {
         ReplaysListSorter Sorter { get; set; }
         SortOrder SortOrder { get; set; }
     }
 
-    internal class ReplaysList : Table<IReplayHeader, ReplaysList.Cell>, IReplaysList {
+    internal class ReplaysList : ReactiveComponent, IReplaysList {
         #region Cell
 
-        public class Cell : TableCell<IReplayHeader> {
+        private class Cell : ReactiveComponent {
             #region Colors
 
-            private static readonly StateColorSet colorSet = new() {
-                States = {
-                    GraphicState.None.WithColor(Color.clear),
-                    GraphicState.Active.WithColor(new(0f, 0.75f, 1f)),
-                    GraphicState.Hovered.WithColor(Color.white.ColorWithAlpha(0.2f)),
-                    GraphicState.Hovered.And(GraphicState.Active).WithColor(new(0f, 0.75f, 1f, 0.75f))
-                }
+            private static readonly ColorSet colorSet = new() {
+                Color = Color.clear,
+                ActiveColor = new(0f, 0.75f, 1f),
+                HoveredColor = Color.white.ColorWithAlpha(0.2f),
+                HoveredActiveColor = new(0f, 0.75f, 1f, 0.75f)
             };
 
-            private static readonly StateColorSet highlightedColorSet = new() {
-                States = {
-                    GraphicState.None.WithColor(new(0f, 0.75f, 1f, 0.5f)),
-                    GraphicState.Active.WithColor(new(0f, 0.75f, 1f)),
-                    GraphicState.Hovered.WithColor(new(0f, 0.75f, 1f, 0.35f)),
-                    GraphicState.Hovered.And(GraphicState.Active).WithColor(new(0f, 0.75f, 1f, 0.75f))
-                }
+            private static readonly ColorSet highlightedColorSet = new() {
+                Color = new(0f, 0.75f, 1f, 0.5f),
+                ActiveColor = new(0f, 0.75f, 1f),
+                HoveredColor = new(0f, 0.75f, 1f, 0.35f),
+                HoveredActiveColor = new(0f, 0.75f, 1f, 0.75f)
             };
 
-            public bool Highlighted {
-                get => _highlighted;
-                set {
-                    _highlighted = value;
-                    _button.GradientColors1 = value ? highlightedColorSet : colorSet;
-                }
-            }
-
-            private bool _highlighted;
+            private State<GraphicState> _graphicState = null!;
+            private State<bool> _highlighted = null!;
 
             #endregion
 
             #region Setup
 
-            private ReplayManagerSearchTheme? _theme;
-            private ReplaysList? _replaysList;
+            private readonly CellContext<IReplayHeader> _context;
+            private readonly ReplaysList _replaysList;
+            private IReplayHeader? _item;
 
-            public void Setup(ReplaysList replaysList, ReplayManagerSearchTheme? theme) {
-                if (_theme != null) {
-                    _theme.SearchThemeUpdatedEvent -= HandleThemeUpdated;
-                }
+            public Cell(CellContext<IReplayHeader> context, ReplaysList replaysList) {
+                _context = context;
                 _replaysList = replaysList;
-                _theme = theme;
-                if (_theme != null) {
-                    _theme.SearchThemeUpdatedEvent += HandleThemeUpdated;
-                }
+
+                context.AddCallback(this, static (x, y) => x.HandleContextUpdated(y));
+                replaysList._highlightedItems.AddCallback(this, static (x, _) => x.RefreshHighlight(), lazy: true);
+                replaysList._filteredItems.AddCallback(this, static (x, _) => x.RefreshTexts(), lazy: true);
+                replaysList._theme.AddCallback(this, static (x, _) => x.RefreshTexts(), lazy: true);
             }
 
             protected override void OnDestroy() {
-                if (_theme != null) {
-                    _theme.SearchThemeUpdatedEvent += HandleThemeUpdated;
-                }
+                SetItem(null);
             }
 
             #endregion
 
             #region Texts
 
-            public string? HighlightPhrase {
-                set {
-                    _highlightPhrase = value;
-                    RefreshTexts();
-                }
-            }
-
-            private string? _highlightPhrase;
-
-            private string FormatByPhrase(string text) {
-                if (_highlightPhrase == null) return text;
-                var color = _theme?.SearchHighlightColor ?? Color.magenta;
-                var phrase = _highlightPhrase;
-                var bold = _theme?.SearchHighlightStyle.HasFlag(FontStyle.Bold) ?? false;
+            private string FormatByPhrase(string text, string? phrase) {
+                if (phrase == null) return text;
+                var theme = _replaysList._theme.Value;
+                var color = theme?.SearchHighlightColor ?? Color.magenta;
+                var bold = theme?.SearchHighlightStyle.HasFlag(FontStyle.Bold) ?? false;
                 return FormatUtils.MarkPhrase(text, phrase, color, bold);
             }
 
             private void RefreshTexts() {
-                var info = Item.ReplayInfo;
+                if (_item == null) return;
+                var info = _item.ReplayInfo;
+                var phrase = _replaysList.GetMatchedPhrase(_item);
                 _topRightLabel.Text = FormatLevelEndType(info.LevelEndType, info.FailTime);
-                _topLeftLabel.Text = FormatByPhrase(info.SongName);
+                _topLeftLabel.Text = FormatByPhrase(info.SongName, phrase);
                 _bottomRightLabel.Text = FormatUtils.GetDateTimeString(info.Timestamp);
-                _bottomLeftLabel.Text = $"[<color=#89ff89>{FormatByPhrase(info.SongDifficulty)}</color>] ";
-                _bottomLeftLabel.Text += FormatByPhrase(info.PlayerName);
+                _bottomLeftLabel.Text = $"[<color=#89ff89>{FormatByPhrase(info.SongDifficulty, phrase)}</color>] ";
+                _bottomLeftLabel.Text += FormatByPhrase(info.PlayerName, phrase);
             }
 
             private static string FormatLevelEndType(LevelEndType levelEndType, float failTime) {
@@ -124,80 +108,71 @@ namespace BeatLeader.UI.Hub {
 
             #endregion
 
-            #region Init
+            #region Item
 
-            private IReplayHeader? _prevItem;
-
-            protected override void OnInit(IReplayHeader item) {
-                RefreshTexts();
-                RefreshTags();
-
-                if (_prevItem != null) {
-                    _prevItem.ReplayMetadata.TagAddedEvent -= HandleTagAddedOrRemoved;
-                    _prevItem.ReplayMetadata.TagRemovedEvent -= HandleTagAddedOrRemoved;
+            private void SetItem(IReplayHeader? item) {
+                if (_item != null) {
+                    _item.ReplayMetadata.TagAddedEvent -= HandleTagAddedOrRemoved;
+                    _item.ReplayMetadata.TagRemovedEvent -= HandleTagAddedOrRemoved;
                 }
-                item.ReplayMetadata.TagAddedEvent += HandleTagAddedOrRemoved;
-                item.ReplayMetadata.TagRemovedEvent += HandleTagAddedOrRemoved;
+                _item = item;
+                if (_item != null) {
+                    _item.ReplayMetadata.TagAddedEvent += HandleTagAddedOrRemoved;
+                    _item.ReplayMetadata.TagRemovedEvent += HandleTagAddedOrRemoved;
+                }
+            }
 
-                _prevItem = item;
+            private void RefreshHighlight() {
+                _highlighted.Value = _item != null && _replaysList._highlightedItems.Value.Contains(_item);
             }
 
             #endregion
 
             #region Tags
 
+            private const int MaxTags = 3;
+
             private readonly List<TagPanel> _spawnedTags = new();
-            private int _maxTags = 3;
 
             private void RefreshTags() {
-                if (_replaysList == null) {
-                    return;
-                }
-
-                var tags = Item.ReplayMetadata.Tags;
-                RefreshTagPanels(tags);
+                var tags = _item!.ReplayMetadata.Tags;
+                RefreshTagPanels(Math.Min(tags.Count, MaxTags));
 
                 var index = 0;
                 foreach (var tag in tags) {
-                    if (index == _maxTags) {
+                    if (index == MaxTags) {
                         break;
                     }
 
                     var panel = _spawnedTags[index];
                     panel.Interactable = false;
                     panel.AnimateMovement = false;
-                    panel.SetTag(tag);
+                    panel.Animated = false;
+                    panel.Tag = tag;
+                    panel.IsPresent = true;
 
                     panel.FixedHeight = 4f;
-                    panel.LayoutDriver = _tagsContainer;
+                    if (panel.LayoutDriver != _tagsContainer) {
+                        panel.LayoutDriver?.Children.Remove(panel);
+                        _tagsContainer.Children.Add(panel);
+                    }
                     panel.RefreshContainerSize(true);
 
                     index++;
                 }
             }
 
-            private void RefreshTagPanels(ICollection<ReplayTag> tags) {
-                var delta = tags.Count - _spawnedTags.Count;
-                switch (delta) {
-                    case < 0: {
-                        for (var i = -delta - 1; i >= 0; i--) {
-                            var tag = _spawnedTags[i];
-                            _replaysList!._tagsPool.Despawn(tag);
-                            _spawnedTags.RemoveAt(i);
-                        }
-                        break;
-                    }
-                    case > 0: {
-                        for (var i = 0; i < delta; i++) {
-                            if (_spawnedTags.Count == _maxTags) {
-                                break;
-                            }
+            private void RefreshTagPanels(int count) {
+                var pool = _replaysList._tagsPool;
 
-                            var tag = _replaysList!._tagsPool.Spawn();
-                            _spawnedTags.Add(tag);
-                        }
-                        break;
-                    }
+                while (_spawnedTags.Count > count) {
+                    var last = _spawnedTags.Count - 1;
+                    pool.Despawn(_spawnedTags[last]);
+                    _spawnedTags.RemoveAt(last);
+                }
+
+                while (_spawnedTags.Count < count) {
+                    _spawnedTags.Add(pool.Spawn());
                 }
             }
 
@@ -212,7 +187,6 @@ namespace BeatLeader.UI.Hub {
             private Label _bottomLeftLabel = null!;
             private Label _topRightLabel = null!;
             private Label _bottomRightLabel = null!;
-            private ImageButton _button = null!;
             private Layout _tagsContainer = null!;
 
             protected override GameObject Construct() {
@@ -226,111 +200,151 @@ namespace BeatLeader.UI.Hub {
                     ref Label variable
                 ) {
                     return new Label {
+                        FlexItem = {
+                            Size = new() { y = 100.pct, x = size.pct },
+                            Position = frame,
+                            PositionType = PositionType.Absolute
+                        },
+
                         Overflow = overflow,
                         Alignment = alignment,
                         FontStyle = FontStyles.Italic,
                         FontSize = fontSize,
                         Color = color
-                    }.AsFlexItem(
-                        size: new() { y = "100%", x = $"{size}%" },
-                        position: frame
-                    ).Bind(ref variable);
+                    }.Bind(ref variable);
                 }
 
+                _graphicState = Remember(GraphicState.None);
+                _highlighted = Remember(false);
+
+                var gradientColor = RememberDerived(
+                    _highlighted, _graphicState,
+                    (highlighted, graphicState) => (highlighted ? highlightedColorSet : colorSet).GetColor(graphicState)
+                );
+
                 return new Layout {
+                    FlexItem = {
+                        Size = new() { y = CellHeight }
+                    },
+
                     Children = {
-                        new BackgroundButton {
-                            Image = {
+                        new Background {
+                                FlexItem = {
+                                    FlexGrow = 1f,
+                                    Margin = new() { right = 1f }
+                                },
+
                                 Sprite = BundleLoader.Sprites.background,
                                 PixelsPerUnit = 10f,
                                 Material = GameResources.UINoGlowAdditiveMaterial,
-                                Skew = UIStyle.Skew,
-                                Color = Color.white
-                            },
-                            GradientColors1 = colorSet,
-                            Latching = true,
-                            OnStateChanged = _ => SelectSelf(true),
-                            Children = {
-                                //top left
-                                new Layout {
-                                    Children = {
-                                        new Label {
-                                            Overflow = TextOverflowModes.Ellipsis,
-                                            Alignment = TextAlignmentOptions.TopLeft,
-                                            FontStyle = FontStyles.Italic,
-                                            FontSize = 4f,
-                                            Color = textColor
-                                        }.AsFlexItem(size: new() { x = "auto" }).Bind(ref _topLeftLabel),
+                                Skew = BeatSaberStyle.Skew,
+                                Color = Color.white,
+                                UseGradient = true,
+                                sGradientColor1 = gradientColor,
+                                Children = {
+                                    //top left
+                                    new Layout {
+                                        FlexController = {
+                                            AlignItems = Align.Stretch
+                                        },
 
-                                        new Layout()
-                                            .AsFlexGroup(
-                                                justifyContent: Justify.FlexStart,
-                                                padding: new() { top = 0.7f, left = 0.7f },
-                                                gap: new() { x = 0.5f }
-                                            )
-                                            .AsFlexItem(flexGrow: 1f)
-                                            .Bind(ref _tagsContainer)
-                                    }
-                                }.AsFlexGroup(alignItems: Align.Stretch).AsFlexItem(
-                                    size: new() { y = "100%", x = "70%" },
-                                    position: new() { top = 0, left = 0.6f }
-                                ),
+                                        FlexItem = {
+                                            Size = new() { y = 100.pct, x = 70.pct },
+                                            Position = new() { top = 0, left = 0.6f },
+                                            PositionType = PositionType.Absolute
+                                        },
 
-                                //bottom left
-                                CellLabel(
-                                    TextOverflowModes.Ellipsis,
-                                    TextAlignmentOptions.BottomLeft,
-                                    3,
-                                    70,
-                                    new() { bottom = 0, left = 0 },
-                                    secondaryTextColor,
-                                    ref _bottomLeftLabel
-                                ),
-                                //top right
-                                CellLabel(
-                                    TextOverflowModes.Overflow,
-                                    TextAlignmentOptions.TopRight,
-                                    3,
-                                    40,
-                                    new() { top = 0, right = 1.5f },
-                                    textColor,
-                                    ref _topRightLabel
-                                ),
-                                //bottom right
-                                CellLabel(
-                                    TextOverflowModes.Overflow,
-                                    TextAlignmentOptions.BottomRight,
-                                    3,
-                                    30,
-                                    new() { bottom = 0, right = 2 },
-                                    secondaryTextColor,
-                                    ref _bottomRightLabel
-                                )
+                                        Children = {
+                                            new Label {
+                                                FlexItem = {
+                                                    Size = new() { x = YogaValue.Auto }
+                                                },
+
+                                                Overflow = TextOverflowModes.Ellipsis,
+                                                Alignment = TextAlignmentOptions.TopLeft,
+                                                FontStyle = FontStyles.Italic,
+                                                FontSize = 4f,
+                                                Color = textColor
+                                            }.Bind(ref _topLeftLabel),
+
+                                            new Layout {
+                                                FlexController = {
+                                                    JustifyContent = Justify.FlexStart,
+                                                    Padding = new() { top = 0.7f, left = 0.7f },
+                                                    Gap = new() { x = 0.5f }
+                                                },
+
+                                                FlexItem = {
+                                                    FlexGrow = 1f
+                                                }
+                                            }.Bind(ref _tagsContainer)
+                                        }
+                                    },
+
+                                    //bottom left
+                                    CellLabel(
+                                        TextOverflowModes.Ellipsis,
+                                        TextAlignmentOptions.BottomLeft,
+                                        3,
+                                        70,
+                                        new() { bottom = 0, left = 0 },
+                                        secondaryTextColor,
+                                        ref _bottomLeftLabel
+                                    ),
+                                    //top right
+                                    CellLabel(
+                                        TextOverflowModes.Overflow,
+                                        TextAlignmentOptions.TopRight,
+                                        3,
+                                        40,
+                                        new() { top = 0, right = 1.5f },
+                                        textColor,
+                                        ref _topRightLabel
+                                    ),
+                                    //bottom right
+                                    CellLabel(
+                                        TextOverflowModes.Overflow,
+                                        TextAlignmentOptions.BottomRight,
+                                        3,
+                                        30,
+                                        new() { bottom = 0, right = 2 },
+                                        secondaryTextColor,
+                                        ref _bottomRightLabel
+                                    )
+                                }
                             }
-                        }.AsFlexGroup().AsFlexItem(
-                            flexGrow: 1f,
-                            margin: new() { right = 1f }
-                        ).Bind(ref _button)
+                            .WithPointerEvents(
+                                onEnter: _ => _graphicState.IsHovered = true,
+                                onLeave: _ => _graphicState.IsHovered = false,
+                                onDown: _ => {
+                                    global::Reactive.BeatSaber.GameResources.ButtonClickSignal.Raise();
+                                    _context.Selected = true;
+                                }
+                            )
+                            .AsFlexGroup()
                     }
-                }.AsFlexGroup().WithSizeDelta(0f, 8f).AsFlexItem(
-                    size: new() { y = 8f }
-                ).Use();
+                }.AsFlexGroup().WithSizeDelta(0f, CellHeight).Use();
             }
 
             #endregion
 
             #region Callbacks
 
+            private void HandleContextUpdated(CellContext<IReplayHeader> context) {
+                _graphicState.IsActive = context.Selected;
+
+                if (context.Item == _item) {
+                    return;
+                }
+
+                SetItem(context.Item);
+                RefreshTexts();
+                RefreshTags();
+                RefreshHighlight();
+            }
+
             private void HandleTagAddedOrRemoved(ReplayTag tag) {
                 RefreshTags();
-            }
-
-            private void HandleThemeUpdated() {
-                RefreshTexts();
-            }
-
-            protected override void OnCellStateChange(bool selected) {
-                _button.Click(selected, false);
             }
 
             #endregion
@@ -340,15 +354,15 @@ namespace BeatLeader.UI.Hub {
 
         #region Sorting
 
-        private class HeaderComparator : IComparer {
+        private class HeaderComparator : IComparer<IReplayHeader> {
             public ReplaysListSorter sorter;
 
-            public int Compare(object? x, object? y) {
-                if (x is not IReplayHeader { ReplayInfo: var xi }) {
+            public int Compare(IReplayHeader? x, IReplayHeader? y) {
+                if (x is not { ReplayInfo: var xi }) {
                     return 0;
                 }
 
-                if (y is not IReplayHeader { ReplayInfo: var yi }) {
+                if (y is not { ReplayInfo: var yi }) {
                     return 0;
                 }
 
@@ -372,8 +386,7 @@ namespace BeatLeader.UI.Hub {
             get => _headerComparator.sorter;
             set {
                 _headerComparator.sorter = value;
-                Sort();
-                Refresh();
+                RefreshSorting();
             }
         }
 
@@ -381,21 +394,116 @@ namespace BeatLeader.UI.Hub {
             get => _sortOrder;
             set {
                 _sortOrder = value;
-                Sort();
-                Refresh();
+                RefreshSorting();
             }
         }
 
         private readonly HeaderComparator _headerComparator = new();
         private SortOrder _sortOrder;
 
-        public void Sort() {
-            var arrayList = ArrayList.Adapter((IList)Items);
-            
-            arrayList.Sort(_headerComparator);
+        private List<IReplayHeader> _sortedItems = new();
+
+        private void RefreshSorting() {
+            var sorted = new List<IReplayHeader>(_items);
+            sorted.Sort(_headerComparator);
 
             if (_sortOrder is SortOrder.Descending) {
-                arrayList.Reverse();
+                sorted.Reverse();
+            }
+
+            _sortedItems = sorted;
+            Refresh();
+        }
+
+        #endregion
+
+        #region Items
+
+        public IReadOnlyList<IReplayHeader> Items {
+            get => _items;
+            set {
+                _items = value;
+                RefreshSorting();
+            }
+        }
+
+        public ITableFilter<IReplayHeader>? Filter {
+            get => _filter;
+            set {
+                if (_filter != null) {
+                    _filter.FilterUpdatedEvent -= Refresh;
+                }
+                _filter = value;
+                if (_filter != null) {
+                    _filter.FilterUpdatedEvent += Refresh;
+                }
+                Refresh();
+            }
+        }
+
+        private IReadOnlyList<IReplayHeader> _items = Array.Empty<IReplayHeader>();
+        private ITableFilter<IReplayHeader>? _filter;
+
+        private readonly State<IReadOnlyList<IReplayHeader>> _filteredItems = new(Array.Empty<IReplayHeader>());
+
+        public void Refresh() {
+            var items = _filter.Apply(_sortedItems);
+
+            _filteredItems.Value = items;
+            _table.Items = items;
+        }
+
+        private string? GetMatchedPhrase(IReplayHeader item) {
+            return (_filter as ITextTableFilter<IReplayHeader>)?.GetMatchedPhrase(item);
+        }
+
+        private int IndexOf(IReplayHeader item) {
+            var items = _filteredItems.Value;
+            for (var i = 0; i < items.Count; i++) {
+                if (items[i] == item) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        #endregion
+
+        #region Selection
+
+        public Action<IReadOnlyCollection<IReplayHeader>>? OnSelectedItemsChanged { get; set; }
+
+        public bool Select(IReplayHeader item) {
+            if (IndexOf(item) == -1) {
+                return false;
+            }
+            _table.SelectedItems = [item];
+            return true;
+        }
+
+        public bool ScrollTo(IReplayHeader item, bool immediately = false) {
+            var index = IndexOf(item);
+            if (index == -1) {
+                return false;
+            }
+            _scrollContext.ScrollTo(index * _scrollContext.LineSize, immediately);
+            return true;
+        }
+
+        #endregion
+
+        #region Highlighting
+
+        public IReadOnlyCollection<IReplayHeader> HighlightedItems => _highlightedItems.Value;
+
+        private readonly State<HashSet<IReplayHeader>> _highlightedItems = new(new HashSet<IReplayHeader>());
+
+        public void SetItemHighlighted(IReplayHeader item, bool highlighted) {
+            var items = _highlightedItems.Value;
+            var changed = highlighted ? items.Add(item) : items.Remove(item);
+
+            if (changed) {
+                _highlightedItems.EnforceInvalidation();
             }
         }
 
@@ -403,27 +511,74 @@ namespace BeatLeader.UI.Hub {
 
         #region Setup
 
-        public int VisibleCells => (int)(ContentTransform.rect.height / CellSize);
+        private const float CellHeight = 8f;
 
-        protected override float CellSize => 8f;
+        public ScrollContext ScrollContext => _scrollContext;
 
-        public readonly HashSet<IReplayHeader> HighlightedItems = new();
+        public int VisibleCells => (int)(ContentTransform.rect.height / CellHeight);
 
+        private readonly ScrollContext _scrollContext = new();
         private readonly ReactivePool<TagPanel> _tagsPool = new();
-        private ReplayManagerSearchTheme? _theme;
+        private readonly State<ReplayManagerSearchTheme?> _theme = new(null);
 
         public void Setup(ReplayManagerSearchTheme theme) {
-            _theme = theme;
+            if (_theme.Value != null) {
+                _theme.Value.SearchThemeUpdatedEvent -= HandleThemeUpdated;
+            }
+            _theme.Value = theme;
+            theme.SearchThemeUpdatedEvent += HandleThemeUpdated;
         }
 
-        protected override void OnCellConstruct(Cell cell) {
-            if (Filter is ITextTableFilter<IReplayHeader> filter) {
-                cell.HighlightPhrase = filter.GetMatchedPhrase(cell.Item);
-            } else {
-                cell.HighlightPhrase = null;
+        protected override void OnDestroy() {
+            if (_theme.Value != null) {
+                _theme.Value.SearchThemeUpdatedEvent -= HandleThemeUpdated;
             }
-            cell.Setup(this, _theme);
-            cell.Highlighted = HighlightedItems.Contains(cell.Item);
+            if (_filter != null) {
+                _filter.FilterUpdatedEvent -= Refresh;
+            }
+        }
+
+        private void HandleThemeUpdated() {
+            _theme.EnforceInvalidation();
+        }
+
+        #endregion
+
+        #region Construct
+
+        private Table<IReplayHeader, Cell> _table = null!;
+
+        protected override GameObject Construct() {
+            return new Layout {
+                Children = {
+                    new Table<IReplayHeader, Cell> {
+                        FlexItem = {
+                            FlexGrow = 1f
+                        },
+
+                        ScrollContext = _scrollContext,
+                        Items = Array.Empty<IReplayHeader>(),
+                        ConstructCell = ctx => new Cell(ctx, this),
+                        OnSelectedItemsChanged = x => OnSelectedItemsChanged?.Invoke(x)
+                    }.Bind(ref _table),
+
+                    new Label {
+                        FlexItem = {
+                            Position = 0f,
+                            PositionType = PositionType.Absolute
+                        },
+
+                        Text = "The monkey left you on your own!",
+                        FontSize = 3.2f,
+                        FontSizeMin = 1f,
+                        FontSizeMax = 5f,
+                        EnableAutoSizing = true,
+                        EnableWrapping = true,
+                        RaycastTarget = false,
+                        sEnabled = _filteredItems.Map(static x => x.Count == 0)
+                    }
+                }
+            }.AsFlexGroup().Use();
         }
 
         #endregion

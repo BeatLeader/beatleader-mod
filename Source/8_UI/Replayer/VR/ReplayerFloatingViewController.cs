@@ -47,21 +47,27 @@ namespace BeatLeader.UI.Replayer {
 
         private void Awake() {
             new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    Gap = 1f,
+                    ConstrainHorizontal = false,
+                    ConstrainVertical = false
+                },
+
                 Children = {
-                    new ToolbarWithSettings()
-                        .AsFlexItem(size: new() { x = 80f, y = 70f })
-                        .Bind(ref _toolbar),
+                    new ToolbarWithSettings {
+                        FlexItem = {
+                            Size = new() { x = 80f, y = 70f }
+                        }
+                    }.Bind(ref _toolbar),
                     //
-                    new ReplayerFloatingPanelControls()
-                        .AsFlexItem(alignSelf: Align.Center)
-                        .Bind(ref _floatingPanelControls)
+                    new ReplayerFloatingPanelControls {
+                        FlexItem = {
+                            AlignSelf = Align.Center
+                        }
+                    }.Bind(ref _floatingPanelControls)
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Column,
-                gap: 1f,
-                constrainHorizontal: false,
-                constrainVertical: false
-            ).Use(transform);
+            }.Use(transform);
             //
             _toolbar.Setup(
                 _pauseController,

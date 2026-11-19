@@ -1,5 +1,6 @@
 ﻿using Reactive;
 using Reactive.BeatSaber.Components;
+using Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
@@ -13,6 +14,12 @@ namespace BeatLeader.UI.Hub {
 
         protected override GameObject Construct() {
             return new Background {
+                FlexItem = {
+                    Size = new() { y = 8f, x = 100.pct },
+                    Position = new() { top = 0f },
+                    PositionType = PositionType.Absolute
+                },
+
                 Children = {
                     new Label {
                         FontSize = 6f,
@@ -20,13 +27,6 @@ namespace BeatLeader.UI.Hub {
                     }.WithRectExpand().Bind(ref _label)
                 }
             }.AsBlurBackground().Use();
-        }
-
-        protected override void OnInitialize() {
-            this.AsFlexItem(
-                size: new() { y = 8f, x = "100%" },
-                position: new() { top = 0f }
-            );
         }
     }
 }

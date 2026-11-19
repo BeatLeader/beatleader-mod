@@ -29,18 +29,17 @@ namespace BeatLeader.UI.Hub {
             //
             _replayManagerTheme = theme.ReplayManagerSearchTheme;
             _replayManagerSearchColorPicker.Color = _replayManagerTheme.SearchHighlightColor;
-            var bold = _replayManagerTheme.SearchHighlightStyle.HasFlag(FontStyle.Bold);
-            _replayManagerSearchBoldToggle.SetActive(bold, false, true);
+            _replayManagerSearchBoldToggle.Toggled = _replayManagerTheme.SearchHighlightStyle.HasFlag(FontStyle.Bold);
             //
             SaveInitialValues();
         }
 
         public void CancelSelection() {
             if (_menuButtonsTheme != null) {
-                _menuButtonsTheme.ReplayManagerButtonColors.HoveredColor = _initialReplayManagerButtonColor;
-                _menuButtonsTheme.BattleRoyaleButtonColors.HoveredColor = _initialBattleRoyaleButtonColor;
-                _menuButtonsTheme.SettingsButtonColors.HoveredColor = _initialSettingsButtonColor;
-                _menuButtonsTheme.EditAvatarButtonColors.HoveredColor = _initialAvatarButtonColor;
+                _menuButtonsTheme.ReplayManagerButtonColors = _menuButtonsTheme.ReplayManagerButtonColors with { HoveredColor = _initialReplayManagerButtonColor };
+                _menuButtonsTheme.BattleRoyaleButtonColors = _menuButtonsTheme.BattleRoyaleButtonColors with { HoveredColor = _initialBattleRoyaleButtonColor };
+                _menuButtonsTheme.SettingsButtonColors = _menuButtonsTheme.SettingsButtonColors with { HoveredColor = _initialSettingsButtonColor };
+                _menuButtonsTheme.EditAvatarButtonColors = _menuButtonsTheme.EditAvatarButtonColors with { HoveredColor = _initialAvatarButtonColor };
             }
             if (_replayManagerTheme != null) {
                 _replayManagerTheme.SearchHighlightColor = _initialSearchHighlightColor;
@@ -52,7 +51,7 @@ namespace BeatLeader.UI.Hub {
             _settingsButtonColorPicker.Color = _initialSettingsButtonColor;
             _avatarButtonColorPicker.Color = _initialAvatarButtonColor;
             _replayManagerSearchColorPicker.Color = _initialSearchHighlightColor;
-            _replayManagerSearchBoldToggle.SetActive(_initialSearchHighlightStyle.HasFlag(FontStyle.Bold), false, true);
+            _replayManagerSearchBoldToggle.Toggled = _initialSearchHighlightStyle.HasFlag(FontStyle.Bold);
         }
 
         private void SaveInitialValues() {
@@ -70,49 +69,131 @@ namespace BeatLeader.UI.Hub {
 
         #endregion
 
+        #region ColorPicker
+
+        private class ColorPickerControl : ReactiveComponent {
+            public Color Color {
+                get => _savedColor;
+                set {
+                    _savedColor = value;
+                    _context.SelectedColor = value;
+                }
+            }
+
+            public Action<Color>? OnColorChanged { get; set; }
+
+            private readonly BsColorPickerContext _context = new();
+            private Color _savedColor;
+
+            protected override GameObject Construct() {
+                _context.AddCallback(this, static (x, y) => x.HandleContextUpdated(y), lazy: true);
+
+                return new Layout {
+                    FlexController = {
+                        AlignItems = Align.Stretch
+                    },
+
+                    Children = {
+                        new BsColorPicker {
+                            FlexItem = {
+                                Size = new() { y = YogaValue.Auto }
+                            },
+
+                            Context = _context
+                        }.Export(out var picker),
+
+                        new BsColorCircleModal {
+                            Context = _context,
+                            Title = "Select Color",
+                            CircleSize = 54.pt,
+                            PlacementAnchor = picker.ContentTransform,
+                            PlacementData = new() { Placement = RelativePlacement.Center }
+                        }
+                    }
+                }.Use();
+            }
+
+            private void HandleContextUpdated(BsColorPickerContext context) {
+                if (context.SelectedColor == _savedColor) {
+                    return;
+                }
+
+                _savedColor = context.SelectedColor;
+                OnColorChanged?.Invoke(_savedColor);
+            }
+        }
+
+        #endregion
+
         #region Construct
 
-        private ColorPicker _replayManagerButtonColorPicker = null!;
-        private ColorPicker _battleRoyaleButtonColorPicker = null!;
-        private ColorPicker _settingsButtonColorPicker = null!;
-        private ColorPicker _avatarButtonColorPicker = null!;
+        private ColorPickerControl _replayManagerButtonColorPicker = null!;
+        private ColorPickerControl _battleRoyaleButtonColorPicker = null!;
+        private ColorPickerControl _settingsButtonColorPicker = null!;
+        private ColorPickerControl _avatarButtonColorPicker = null!;
 
-        private ColorPicker _replayManagerSearchColorPicker = null!;
-        private Toggle _replayManagerSearchBoldToggle = null!;
+        private ColorPickerControl _replayManagerSearchColorPicker = null!;
+        private BsToggle _replayManagerSearchBoldToggle = null!;
 
         protected override GameObject Construct() {
             static ReactiveComponent CreateContainer(string name, params ILayoutItem[] children) {
                 return new Layout {
-                        Children = {
-                            new Label {
-                                    Text = name,
-                                    FontSize = 5f
-                                }
-                                .AsFlexItem(size: new() { y = "auto" })
+                    FlexController = {
+                        FlexDirection = FlexDirection.Column,
+                        Gap = 1f,
+                        Padding = new() { left = 2f, bottom = 2f, right = 2f, top = 1f }
+                    },
+
+                    Children = {
+                        new Label {
+                            FlexItem = {
+                                Size = new() { y = YogaValue.Auto }
+                            },
+
+                            Text = name,
+                            FontSize = 5f
                         }
                     }
-                    .With(x => x.Children.AddRange(children))
-                    .AsFlexGroup(
-                        direction: FlexDirection.Column,
-                        gap: 1f,
-                        padding: new() { left = 2f, bottom = 2f, right = 2f, top = 1f }
-                    )
-                    .AsFlexItem();
+                }.With(x => x.Children.AddRange(children));
             }
 
-            static ReactiveComponent CreateColorPicker(string name, Action<Color> callback, ref ColorPicker picker) {
-                return new ColorPicker()
-                    .AsFlexItem(size: new() { y = 6f })
-                    .WithListener(x => x.Color, callback)
+            static ReactiveComponent CreateColorPicker(string name, Action<Color> callback, ref ColorPickerControl picker) {
+                return new ColorPickerControl {
+                        FlexItem = {
+                            Size = new() { y = 6f }
+                        },
+
+                        OnColorChanged = callback
+                    }
                     .Bind(ref picker)
                     .InNamedRail(name);
             }
 
-            return 
+            var scrollContext = new ScrollContext();
+
+            return
                 new Layout {
+                    FlexController = {
+                        Gap = 1f
+                    },
+
                     Children = {
                         new ScrollArea {
+                            FlexItem = {
+                                FlexGrow = 1f
+                            },
+
+                            ScrollContext = scrollContext,
+                            LineSize = 1f,
                             ScrollContent = new Layout {
+                                FlexController = {
+                                    FlexDirection = FlexDirection.Column,
+                                    JustifyContent = Justify.FlexStart,
+                                    AlignItems = Align.Stretch,
+                                    Gap = 1f,
+                                    ConstrainVertical = false
+                                },
+
                                 Children = {
                                     CreateContainer(
                                         "Hub Buttons",
@@ -155,32 +236,22 @@ namespace BeatLeader.UI.Hub {
                                             ref _replayManagerSearchColorPicker
                                         ),
                                         //
-                                        new Toggle()
-                                            .WithListener(
-                                                x => x.Active,
-                                                HandleReplayManagerSearchBoldChanged
-                                            )
+                                        new BsToggle {
+                                                OnToggleStateChanged = HandleReplayManagerSearchBoldChanged
+                                            }
                                             .Bind(ref _replayManagerSearchBoldToggle)
                                             .InNamedRail("Bold")
                                     )
                                 }
-                            }.AsFlexGroup(
-                                direction: FlexDirection.Column,
-                                justifyContent: Justify.FlexStart,
-                                alignItems: Align.Stretch,
-                                gap: 1f,
-                                constrainVertical: false
-                            ),
-                        }.AsFlexItem(flexGrow: 1f).Export(out var scrollArea),
-                    
-                        new Scrollbar()
-                            .AsFlexItem()
-                            .With(x => scrollArea.Scrollbar = x)
+                            },
+                        },
+
+                        new Scrollbar {
+                            ScrollContext = scrollContext,
+                            HideIfNothingToScroll = true
+                        }
                     }
-                }
-                .AsFlexGroup(gap: 1f)
-                .AsFlexItem()
-                .Use();
+                }.Use();
         }
 
         #endregion
@@ -203,22 +274,22 @@ namespace BeatLeader.UI.Hub {
 
         private void HandleReplayManagerButtonColorChanged(Color color) {
             if (_menuButtonsTheme == null) return;
-            _menuButtonsTheme.ReplayManagerButtonColors.HoveredColor = color;
+            _menuButtonsTheme.ReplayManagerButtonColors = _menuButtonsTheme.ReplayManagerButtonColors with { HoveredColor = color };
         }
 
         private void HandleBattleRoyaleButtonColorChanged(Color color) {
             if (_menuButtonsTheme == null) return;
-            _menuButtonsTheme.BattleRoyaleButtonColors.HoveredColor = color;
+            _menuButtonsTheme.BattleRoyaleButtonColors = _menuButtonsTheme.BattleRoyaleButtonColors with { HoveredColor = color };
         }
 
         private void HandleSettingsButtonColorChanged(Color color) {
             if (_menuButtonsTheme == null) return;
-            _menuButtonsTheme.SettingsButtonColors.HoveredColor = color;
+            _menuButtonsTheme.SettingsButtonColors = _menuButtonsTheme.SettingsButtonColors with { HoveredColor = color };
         }
 
         private void HandleAvatarButtonColorChanged(Color color) {
             if (_menuButtonsTheme == null) return;
-            _menuButtonsTheme.EditAvatarButtonColors.HoveredColor = color;
+            _menuButtonsTheme.EditAvatarButtonColors = _menuButtonsTheme.EditAvatarButtonColors with { HoveredColor = color };
         }
 
         #endregion

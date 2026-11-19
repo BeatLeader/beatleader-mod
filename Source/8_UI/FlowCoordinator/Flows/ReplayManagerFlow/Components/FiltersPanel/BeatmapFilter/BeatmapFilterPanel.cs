@@ -6,6 +6,7 @@ using BeatLeader.Models;
 using BeatSaberMarkupLanguage;
 using HMUI;
 using Reactive;
+using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using UnityEngine;
@@ -98,6 +99,11 @@ namespace BeatLeader.UI.Hub {
 
         #region Construct
 
+        private static readonly ColorSet gradientColors = new() {
+            Color = Color.clear,
+            HoveredColor = Color.white.ColorWithAlpha(0.2f)
+        };
+
         private BeatmapPreviewPanel _beatmapPreviewPanel = null!;
 
         private void SetBeatmapLevel(BeatmapLevel level) {
@@ -105,41 +111,58 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override GameObject Construct() {
+            var graphicState = Remember(GraphicState.None);
+
             return new Layout {
+                FlexController = {
+                    Padding = new() { top = 1f, bottom = 1f }
+                },
+
+                FlexItem = {
+                    Size = new() { x = 52f, y = 12f }
+                },
+
                 Children = {
-                    new BackgroundButton {
-                        Image = {
+                    new Background {
+                            FlexItem = {
+                                FlexGrow = 1f,
+                                Margin = new() { left = 1f, right = 1f }
+                            },
+
                             Color = Color.white,
                             Sprite = BundleLoader.Sprites.background,
                             PixelsPerUnit = 12f,
-                            Material = GameResources.UINoGlowMaterial
-                        },
-                        Colors = null,
-                        OnClick = Present,
-                        GradientColors1 = new SimpleColorSet {
-                            Color = Color.clear,
-                            HoveredColor = Color.white.ColorWithAlpha(0.2f)
-                        },
-                        Skew = UIStyle.Skew,
-                        Children = {
-                            new BeatmapPreviewPanel {
-                                    Skew = UIStyle.Skew
-                                }
-                                .AsFlexItem(flexGrow: 1f, margin: new() { right = 1f })
-                                .Bind(ref _beatmapPreviewPanel)
+                            Material = GameResources.UINoGlowMaterial,
+                            UseGradient = true,
+                            sGradientColor1 = graphicState.MapColorSet(gradientColors),
+                            Skew = BeatSaberStyle.Skew,
+                            Children = {
+                                new BeatmapPreviewPanel {
+                                    FlexItem = {
+                                        FlexGrow = 1f,
+                                        Margin = new() { right = 1f }
+                                    },
+
+                                    Skew = BeatSaberStyle.Skew
+                                }.Bind(ref _beatmapPreviewPanel)
+                            }
                         }
-                    }.AsFlexGroup().AsFlexItem(
-                        flexGrow: 1f,
-                        margin: new() { left = 1f, right = 1f }
-                    )
+                        .WithPointerEvents(
+                            onEnter: _ => graphicState.IsHovered = true,
+                            onLeave: _ => graphicState.IsHovered = false,
+                            onDown: _ => {
+                                global::Reactive.BeatSaber.GameResources.ButtonClickSignal.Raise();
+                                Present();
+                            }
+                        )
+                        .AsFlexGroup()
                 }
-            }.AsFlexGroup(padding: new() { top = 1f, bottom = 1f }).Use();
+            }.Use();
         }
 
         protected override void OnInitialize() {
             RefreshFilterStatus();
             SetBeatmapLevel(previewBeatmapLevel);
-            this.AsFlexItem(size: new() { x = 52f, y = 12f });
         }
 
         #endregion

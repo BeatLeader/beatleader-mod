@@ -41,7 +41,8 @@ namespace BeatLeader.UI.Hub {
 
         private void RefreshTextArea() {
             var names = _tagSelectorModal.Component.SelectedTags.Select(static x => x.Name);
-            _textArea.WithItemsText(names, true);
+            _textAreaContext.WithItemsText(names);
+            _textAreaText = _textAreaContext.Text;
             FilterUpdatedEvent?.Invoke();
         }
 
@@ -49,80 +50,91 @@ namespace BeatLeader.UI.Hub {
 
         #region Construct
 
-        private TextArea _textArea = null!;
+        private readonly BsInputFieldContext _textAreaContext = new();
+        private string? _textAreaText;
+
+        private BsInputField _textArea = null!;
         private TagSelectorModal _tagSelectorModal = null!;
-        private bool _tagSelectorModalOpened;
 
         protected override GameObject Construct() {
             return new Layout {
+                FlexController = {
+                    Padding = new() { top = 1f, bottom = 1f },
+                    JustifyContent = Justify.Center
+                },
+
+                FlexItem = {
+                    Size = new() { x = 52f, y = 10f }
+                },
+
                 Children = {
-                    new TagSelectorModal()
-                        .WithShadow()
-                        .WithOpenListener(HandleTagSelectorOpened)
-                        .WithCloseListener(HandleTagSelectorClosed)
-                        .WithAnchor(
-                            Lazy<IReactiveComponent>(() => _textArea),
-                            RelativePlacement.BottomCenter
-                        )
-                        .Bind(ref _tagSelectorModal),
-                    //text area
-                    new TextArea {
-                            Placeholder = "Choose Tags",
-                            Icon = GameResources.Sprites.EditIcon
+                    new TagSelectorModal {
+                        OnPushed = HandleTagSelectorOpened,
+                        OnClickOutside = HandleTagSelectorClickedOutside,
+                        PlacementData = new() { Placement = RelativePlacement.BottomCenter, Offset = new(0f, 0.5f) },
+                        Component = {
+                            FlexItem = {
+                                Size = new() { x = 50.pt, y = 40.pt }
+                            }
                         }
-                        .WithListener(x => x.Text, HandleTextAreaTextChanged)
-                        .WithListener(x => x.Focused, HandleTextAreaFocusChanged)
-                        .AsFlexItem(flexGrow: 1f)
-                        .Bind(ref _textArea)
+                    }.Bind(ref _tagSelectorModal),
+                    //text area
+                    new BsInputField {
+                        FlexItem = {
+                            FlexGrow = 1f
+                        },
+
+                        Context = _textAreaContext,
+                        Placeholder = "Choose Tags",
+                        Icon = GameResources.Sprites.EditIcon
+                    }.Bind(ref _textArea)
                 }
-            }.AsFlexGroup(
-                padding: new() { top = 1f, bottom = 1f },
-                justifyContent: Justify.Center
-            ).Use();
+            }.Use();
         }
 
         protected override void OnInitialize() {
             RefreshFilterStatus();
-            this.AsFlexItem(size: new() { x = 52f, y = 10f });
+
+            _tagSelectorModal.PlacementAnchor = _textArea.ContentTransform;
+            _textAreaContext.AddCallback(this, static (x, y) => x.HandleTextAreaContextUpdated(y), lazy: true);
         }
 
         #endregion
 
         #region Callbacks
 
-        private void HandleTagSelectorOpened(IModal modal, bool finished) {
-            if (finished) return;
-            _tagSelectorModalOpened = true;
+        private void HandleTagSelectorOpened() {
             var tagSelector = _tagSelectorModal.Component;
 
-            tagSelector.AsFlexItem(size: new() { x = 50.pt(), y = 40.pt() });
             tagSelector.SelectTags(_selectedTags);
             tagSelector.SelectedTagAddedEvent += HandleSelectedTagAdded;
             tagSelector.SelectedTagRemovedEvent += HandleSelectedTagRemoved;
         }
 
-        private void HandleTagSelectorClosed(IModal modal, bool finished) {
-            _textArea.Focused = false;
-            if (finished) return;
-            _tagSelectorModalOpened = false;
+        private void HandleTagSelectorClickedOutside() {
+            _tagSelectorModal.IsPushed = false;
+
             var tagSelector = _tagSelectorModal.Component;
             tagSelector.SelectedTagAddedEvent -= HandleSelectedTagAdded;
             tagSelector.SelectedTagRemovedEvent -= HandleSelectedTagRemoved;
         }
 
-        private void HandleTextAreaFocusChanged(bool focused) {
-            if (!focused) return;
-            _tagSelectorModal.Present(ContentTransform);
-        }
-
-        private void HandleTextAreaTextChanged(string text) {
-            if (text.Length != 0) return;
-            //
-            if (_tagSelectorModalOpened) {
-                _tagSelectorModal.Component.ClearSelectedTags();
+        private void HandleTextAreaContextUpdated(BsInputFieldContext context) {
+            if (context.Focused) {
+                _tagSelectorModal.IsPushed = true;
+                context.Focused = false;
             }
-            _selectedTags.Clear();
-            FilterUpdatedEvent?.Invoke();
+
+            if (context.Text != _textAreaText) {
+                _textAreaText = context.Text;
+
+                if (string.IsNullOrEmpty(_textAreaText)) {
+                    _tagSelectorModal.Component.ClearSelectedTags();
+                    _selectedTags.Clear();
+                    RefreshFilterStatus();
+                    FilterUpdatedEvent?.Invoke();
+                }
+            }
         }
 
         private void HandleSelectedTagAdded(ReplayTag tag) {

@@ -1,5 +1,4 @@
 ﻿using System;
-using BeatLeader.UI.Reactive;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
@@ -18,13 +17,8 @@ namespace BeatLeader.UI.Replayer {
 
         #region Animation
 
-        private readonly ValueAnimator _alphaAnimator = new();
-        private readonly ValueAnimator _fillAnimator = new() { LerpCoefficient = 5f };
-
-        private void RefreshAnimation() {
-            _image.FillAmount = _fillAnimator.Progress;
-            _image.Color = Color.white.ColorWithAlpha(_alphaAnimator.Progress);
-        }
+        private AnimatedState<float> _alpha = null!;
+        private AnimatedState<float> _fill = null!;
 
         #endregion
 
@@ -42,32 +36,28 @@ namespace BeatLeader.UI.Replayer {
 
         protected override void OnUpdate() {
             if (!_inputDevice.TryGetFeatureValue(_buttonFeature, out var pressed)) return;
-            //updating animators
-            _alphaAnimator.Update();
-            if (!pressed) _fillAnimator.Update();
             //checking did state change or not
             if (pressed != _lastPressState) {
                 _lastPressTime = Time.time;
                 _lastPressState = pressed;
                 _resetFinished = false;
                 if (pressed) {
-                    _alphaAnimator.Push();
-                    _fillAnimator.SetProgress(0f);
+                    _alpha.TargetValue = 1f;
+                    _fill.SetValueImmediate(0f);
                 } else {
-                    _alphaAnimator.Pull();
+                    _alpha.TargetValue = 0f;
+                    _fill.TargetValue = 0f;
                 }
             }
             //checking is finished
             if (!_resetFinished && pressed) {
-                _fillAnimator.SetProgress((Time.time - _lastPressTime) / _holdTime);
+                _fill.SetValueImmediate(Mathf.Clamp01((Time.time - _lastPressTime) / _holdTime));
                 if (Time.time - _lastPressTime >= _holdTime) {
-                    _alphaAnimator.Pull();
+                    _alpha.TargetValue = 0f;
                     _resetFinished = true;
                     ResetRequestedEvent?.Invoke();
                 }
             }
-            //refreshing animations
-            RefreshAnimation();
         }
 
         #endregion
@@ -75,17 +65,21 @@ namespace BeatLeader.UI.Replayer {
         #region Construct
 
         private Canvas _canvas = null!;
-        private Image _image = null!;
 
         protected override GameObject Construct() {
+            _alpha = RememberAnimated(0f, 10.fact);
+            _fill = RememberAnimated(0f, 5.fact);
+
             return new Layout {
                 Children = {
                     new Image {
                         Sprite = BundleLoader.ProgressRingIcon,
                         ImageType = UnityEngine.UI.Image.Type.Filled,
                         FillMethod = UnityEngine.UI.Image.FillMethod.Radial360,
-                        RaycastTarget = false
-                    }.Bind(ref _image).WithSizeDelta(300f, 300f)
+                        RaycastTarget = false,
+                        sFillAmount = _fill,
+                        sColor = _alpha.Map(static x => Color.white.ColorWithAlpha(x))
+                    }.WithSizeDelta(300f, 300f)
                 }
             }.Use();
         }

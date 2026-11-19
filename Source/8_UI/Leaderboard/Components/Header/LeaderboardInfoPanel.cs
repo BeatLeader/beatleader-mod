@@ -11,10 +11,12 @@ using BeatLeader.Utils;
 using ModestTree;
 using Reactive;
 using Reactive.BeatSaber.Components;
+using Reactive.Compiler;
 using Reactive.Components;
 using Reactive.Yoga;
 using UnityEngine;
 using UnityEngine.UI;
+using Image = Reactive.BeatSaber.Components.Image;
 
 namespace BeatLeader.Components {
     internal class LeaderboardInfoPanel : ReactiveComponent {
@@ -32,40 +34,63 @@ namespace BeatLeader.Components {
 
         private DownloadScoresModal _downloadModal = null!;
         private Label _replaysLabel = null!;
-        private BsButton _proceedButton = null!;
+        private BsTextButton _proceedButton = null!;
 
-        private ImageButton _menuButton = null!;
+        private Image _menuButton = null!;
         private PushContainer _container = null!;
 
-        private static ImageButton CreateHeaderButton(Sprite sprite, Action callback) {
-            return new ImageButton {
-                Image = {
-                    Sprite = sprite,
-                    Material = BundleLoader.UIAdditiveGlowMaterial
+        [StateGen]
+        private static Image CreateHeaderButton(Sprite sprite, Action callback) {
+            var graphicState = Remember(GraphicState.None);
+
+            return new Image {
+                FlexItem = {
+                    Size = 4f
                 },
-                Colors = UIStyle.GlowingButtonColorSet,
-                OnClick = callback
-            }.AsFlexItem(size: 4f);
+
+                Sprite = sprite,
+                Material = BundleLoader.UIAdditiveGlowMaterial,
+                sColor = graphicState.MapColorSet(UIStyle.GlowingButtonColorSet)
+            }.WithPointerEvents(
+                    onEnter: _ => graphicState.IsHovered = true,
+                    onLeave: _ => graphicState.IsHovered = false,
+                    onDown: _ => {
+                        global::Reactive.BeatSaber.GameResources.ButtonClickSignal.Raise();
+                        callback();
+                    }
+                );
         }
 
         protected override GameObject Construct() {
-            _downloadModal = new DownloadScoresModal {
-                DownloadingFinishedCallback = OnScoreDownloadingFinished
-            }.WithAlphaAnimation(() => Canvas!.gameObject).WithJumpAnimation();
-
             return new PushContainer {
                 OpenedView = new Layout {
+                    FlexController = {
+                        AlignItems = Align.Center,
+                        Padding = new() { left = 1f, right = 2f },
+                        Gap = 1f
+                    },
+
+                    IgnoreLayout = true,
                     Children = {
                         new Layout {
+                            FlexController = {
+                                JustifyContent = Justify.FlexStart
+                            },
+
+                            FlexItem = {
+                                FlexGrow = 1f
+                            },
+
                             Children = {
                                 CreateHeaderButton(
                                     BundleLoader.Sprites.homeIcon,
                                     LeaderboardEvents.NotifyMenuButtonWasPressed
                                 ).Bind(ref _menuButton),
                             }
-                        }.AsFlexItem(flexGrow: 1f).AsFlexGroup(justifyContent: Justify.FlexStart),
+                        },
 
                         new Layout {
+                            IgnoreLayout = true,
                             Children = {
                                 new ReeWrapperV2<MapStatus>().BindRee(ref _mapStatus),
 
@@ -92,6 +117,15 @@ namespace BeatLeader.Components {
                         ),
 
                         new Layout {
+                            FlexController = {
+                                JustifyContent = Justify.FlexEnd,
+                                Gap = 1f
+                            },
+
+                            FlexItem = {
+                                FlexGrow = 1f
+                            },
+
                             Children = {
                                 CreateHeaderButton(
                                     BundleLoader.BattleRoyaleIcon,
@@ -113,43 +147,46 @@ namespace BeatLeader.Components {
                                     LeaderboardEvents.NotifyLeaderboardSettingsButtonWasPressed
                                 )
                             }
-                        }.AsFlexItem(flexGrow: 1f).AsFlexGroup(justifyContent: Justify.FlexEnd, gap: 1f)
+                        }
                     }
-                }.AsFlexGroup(
-                    alignItems: Align.Center,
-                    padding: new() { left = 1f, right = 2f },
-                    gap: 1f
-                ).WithRectExpand(),
+                }.WithRectExpand(),
 
                 ClosedView = new Layout {
+                    FlexController = {
+                        AlignItems = Align.Center,
+                        Padding = new() { left = 1f, right = 2f },
+                        JustifyContent = Justify.SpaceBetween
+                    },
+
+                    IgnoreLayout = true,
                     Children = {
-                        new BsButton {
+                        new BsTextButton {
                             Text = "Cancel",
                             ShowUnderline = false,
                             OnClick = () => SetBattleRoyaleEnabled(false)
-                        }.AsFlexItem(),
+                        },
 
                         new Label {
                             FontSize = 5f
-                        }.AsFlexItem().Bind(ref _replaysLabel),
+                        }.Bind(ref _replaysLabel),
 
-                        new BsButton {
+                        new BsTextButton {
                             Text = "Proceed",
                             ShowUnderline = false,
-                            OnClick = () => {
-                                _downloadModal.SetData(_selectedScores);
-                                ModalSystem.PresentModal(_downloadModal, Canvas!.transform);
-                            }
-                        }.AsFlexItem().Bind(ref _proceedButton),
+                            OnClick = PresentDownloadModal
+                        }.Bind(ref _proceedButton),
+
+                        new DownloadScoresModal {
+                            DownloadingFinishedCallback = OnScoreDownloadingFinished,
+                            PlacementData = new() { Placement = RelativePlacement.Center, Offset = new(0f, 0.5f) }
+                        }.Bind(ref _downloadModal)
                     }
-                }.AsFlexGroup(
-                    alignItems: Align.Center,
-                    padding: new() { left = 1f, right = 2f },
-                    justifyContent: Justify.SpaceBetween
-                ).WithRectExpand(),
+                }.WithRectExpand(),
 
                 Opened = true,
-                Color = Color.clear
+                BackgroundImage = {
+                    Color = Color.clear
+                }
             }.Bind(ref _container).Use();
         }
 
@@ -202,6 +239,12 @@ namespace BeatLeader.Components {
         private void RefreshBattleRoyaleUI() {
             _replaysLabel.Text = $"{_selectedScores.Count} OPPONENTS";
             _proceedButton.Interactable = _selectedScores.Count > 1;
+        }
+
+        private void PresentDownloadModal() {
+            _downloadModal.SetData(_selectedScores);
+            _downloadModal.PlacementAnchor = CanvasTransform;
+            _downloadModal.IsPushed = true;
         }
 
         private void OnScoreClicked(Score score) {
@@ -353,10 +396,8 @@ namespace BeatLeader.Components {
         }
 
         private void UpdateMapTypes() {
-            if (_mapTypePanels == null) {
-                _mapTypePanels = new List<MapTypePanel> { _mapTypePanel1, _mapTypePanel2, _mapTypePanel3 };
-            }
-            
+            _mapTypePanels ??= [_mapTypePanel1, _mapTypePanel2, _mapTypePanel3];
+
             int typeIndex = 0;
             int knownTypes = MapTypesManager.MapTypes.Count;
             foreach (var mapTypePanel in _mapTypePanels) {
@@ -374,18 +415,6 @@ namespace BeatLeader.Components {
                     mapTypePanel.SetActive(false);
                 }
             }
-        }
-
-        #endregion
-
-        #region Utils
-
-        private static bool ExMachinaVisibleToRole(PlayerRole playerRole) {
-            return playerRole.IsAnyAdmin() || playerRole.IsAnyRT() || playerRole.IsAnySupporter();
-        }
-
-        private static bool RtToolsVisibleToRole(PlayerRole playerRole) {
-            return playerRole.IsAnyAdmin() || playerRole.IsAnyRT();
         }
 
         #endregion

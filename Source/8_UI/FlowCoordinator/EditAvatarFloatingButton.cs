@@ -1,11 +1,12 @@
 ﻿using System;
 using BeatLeader.Installers;
-using BeatLeader.UI.Reactive;
+using BeatLeader.UI.Reactive.Components;
 using Reactive;
 using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
-using Reactive.Components;
+using Reactive.Compiler;
 using Reactive.Yoga;
+using TMPro;
 using UnityEngine;
 using VRUIControls;
 
@@ -18,38 +19,64 @@ namespace BeatLeader.UI.Hub {
             set => _button.Interactable = value;
         }
 
-        public Action? OnClick;
-
-        public void Setup(BeatLeaderHubMenuButtonsTheme theme) {
-            _button.Colors = theme.EditAvatarButtonColors;
+        public BsAeroButtonColors Colors {
+            get => _button.Colors;
+            set => _button.Colors = value;
         }
+
+        public Action? OnClick;
 
         #endregion
 
         #region Construct
 
-        private AeroButton _button = null!;
-        private CanvasGroup _canvasGroup = null!;
+        private BsAeroButton _button = null!;
+        private AnimatedState<float> _alpha = null!;
 
         protected override GameObject Construct() {
-            return new AeroButtonLayout {
+            _alpha = RememberAnimated(0f, 10.fact);
+
+            return new BsAeroButton {
+                FlexController = {
+                    JustifyContent = Justify.Center,
+                    Padding = 2f,
+                    ConstrainHorizontal = false
+                },
+
+                FlexItem = {
+                    Size = new() { y = 14f }
+                },
+
                 OnClick = () => OnClick?.Invoke(),
-                Children = {
-                    new Image {
-                        Sprite = BundleLoader.Sprites.editIcon
-                    }.AsFlexItem(aspectRatio: 1f),
-                    //
-                    new Label {
-                        Text = "Edit Avatar",
-                        FontSize = 6f
-                    }.AsFlexItem(size: new() { x = "auto" })
+                ConstructContent = (color, skew) => new Layout {
+                    FlexController = {
+                        Gap = 2f
+                    },
+
+                    Children = {
+                        new Image {
+                            FlexItem = {
+                                AspectRatio = 1f
+                            },
+
+                            Sprite = BundleLoader.Sprites.editIcon,
+                            sColor = color.In(),
+                            sSkew = skew.In()
+                        },
+                        //
+                        new Label {
+                            FlexItem = {
+                                Size = new() { x = YogaValue.Auto }
+                            },
+
+                            Text = "Edit Avatar",
+                            FontSize = 6f,
+                            sColor = color.In(),
+                            sFontStyle = skew.Map(x => x > 0f ? FontStyles.Italic : FontStyles.Normal)
+                        }
+                    }
                 }
-            }.WithScaleAnimation(0.02f, 0.024f).WithNativeComponent(out _canvasGroup).AsFlexGroup(
-                justifyContent: Justify.Center,
-                padding: 2f,
-                gap: 2f,
-                constrainHorizontal: false
-            ).AsFlexItem(size: new() { y = 14f }).Bind(ref _button).Use();
+            }.WithHoverScale(0.02f, 0.024f).WithAlpha(_alpha).Bind(ref _button).Use();
         }
 
         protected override void OnInitialize() {
@@ -62,22 +89,16 @@ namespace BeatLeader.UI.Hub {
 
         #region Animation
 
-        private readonly ValueAnimator _valueAnimator = new();
+        public bool IsPresent {
+            get => Enabled;
+            set {
+                Enabled = value;
 
-        public void Present() {
-            Enabled = true;
-            _valueAnimator.SetProgress(0f);
-            _valueAnimator.SetTarget(1f);
-            OnUpdate();
-        }
-
-        public void Hide() {
-            Enabled = false;
-        }
-
-        protected override void OnUpdate() {
-            _valueAnimator.Update();
-            _canvasGroup.alpha = _valueAnimator.Progress;
+                if (value) {
+                    _alpha.SetValueImmediate(0f);
+                    _alpha.TargetValue = 1f;
+                }
+            }
         }
 
         #endregion

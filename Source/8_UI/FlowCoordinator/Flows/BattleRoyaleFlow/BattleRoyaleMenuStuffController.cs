@@ -13,7 +13,6 @@ namespace BeatLeader.UI.Hub {
         #region Setup
 
         private int _replaysCount;
-        private bool _stuffIsShown;
         private bool _hostEnabled;
 
         private void Awake() {
@@ -32,23 +31,7 @@ namespace BeatLeader.UI.Hub {
         }
 
         private void RefreshVisibility() {
-            if (!_hostEnabled && _stuffIsShown) {
-                HideStuff();
-            } else if (_replaysCount == 0 && !_stuffIsShown) {
-                ShowStuff();
-            } else if (_replaysCount > 0 && _stuffIsShown) {
-                HideStuff();
-            }
-        }
-
-        private void ShowStuff() {
-            _floatingText.Present();
-            _stuffIsShown = true;
-        }
-
-        private void HideStuff() {
-            _floatingText.Hide();
-            _stuffIsShown = false;
+            _floatingText.IsPresent = _hostEnabled && _replaysCount == 0;
         }
 
         #endregion

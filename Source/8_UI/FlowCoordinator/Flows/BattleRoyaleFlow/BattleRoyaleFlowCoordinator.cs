@@ -7,7 +7,6 @@ using BeatLeader.Replayer;
 using BeatSaberMarkupLanguage;
 using HMUI;
 using Reactive;
-using Reactive.Components;
 using Zenject;
 
 namespace BeatLeader.UI.Hub {

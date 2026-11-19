@@ -8,12 +8,12 @@ namespace BeatLeader.UI.Hub {
         
         protected override GameObject Construct() {
             return new Image {
+                FlexItem = {
+                    Size = 6f
+                },
+
                 Sprite = GameResources.Sprites.SearchIcon
             }.WithRectExpand().Use();
-        }
-
-        protected override void OnInitialize() {
-            this.AsFlexItem(size: 6f);
         }
 
         #endregion

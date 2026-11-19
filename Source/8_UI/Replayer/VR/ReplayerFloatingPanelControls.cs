@@ -1,7 +1,9 @@
+using System;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using Reactive;
 using Reactive.BeatSaber.Components;
+using Reactive.Compiler;
 using Reactive.Components;
 using Reactive.Yoga;
 using UnityEngine;
@@ -22,8 +24,8 @@ namespace BeatLeader.UI.Replayer {
             _curvatureSettings.Setup(screen, settings);
             _isInitialized = true;
             //applying controls
-            _pinButton.Click(settings.Pinned, true, true);
-            _snapButton.Click(settings.SnapEnabled, true, true);
+            SetPinned(settings.Pinned);
+            SetSnapEnabled(settings.SnapEnabled);
             _screen.transform.SetLocalPose(settings.Pose);
         }
 
@@ -38,60 +40,92 @@ namespace BeatLeader.UI.Replayer {
         private RectTransform _handleContainer = null!;
         private bool _lastHandleState;
 
-        private ImageButton _pinButton = null!;
-        private ImageButton _snapButton = null!;
+        private State<GraphicState> _pinButtonState = null!;
+        private State<GraphicState> _snapButtonState = null!;
+
+        [StateGen]
+        private static Image CreateButton(Sprite sprite, State<GraphicState> state, Action onClick) {
+            return new Image {
+                Sprite = sprite,
+                Material = BundleLoader.Materials.uiAdditiveGlowMaterial,
+                sColor = state.MapColorSet(UIStyle.GlowingButtonColorSet)
+            }.WithPointerEvents(
+                onEnter: _ => state.IsHovered = true,
+                onLeave: _ => state.IsHovered = false,
+                onDown: _ => {
+                    onClick();
+                    global::Reactive.BeatSaber.GameResources.ButtonClickSignal.Raise();
+                }
+            );
+        }
+
+        private void SetPinned(bool pinned) {
+            _pinButtonState.IsActive = pinned;
+            HandlePinStateChanged(pinned);
+        }
+
+        private void SetSnapEnabled(bool enabled) {
+            _snapButtonState.IsActive = enabled;
+            HandleSnapStateChanged(enabled);
+        }
 
         protected override GameObject Construct() {
+            _pinButtonState = Remember(GraphicState.None);
+            _snapButtonState = Remember(GraphicState.None);
+
             return new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column
+                },
+
                 Children = {
                     //controls
                     new Background {
+                        FlexController = {
+                            Gap = 2f,
+                            Padding = new() { top = 1f, bottom = 1f, right = 2f, left = 2f }
+                        },
+
+                        FlexItem = {
+                            Size = new() { y = 6f }
+                        },
+
                         Children = {
                             //pin button
-                            new ImageButton {
-                                Image = {
-                                    Sprite = BundleLoader.Sprites.pinIcon,
-                                    Material = BundleLoader.Materials.uiAdditiveGlowMaterial
-                                },
-                                Colors = UIStyle.GlowingButtonColorSet,
-                                Latching = true,
-                                OnStateChanged = HandlePinStateChanged
-                            }.AsFlexItem(size: 4f).Bind(ref _pinButton),
+                            CreateButton(
+                                BundleLoader.Sprites.pinIcon,
+                                _pinButtonState,
+                                () => SetPinned(!_pinButtonState.IsActive)
+                            ).AsFlexItem(size: 4f),
                             //snap button
-                            new ImageButton {
-                                Image = {
-                                    Sprite = BundleLoader.Sprites.snapIcon,
-                                    Material = BundleLoader.Materials.uiAdditiveGlowMaterial
-                                },
-                                Colors = UIStyle.GlowingButtonColorSet,
-                                Latching = true,
-                                OnStateChanged = HandleSnapStateChanged
-                            }.AsFlexItem(size: 4f).Bind(ref _snapButton),
+                            CreateButton(
+                                BundleLoader.Sprites.snapIcon,
+                                _snapButtonState,
+                                () => SetSnapEnabled(!_snapButtonState.IsActive)
+                            ).AsFlexItem(size: 4f),
                             //curvature button
-                            new ImageButton {
-                                Image = {
-                                    Sprite = BundleLoader.Sprites.curvatureIcon,
-                                    Material = BundleLoader.Materials.uiAdditiveGlowMaterial
-                                },
-                                Colors = UIStyle.GlowingButtonColorSet,
-                                OnClick = HandleCurvatureButtonClicked
-                            }.AsFlexItem(size: 4f),
+                            CreateButton(
+                                BundleLoader.Sprites.curvatureIcon,
+                                Remember(GraphicState.None),
+                                HandleCurvatureButtonClicked
+                            ).AsFlexItem(size: 4f),
                         }
-                    }.AsFlexGroup(
-                        gap: 2f,
-                        padding: new() { top = 1f, bottom = 1f, right = 2f, left = 2f }
-                    ).AsBackground(
+                    }.AsBackground(
                         color: new(0.1f, 0.1f, 0.1f, 1f),
                         pixelsPerUnit: 7f
-                    ).AsFlexItem(size: new() { y = 6f }),
+                    ),
                     //handle container
                     new Layout {
+                        FlexItem = {
+                            Size = new() { y = 6f }
+                        },
+
                         ContentTransform = {
                             localScale = new(7f, 3f, 3f)
                         }
-                    }.AsFlexItem(size: new() { y = 6f }).Bind(ref _handleContainer)
+                    }.Bind(ref _handleContainer)
                 }
-            }.AsFlexGroup(direction: FlexDirection.Column).Use();
+            }.Use();
         }
 
         protected override void OnInitialize() {
@@ -142,7 +176,7 @@ namespace BeatLeader.UI.Replayer {
 
         private void HandleCurvatureButtonClicked() {
             if (!_isInitialized) return;
-            _curvatureSettings.Present();
+            _curvatureSettings.IsPresent = true;
             if (_lastHandleState) {
                 _floatingHandle.Hide();
             }
@@ -159,7 +193,7 @@ namespace BeatLeader.UI.Replayer {
         }
 
         private void HandleCurvatureSettingsCloseButtonClicked() {
-            _curvatureSettings.Hide();
+            _curvatureSettings.IsPresent = false;
             if (_lastHandleState) {
                 _floatingHandle.Present();
             }

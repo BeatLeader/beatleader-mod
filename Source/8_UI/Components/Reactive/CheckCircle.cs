@@ -1,66 +1,73 @@
 ﻿using System;
 using Reactive;
+using Reactive.BeatSaber.Components;
 using Reactive.Components;
-using Reactive.Components.Basic;
 using UnityEngine;
-using Image = Reactive.BeatSaber.Components.Image;
 
 namespace BeatLeader.UI.Reactive.Components {
     internal class CheckCircle : ReactiveComponent {
-        public bool Active { get; private set; }
-        public Action<bool>? OnStateChanged { get; set; }
+        #region Public API
 
-        private ButtonBase _button = null!;
-        private Image _inactiveImage = null!;
-        private Image _activeImage = null!;
+        public bool Active {
+            get => _active.Value;
+            set {
+                if (value == _active.Value) {
+                    return;
+                }
 
-        public void SetActive(bool active, bool notifyListeners = true, bool force = false) {
-            _button.Click(active, notifyListeners, force);
-        }
-
-        private void RefreshColors(float t) {
-            var color = UIStyle.GlowingButtonColorSet.Color;
-            var activeColor = UIStyle.GlowingButtonColorSet.ActiveColor;
-
-            if (!Active) {
-                _inactiveImage.Color = Color.Lerp(color, Color.clear, t);
-                _activeImage.Color = Color.Lerp(Color.clear, activeColor, t);
-            } else {
-                _inactiveImage.Color = Color.clear;
-                _activeImage.Color = activeColor;
+                _active.Value = value;
+                _hoverProgress.SetValueImmediate(0f);
+                OnStateChanged?.Invoke(value);
             }
         }
 
+        public Action<bool>? OnStateChanged { get; set; }
+
+        #endregion
+
+        #region Construct
+
+        private State<bool> _active = null!;
+        private AnimatedState<float> _hoverProgress = null!;
+
         protected override GameObject Construct() {
-            var progress = RememberAnimated(0f, 10.fact());
-            progress.EvaluateNextFrame();
+            _active = Remember(false);
+            _hoverProgress = RememberAnimated(0f, 10.fact);
 
-            progress.ValueChangedEvent += RefreshColors;
+            var color = UIStyle.GlowingButtonColorSet.Color;
+            var activeColor = UIStyle.GlowingButtonColorSet.GetColor(GraphicState.Active);
 
-            return new Clickable {
-                OnStateChanged = x => {
-                    Active = x;
-                    RefreshColors(0f);
-                    OnStateChanged?.Invoke(x);
-                },
-                Latching = true,
-                Children = {
-                    new Image {
-                        Sprite = BundleLoader.Sprites.inactiveCheckIcon,
-                        Material = BundleLoader.UIAdditiveGlowMaterial,
-                        PreserveAspect = true
-                    }.WithRectExpand().Bind(ref _inactiveImage),
+            return new Background {
+                    Sprite = BundleLoader.Sprites.inactiveCheckIcon,
+                    Material = BundleLoader.UIAdditiveGlowMaterial,
+                    PreserveAspect = true,
+                    sColor = RememberDerived(
+                        _active, _hoverProgress,
+                        (active, progress) => active ? Color.clear : Color.Lerp(color, Color.clear, progress)
+                    ),
 
-                    new Image {
-                        Sprite = BundleLoader.Sprites.checkIcon,
-                        Material = BundleLoader.UIAdditiveGlowMaterial,
-                        PreserveAspect = true
-                    }.WithRectExpand().Bind(ref _activeImage)
+                    Children = {
+                        new Image {
+                            Sprite = BundleLoader.Sprites.checkIcon,
+                            Material = BundleLoader.UIAdditiveGlowMaterial,
+                            PreserveAspect = true,
+                            RaycastTarget = false,
+                            sColor = RememberDerived(
+                                _active, _hoverProgress,
+                                (active, progress) => active ? activeColor : Color.Lerp(Color.clear, activeColor, progress)
+                            )
+                        }.WithRectExpand()
+                    }
                 }
-            }.WithListener(
-                x => x.IsHovered,
-                x => progress.Value = x ? 1f : 0f
-            ).WithScaleAnimation(1f, 1.2f).Bind(ref _button).Use();
+                .WithPointerEvents(
+                    onEnter: _ => _hoverProgress.TargetValue = 1f,
+                    onLeave: _ => _hoverProgress.TargetValue = 0f,
+                    onDown: _ => Active = !Active
+                )
+                .WithHoverScale(1f, 1.2f)
+                .Use();
         }
+
+        #endregion
     }
 }

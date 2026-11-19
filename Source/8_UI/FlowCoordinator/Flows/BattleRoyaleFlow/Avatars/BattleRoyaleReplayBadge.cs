@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using BeatLeader.Components;
 using BeatLeader.UI.Reactive.Components;
 using Reactive;
+using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Yoga;
@@ -31,10 +32,10 @@ namespace BeatLeader.UI.Hub {
 
         #region Animation
 
-        private AnimatedValue<Vector3> _scale = null!;
+        private AnimatedState<Vector3> _scale = null!;
 
         private void Show() {
-            _scale.Value = Vector3.one;
+            _scale.TargetValue = Vector3.one;
         }
 
         private void Hide() {
@@ -51,46 +52,71 @@ namespace BeatLeader.UI.Hub {
         private Label _nameLabel = null!;
 
         protected override GameObject Construct() {
-            _scale = RememberAnimated(Vector3.zero, 10.fact());
+            _scale = RememberAnimated(Vector3.zero, 10.fact);
 
             return new Background {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    Padding = new() { top = 1f, bottom = 0.3f, left = 2f, right = 2f },
+                    AlignItems = Align.Center,
+                    Gap = 0.5f,
+                    ConstrainHorizontal = false,
+                    ConstrainVertical = false
+                },
+
+                FlexItem = {
+                    Size = YogaVector.Auto
+                },
+
+                ContentTransform = {
+                    slocalScale = _scale
+                },
+
                 Children = {
                     new Layout {
+                        FlexController = {
+                            Gap = 1f
+                        },
+
+                        FlexItem = {
+                            Size = new() { y = 4f }
+                        },
+
                         Children = {
                             new Label {
+                                FlexItem = {
+                                    Size = YogaVector.Auto
+                                },
+
                                 FontSize = 3f
-                            }.AsFlexItem(size: "auto").Bind(ref _rankLabel),
+                            }.Bind(ref _rankLabel),
                             //
-                            new ReeWrapperV2<PlayerAvatar>()
-                                .AsFlexItem(aspectRatio: 1f)
-                                .BindRee(ref _playerAvatar),
+                            new ReeWrapperV2<PlayerAvatar> {
+                                FlexItem = {
+                                    AspectRatio = 1f
+                                }
+                            }.BindRee(ref _playerAvatar),
                             //
                             new Label {
+                                FlexItem = {
+                                    Size = YogaVector.Auto
+                                },
+
                                 FontSize = 3f
-                            }.AsFlexItem(size: "auto").Bind(ref _nameLabel)
+                            }.Bind(ref _nameLabel)
                         }
-                    }.AsFlexGroup(gap: 1f).AsFlexItem(size: new() { y = 4f }),
+                    },
                     //date
                     new Label {
-                        Color = UIStyle.SecondaryTextColor,
+                        FlexItem = {
+                            Size = YogaVector.Auto
+                        },
+
+                        Color = BeatSaberStyle.SecondaryTextColor,
                         FontSize = 2.8f
-                    }.AsFlexItem(size: "auto").Bind(ref _dateLabel)
+                    }.Bind(ref _dateLabel)
                 }
-            }.With(
-                x => {
-                    x.AsBlurBackground();
-                    x.Animate(_scale, static (x, y) => x.ContentTransform.localScale = y);
-                    x.AsFlexGroup(
-                        direction: FlexDirection.Column,
-                        padding: new() { top = 1f, bottom = 0.3f, left = 2f, right = 2f },
-                        alignItems: Align.Center,
-                        gap: 0.5f,
-                        constrainHorizontal: false,
-                        constrainVertical: false
-                    );
-                    x.AsFlexItem(size: "auto");
-                }
-            ).Use();
+            }.AsBlurBackground().Use();
         }
 
         protected override void OnInitialize() {

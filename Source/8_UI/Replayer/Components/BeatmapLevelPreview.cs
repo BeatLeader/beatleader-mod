@@ -17,44 +17,81 @@ namespace BeatLeader.UI.Replayer {
         protected override GameObject Construct() {
             static ReactiveComponent CreateLabel(ref Label label) {
                 return new Background {
+                    FlexController = {
+                        Padding = new() { left = 1f, right = 1f },
+                        Gap = new() { x = 1f },
+                        Overflow = Overflow.Hidden
+                    },
+
+                    FlexItem = {
+                        Size = YogaVector.Auto,
+                        MaxSize = 100.pct
+                    },
+
                     Children = {
                         new Label {
+                            FlexItem = {
+                                FlexShrink = 1f,
+                                Size = YogaVector.Auto
+                            },
+
                             Overflow = TextOverflowModes.Ellipsis,
                             FontSize = 4f
-                        }.AsFlexItem(size: "auto").Bind(ref label)
+                        }.Bind(ref label)
                     }
                 }.AsBackground(
                     material: BundleLoader.Materials.tintedBlurredBackgroundMaterial,
                     pixelsPerUnit: 12f
-                ).AsFlexGroup(
-                    padding: new() { left = 1f, right = 1f },
-                    gap: new() { x = 1f },
-                    overflow: Overflow.Hidden
-                ).AsFlexItem(
-                    size: "auto",
-                    maxSize: "100%"
                 );
             }
 
             static ReactiveComponent CreateRail(ILayoutItem child) {
                 return new Layout {
+                    FlexController = {
+                        JustifyContent = Justify.FlexStart,
+                        Gap = new() { x = 0.5f }
+                    },
+
                     Children = {
                         child
                     }
-                }.AsFlexGroup(
-                    justifyContent: Justify.FlexStart,
-                    gap: new() { x = 0.5f }
-                ).AsFlexItem();
+                };
             }
 
             return new Layout {
+                FlexController = {
+                    Padding = new() {
+                        top = 2f,
+                        bottom = 2f,
+                        left = 1.5f,
+                        right = 1.5f
+                    },
+                    Gap = 2f
+                },
+
                 Children = {
                     //song image
                     new Image {
+                        FlexItem = {
+                            AspectRatio = 1f
+                        },
+
                         Material = BundleLoader.RoundTextureMaterial
-                    }.AsFlexItem(aspectRatio: 1f).Bind(ref _songPreviewImage),
+                    }.Bind(ref _songPreviewImage),
                     //labels
                     new Layout {
+                        FlexController = {
+                            FlexDirection = FlexDirection.Column,
+                            JustifyContent = Justify.Center,
+                            AlignItems = Align.Stretch,
+                            Gap = new() { y = 1f }
+                        },
+
+                        FlexItem = {
+                            FlexGrow = 1f,
+                            FlexShrink = 1f
+                        },
+
                         Children = {
                             //song name
                             CreateRail(
@@ -65,22 +102,9 @@ namespace BeatLeader.UI.Replayer {
                                 CreateLabel(ref _songAuthorLabel)
                             )
                         }
-                    }.AsFlexGroup(
-                        direction: FlexDirection.Column,
-                        justifyContent: Justify.Center,
-                        alignItems: Align.FlexStart,
-                        gap: new() { y = 1f }
-                    ).AsFlexItem(flexGrow: 1f)
+                    }
                 }
-            }.AsFlexGroup(
-                padding: new() {
-                    top = 2f,
-                    bottom = 2f,
-                    left = 1.5f, 
-                    right = 1.5f
-                },
-                gap: 2f
-            ).Use();
+            }.Use();
         }
 
         #endregion

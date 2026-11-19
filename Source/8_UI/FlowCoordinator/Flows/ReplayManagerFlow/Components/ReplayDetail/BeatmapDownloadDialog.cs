@@ -11,7 +11,6 @@ using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Yoga;
 using UnityEngine;
-using UnityExtensions = BeatLeader.Utils.UnityExtensions;
 
 namespace BeatLeader.UI.Hub {
     internal class BeatmapDownloadDialog : DialogBase {
@@ -66,7 +65,7 @@ namespace BeatLeader.UI.Hub {
                 State.Downloaded => FinishedText,
                 _ => DownloadFailedText
             };
-            OkButtonText = state switch {
+            OkButton.Text = state switch {
                 State.Greetings => ProceedText,
                 State.ReadyToDownload => DownloadText,
                 _ => OkText
@@ -76,10 +75,10 @@ namespace BeatLeader.UI.Hub {
             _mapDetailPanel.Enabled = state is State.ReadyToDownload;
             _spinner.Enabled = state is State.Downloading or State.ForceDownloading;
             //buttons
-            ShowCancelButton = state is State.Greetings or
+            CancelButton.Enabled = state is State.Greetings or
                 State.Searching or
                 State.ReadyToDownload;
-            ShowOkButton = state is State.Greetings or
+            OkButton.Enabled = state is State.Greetings or
                 State.SearchFailed or
                 State.ReadyToDownload or
                 State.DownloadFailed or
@@ -96,36 +95,57 @@ namespace BeatLeader.UI.Hub {
         private Layout _searchIndicatorContainer = null!;
         private Spinner _spinner = null!;
 
-        protected override ILayoutItem ConstructContent() {
+        protected override IReactiveComponent ConstructDialogContent() {
             return new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    JustifyContent = Justify.Center,
+                    Gap = 1f
+                },
+
+                FlexItem = {
+                    Size = new() { x = 64.pt, y = 20f }
+                },
+
                 Children = {
                     new Label {
-                            EnableWrapping = true
-                        }
-                        .AsFlexItem(size: new() { y = "auto" })
-                        .Bind(ref _titleLabel),
+                        FlexItem = {
+                            Size = new() { y = YogaValue.Auto }
+                        },
+
+                        EnableWrapping = true
+                    }.Bind(ref _titleLabel),
                     //
                     new Layout {
+                        FlexItem = {
+                            Size = new() { y = 10f }
+                        },
+
                         Children = {
                             new SearchIndicator {
+                                FlexItem = {
+                                    Margin = new() { top = 2f }
+                                },
+
                                 Radius = 2f
-                            }.AsFlexItem(margin: new() { top = 2f })
+                            }
                         }
-                    }.AsFlexGroup().AsFlexItem(size: new() { y = 10f }).Bind(ref _searchIndicatorContainer),
+                    }.AsFlexGroup().Bind(ref _searchIndicatorContainer),
                     //
-                    new MapDetailPreviewPanel()
-                        .AsFlexItem(margin: new() { left = 1f, right = 1f })
-                        .Bind(ref _mapDetailPanel),
+                    new MapDetailPreviewPanel {
+                        FlexItem = {
+                            Margin = new() { left = 1f, right = 1f }
+                        }
+                    }.Bind(ref _mapDetailPanel),
                     //
-                    new Spinner()
-                        .AsFlexItem(size: 8f, alignSelf: Align.Center)
-                        .Bind(ref _spinner)
+                    new Spinner {
+                        FlexItem = {
+                            Size = 8f,
+                            AlignSelf = Align.Center
+                        }
+                    }.Bind(ref _spinner)
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Column,
-                justifyContent: Justify.Center,
-                gap: 1f
-            ).AsFlexItem(size: new() { y = 20f });
+            };
         }
 
         #endregion
@@ -137,24 +157,26 @@ namespace BeatLeader.UI.Hub {
         private string? _beatmapHash;
 
         public void SetHash(string hash) {
-            if (IsOpened) return;
+            if (IsPushed) return;
             _beatmapHash = hash;
             _mapDetail = null;
         }
 
-        private void SearchForBeatmap() {
-            SearchForBeatmapAsync(_tokenSource.Token).ConfigureAwait(true);
-        }
-
-        private void DownloadBeatmap() {
-            DownloadBeatmapAsync(_tokenSource.Token).ConfigureAwait(true);
+        private void Close() {
+            IsPushed = false;
+            _tokenSource.Cancel();
+            _tokenSource = new();
+            _beatmapHash = null;
+            _mapDetail = null;
         }
 
         protected override void OnInitialize() {
             base.OnInitialize();
-            this.AsFlexItem(size: new() { x = 64.pt(), y = 34.pt() });
-            Content.GetOrAddComponent<CanvasGroup>().ignoreParentGroups = true;
             Title = "Download Beatmap";
+
+            OkButton.OnClick = HandleOkButtonClicked;
+            CancelButton.OnClick = Close;
+            OnPushed += HandlePushed;
         }
 
         #endregion
@@ -225,9 +247,7 @@ namespace BeatLeader.UI.Hub {
 
         #region Callbacks
 
-        protected override void OnOpen(bool opened) {
-            base.OnOpen(opened);
-            if (opened) return;
+        private void HandlePushed() {
             //
             if (_beatmapHash == null) {
                 throw new UninitializedComponentException("Download dialog cannot be opened without hash");
@@ -235,28 +255,19 @@ namespace BeatLeader.UI.Hub {
             RefreshVisuals(State.Greetings);
         }
 
-        protected override void OnClose(bool closed) {
-            base.OnClose(closed);
-            if (!closed) return;
-            _tokenSource.Cancel();
-            _tokenSource = new();
-            _beatmapHash = null;
-            _mapDetail = null;
-        }
-
-        protected override void OnOkButtonClicked() {
+        private void HandleOkButtonClicked() {
             switch (_state) {
                 case State.Greetings:
-                    SearchForBeatmap();
+                    SearchForBeatmapAsync(_tokenSource.Token).ConfigureAwait(true);
                     break;
                 case State.ReadyToDownload:
-                    DownloadBeatmap();
+                    DownloadBeatmapAsync(_tokenSource.Token).ConfigureAwait(true);
                     break;
                 case State.DownloadFailed:
                 case State.SearchFailed:
                 case State.ForceDownloadFailed:
                 case State.Downloaded:
-                    CloseInternal();
+                    Close();
                     break;
             }
         }

@@ -14,6 +14,10 @@ namespace BeatLeader.UI.Replayer {
 
         protected override GameObject Construct() {
             return new Layout {
+                FlexController = {
+                    Gap = 1f
+                },
+
                 Children = {
                     new Image()
                         .WithRectExpand()
@@ -27,7 +31,7 @@ namespace BeatLeader.UI.Replayer {
                         .InBlurBackground(color: Color.black.ColorWithAlpha(0.93f))
                         .AsFlexItem(size: 5f),
                 }
-            }.AsFlexGroup(gap: 1f).Use();
+            }.Use();
         }
 
         protected override void OnInitialize() {

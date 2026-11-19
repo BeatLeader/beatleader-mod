@@ -10,47 +10,41 @@ namespace BeatLeader.UI.Reactive.Components {
     );
 
     internal class DynamicShadow : ReactiveComponent {
-        #region Pool
-
-        private static readonly ReactivePool<DynamicShadow> shadowsPool = new();
-
-        public static DynamicShadow SpawnShadow(RectTransform transform, DynamicShadowSettings settings) {
-            var shadow = shadowsPool.Spawn();
-            shadow.Setup(transform, settings);
-            return shadow;
-        }
-
-        public static void DespawnShadow(DynamicShadow shadow) {
-            shadowsPool.Despawn(shadow);
-        }
-
-        #endregion
-
         #region Setup
 
-        public void Setup(RectTransform transform, DynamicShadowSettings settings) {
-            ContentTransform.SetParent(transform.parent, false);
-            ContentTransform.SetSiblingIndex(transform.GetSiblingIndex());
-            var size = transform.rect.size;
-            var posSum = (transform.pivot * 2 - Vector2.one) * transform.rect.size / 2;
-            ContentTransform.sizeDelta = size + settings.Size * Vector2.one;
-            ContentTransform.localPosition = (Vector2)transform.localPosition - posSum + settings.Offset;
+        public DynamicShadowSettings Settings {
+            get;
+            set {
+                field = value;
+                RefreshRect();
+            }
+        } = new();
+
+        private void RefreshRect() {
+            var halfSize = Settings.Size / 2f * Vector2.one;
+
+            ContentTransform.offsetMin = Settings.Offset - halfSize;
+            ContentTransform.offsetMax = Settings.Offset + halfSize;
         }
 
         #endregion
 
         #region Construct
 
-        private Image _image = null!;
         private CanvasGroup _canvasGroup = null!;
 
         protected override GameObject Construct() {
             return new Image {
+                IgnoreLayout = true,
                 RaycastTarget = false,
                 Sprite = BundleLoader.Sprites.glare,
                 Color = Color.black.ColorWithAlpha(0.7f),
                 ImageType = UnityEngine.UI.Image.Type.Sliced
-            }.WithNativeComponent(out _canvasGroup).Bind(ref _image).Use();
+            }.WithRectExpand().WithNativeComponent(out _canvasGroup).Use();
+        }
+
+        protected override void OnInitialize() {
+            RefreshRect();
         }
 
         #endregion

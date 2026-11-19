@@ -1,5 +1,4 @@
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive.Components;
 using BeatLeader.Utils;
 using Reactive;
 using Reactive.BeatSaber.Components;
@@ -22,24 +21,30 @@ namespace BeatLeader.UI.Hub {
 
         private Label _label = null!;
 
-        protected override ILayoutItem ConstructContent() {
+        protected override IReactiveComponent ConstructDialogContent() {
             return new Label {
+                FlexItem = {
+                    Size = new() { x = 60.pt, y = 12.pt }
+                },
+
                 EnableWrapping = true
-            }.Bind(ref _label).AsFlexItem(flexGrow: 1f);
+            }.Bind(ref _label);
         }
 
         protected override void OnInitialize() {
             base.OnInitialize();
-            this.AsFlexItem(size: new() { x = 60.pt(), y = 26.pt() });
             Title = "Delete Tag";
+
+            OkButton.OnClick = HandleOkButtonClicked;
+            CancelButton.OnClick = () => IsPushed = false;
         }
 
         #endregion
 
         #region Callbacks
 
-        protected override void OnOkButtonClicked() {
-            base.OnOkButtonClicked();
+        private void HandleOkButtonClicked() {
+            IsPushed = false;
             if (_replayTag == null) {
                 return;
             }

@@ -1,45 +1,47 @@
-﻿using HMUI;
+﻿using System.Collections.Generic;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Yoga;
-using TMPro;
 using UnityEngine;
-using Zenject;
 
 namespace BeatLeader.UI.Hub {
     internal class BeatLeaderSettingsView : ReactiveComponent {
-
-        private GlobalSettingsView _globalSettingsView;
-        private UISettingsView _uiSettingsView;
-        private ReplaySettingsView _replaySettingsView;
+        private GlobalSettingsView _globalSettingsView = null!;
+        private UISettingsView _uiSettingsView = null!;
+        private ReplaySettingsView _replaySettingsView = null!;
+        private KeyedContainer<string> _viewContainer = null!;
 
         protected override GameObject Construct() {
             return new Layout {
+                FlexController = {
+                    FlexDirection = FlexDirection.Column,
+                    AlignItems = Align.Center,
+                    Gap = 6f
+                },
+
                 Children = {
-                    new TextSegmentedControl<string> {
-                            WhenCellSpawned = (_, cell) => {
-                                cell.FontStyle |= FontStyles.Italic;
-                            },
-                            Items = {
-                                { "GLOBAL", "Global" },
-                                { "UI", "UI" },
-                                { "REPLAYS", "Replays" },
-                            },
-                        }
-                        .AsFlexItem(flexGrow: 1f)
-                        .Export(out var control)
-                        //bg
-                        .InBackground(
-                            color: UIStyle.ControlColorSet.Color,
-                            skew: UIStyle.Skew
-                        )
-                        .AsFlexGroup()
-                        .AsFlexItem(size: new() { y = 8f, x = 50f }),
+                    new BsSegmentedControl<string> {
+                        FlexItem = {
+                            Size = new() { y = 8f, x = 50f }
+                        },
+
+                        Items = new Dictionary<string, BsSegmentedControlItem> {
+                            ["GLOBAL"] = new("Global", null),
+                            ["UI"] = new("UI", null),
+                            ["REPLAYS"] = new("Replays", null)
+                        },
+                        Key = "GLOBAL",
+                        OnKeyChanged = x => _viewContainer.Key = x
+                    },
                     //
                     new KeyedContainer<string> {
-                        Control = control,
-                        Items = {
+                        FlexItem = {
+                            FlexGrow = 1f,
+                            Size = new() { x = 90f }
+                        },
+
+                        Views = new Dictionary<string, IReactiveComponent> {
                             ["GLOBAL"] = new GlobalSettingsView()
                                 .WithRectExpand()
                                 .Bind(ref _globalSettingsView),
@@ -51,14 +53,11 @@ namespace BeatLeader.UI.Hub {
                             ["REPLAYS"] = new ReplaySettingsView()
                                 .WithRectExpand()
                                 .Bind(ref _replaySettingsView)
-                        }
-                    }.AsFlexItem(flexGrow: 1f, size: new() { x = 90f })
+                        },
+                        Key = "GLOBAL"
+                    }.Bind(ref _viewContainer)
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Column,
-                alignItems: Align.Center,
-                gap: 6f
-            ).WithRectExpand().Use();
+            }.WithRectExpand().Use();
         }
 
         public void Setup(BeatLeaderHubTheme hubTheme, MenuTransitionsHelper? menuTransitionsHelper) {

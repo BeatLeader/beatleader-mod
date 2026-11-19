@@ -70,6 +70,9 @@ namespace BeatLeader.UI.Hub {
             }
 
             _replaysList.Items = _headers;
+            
+            _replaysList.Sort();
+            _replaysList.Refresh();
 
             if (_navigateHeader != null) {
                 _replaysList.Select(_navigateHeader);
@@ -98,7 +101,8 @@ namespace BeatLeader.UI.Hub {
 
         private void HandleReplayAdded(IReplayHeader header) {
             _headers.Add(header);
-            SetListIsDirty();
+            // Only a bulk load can skip the refresh, it refreshes once when finished
+            SetListIsDirty(!ReplayManager.IsLoading);
         }
 
         private void HandleReplayRemoved(IReplayHeader header) {

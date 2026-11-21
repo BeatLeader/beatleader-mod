@@ -70,9 +70,6 @@ namespace BeatLeader.UI.Hub {
             }
 
             _replaysList.Items = _headers;
-            
-            _replaysList.Sort();
-            _replaysList.Refresh();
 
             if (_navigateHeader != null) {
                 _replaysList.Select(_navigateHeader);

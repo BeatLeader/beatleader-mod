@@ -135,44 +135,24 @@ namespace BeatLeader.UI.Hub {
             private readonly List<TagPanel> _spawnedTags = new();
 
             private void RefreshTags() {
-                var tags = _item!.ReplayMetadata.Tags;
-                RefreshTagPanels(Math.Min(tags.Count, MaxTags));
+                var pool = _replaysList._tagsPool;
 
-                var index = 0;
-                foreach (var tag in tags) {
-                    if (index == MaxTags) {
-                        break;
-                    }
+                foreach (var panel in _spawnedTags) {
+                    pool.Despawn(panel);
+                }
 
-                    var panel = _spawnedTags[index];
+                _spawnedTags.Clear();
+
+                foreach (var tag in _item!.ReplayMetadata.Tags.Take(MaxTags)) {
+                    var panel = pool.Spawn();
+
                     panel.Interactable = false;
-                    panel.AnimateMovement = false;
                     panel.Animated = false;
                     panel.Tag = tag;
                     panel.IsPresent = true;
 
-                    panel.FixedHeight = 4f;
-                    if (panel.LayoutDriver != _tagsContainer) {
-                        panel.LayoutDriver?.Children.Remove(panel);
-                        _tagsContainer.Children.Add(panel);
-                    }
-                    panel.RefreshContainerSize(true);
-
-                    index++;
-                }
-            }
-
-            private void RefreshTagPanels(int count) {
-                var pool = _replaysList._tagsPool;
-
-                while (_spawnedTags.Count > count) {
-                    var last = _spawnedTags.Count - 1;
-                    pool.Despawn(_spawnedTags[last]);
-                    _spawnedTags.RemoveAt(last);
-                }
-
-                while (_spawnedTags.Count < count) {
-                    _spawnedTags.Add(pool.Spawn());
+                    _tagsContainer.Children.Add(panel);
+                    _spawnedTags.Add(panel);
                 }
             }
 
@@ -270,12 +250,14 @@ namespace BeatLeader.UI.Hub {
                                             new Layout {
                                                 FlexController = {
                                                     JustifyContent = Justify.FlexStart,
+                                                    AlignItems = Align.FlexStart,
                                                     Padding = new() { top = 0.7f, left = 0.7f },
                                                     Gap = new() { x = 0.5f }
                                                 },
 
                                                 FlexItem = {
-                                                    FlexGrow = 1f
+                                                    FlexGrow = 1f,
+                                                    Size = new() { y = 4.pt }
                                                 }
                                             }.Bind(ref _tagsContainer)
                                         }

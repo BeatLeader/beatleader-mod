@@ -12,7 +12,7 @@ namespace BeatLeader.UI.Hub {
         protected override IReactiveComponent ConstructDialogContent() {
             return new TagEditorPanel {
                 FlexItem = {
-                    Size = new() { x = 42.pt, y = 8.pt },
+                    Size = new() { x = 42.pt, y = 14.pt },
                     Margin = new() { top = 2f, left = 2f, right = 2f, bottom = 1f }
                 }
             }.Bind(ref _tagEditorPanel);

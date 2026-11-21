@@ -70,8 +70,9 @@ namespace BeatLeader.UI.Hub {
             panel.Tag = tag;
             panel.IsPresent = true;
 
-            panel.TagStateChangedEvent += HandleTagStateChanged;
-            panel.DeleteButtonClickedEvent += HandleTagDeleteButtonClicked;
+            panel.OnTagStateChanged = HandleTagStateChanged;
+            panel.OnDeleteButtonClicked = HandleTagDeleteButtonClicked;
+            panel.OnDisappearAnimationFinished = null;
 
             _tagsContainer.Children.Add(panel);
         }
@@ -81,17 +82,16 @@ namespace BeatLeader.UI.Hub {
                 return;
             }
 
-            panel.TagStateChangedEvent -= HandleTagStateChanged;
-            panel.DeleteButtonClickedEvent -= HandleTagDeleteButtonClicked;
-            //starting disappear animation
-            panel.DisappearAnimationFinishedEvent += HandleTagDisappearAnimationFinished;
+            panel.OnTagStateChanged = null;
+            panel.OnDeleteButtonClicked = null;
+            panel.OnDisappearAnimationFinished = HandleTagDisappearAnimationFinished;
             panel.IsPresent = false;
         }
 
         private void SetEditModeEnabled(bool enabled) {
             _createButtonState.IsInteractable = !enabled;
             foreach (var (_, tag) in _tagsPool.SpawnedComponents) {
-                tag.IsEditing = enabled;
+                tag.IsBeingEdited = enabled;
             }
         }
 
@@ -139,7 +139,7 @@ namespace BeatLeader.UI.Hub {
                                 FlexWrap = Wrap.Wrap,
                                 AlignItems = Align.FlexStart,
                                 JustifyContent = Justify.SpaceAround,
-                                Gap = new() { x = 1.5f, y = 2f }
+                                Gap = new() { x = 1.5f, y = 3f }
                             },
 
                             FlexItem = {
@@ -221,7 +221,7 @@ namespace BeatLeader.UI.Hub {
             }
 
             var panel = _tagsPool.SpawnedComponents[tag];
-            panel.DisappearAnimationFinishedEvent -= HandleTagDisappearAnimationFinished;
+            panel.OnDisappearAnimationFinished = null;
             _tagsPool.Despawn(panel);
         }
 

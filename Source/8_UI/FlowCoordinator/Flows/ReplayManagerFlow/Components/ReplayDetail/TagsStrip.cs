@@ -116,11 +116,9 @@ namespace BeatLeader.UI.Hub {
 
         private void SpawnTag(ReplayTag tag, bool animated) {
             if (_tagsPool.SpawnedComponents.TryGetValue(tag, out var panel)) {
-                panel.DisappearAnimationFinishedEvent -= HandleTagDisappearAnimationFinished;
+                panel.OnDisappearAnimationFinished = null;
             } else {
                 panel = _tagsPool.Spawn(tag);
-                panel.FixedHeight = 4f;
-                panel.RefreshContainerSize(false);
             }
 
             panel.Interactable = false;
@@ -136,7 +134,7 @@ namespace BeatLeader.UI.Hub {
                 return;
             }
 
-            panel.DisappearAnimationFinishedEvent += HandleTagDisappearAnimationFinished;
+            panel.OnDisappearAnimationFinished = HandleTagDisappearAnimationFinished;
             panel.Animated = animated;
             panel.IsPresent = false;
         }
@@ -287,7 +285,7 @@ namespace BeatLeader.UI.Hub {
 
         private void HandleTagDisappearAnimationFinished(ReplayTag tag) {
             var panel = _tagsPool.SpawnedComponents[tag];
-            panel.DisappearAnimationFinishedEvent -= HandleTagDisappearAnimationFinished;
+            panel.OnDisappearAnimationFinished = null;
             _tagsPool.Despawn(panel);
 
             // Spawning another tag if needed

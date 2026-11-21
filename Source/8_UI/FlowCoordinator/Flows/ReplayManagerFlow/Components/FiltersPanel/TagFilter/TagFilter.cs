@@ -15,7 +15,7 @@ namespace BeatLeader.UI.Hub {
 
         public IEnumerable<IPanelListFilter<IReplayHeader>>? DependsOn => null;
         public string FilterName => "Tag Filter";
-        public string FilterStatus { get; private set; } = null!;
+        public string FilterStatus { get; private set; } = "No Tags";
 
         public event Action? FilterUpdatedEvent;
 
@@ -53,10 +53,13 @@ namespace BeatLeader.UI.Hub {
         private readonly BsInputFieldContext _textAreaContext = new();
         private string? _textAreaText;
 
-        private BsInputField _textArea = null!;
         private TagSelectorModal _tagSelectorModal = null!;
 
         protected override GameObject Construct() {
+            var textAreaAnchor = Ref<RectTransform>();
+
+            _textAreaContext.AddCallback(this, static (x, y) => x.HandleTextAreaContextUpdated(y), lazy: true);
+
             return new Layout {
                 FlexController = {
                     Padding = new() { top = 1f, bottom = 1f },
@@ -69,16 +72,20 @@ namespace BeatLeader.UI.Hub {
 
                 Children = {
                     new TagSelectorModal {
-                        OnPushed = HandleTagSelectorOpened,
-                        OnClickOutside = HandleTagSelectorClickedOutside,
+                        OnPushed = () => _tagSelectorModal.Component.SelectedTags = _selectedTags,
+                        OnClickOutside = () => _tagSelectorModal.IsPushed = false,
                         PlacementData = new() { Placement = RelativePlacement.BottomCenter, Offset = new(0f, 0.5f) },
+                        PlacementAnchor = textAreaAnchor,
                         Component = {
                             FlexItem = {
                                 Size = new() { x = 50.pt, y = 40.pt }
-                            }
+                            },
+
+                            OnSelectedTagAdded = HandleSelectedTagAdded,
+                            OnSelectedTagRemoved = HandleSelectedTagRemoved
                         }
                     }.Bind(ref _tagSelectorModal),
-                    //text area
+
                     new BsInputField {
                         FlexItem = {
                             FlexGrow = 1f
@@ -87,37 +94,14 @@ namespace BeatLeader.UI.Hub {
                         Context = _textAreaContext,
                         Placeholder = "Choose Tags",
                         Icon = GameResources.Sprites.EditIcon
-                    }.Bind(ref _textArea)
+                    }.Bind(textAreaAnchor)
                 }
             }.Use();
-        }
-
-        protected override void OnInitialize() {
-            RefreshFilterStatus();
-
-            _tagSelectorModal.PlacementAnchor = _textArea.ContentTransform;
-            _textAreaContext.AddCallback(this, static (x, y) => x.HandleTextAreaContextUpdated(y), lazy: true);
         }
 
         #endregion
 
         #region Callbacks
-
-        private void HandleTagSelectorOpened() {
-            var tagSelector = _tagSelectorModal.Component;
-
-            tagSelector.SelectTags(_selectedTags);
-            tagSelector.SelectedTagAddedEvent += HandleSelectedTagAdded;
-            tagSelector.SelectedTagRemovedEvent += HandleSelectedTagRemoved;
-        }
-
-        private void HandleTagSelectorClickedOutside() {
-            _tagSelectorModal.IsPushed = false;
-
-            var tagSelector = _tagSelectorModal.Component;
-            tagSelector.SelectedTagAddedEvent -= HandleSelectedTagAdded;
-            tagSelector.SelectedTagRemovedEvent -= HandleSelectedTagRemoved;
-        }
 
         private void HandleTextAreaContextUpdated(BsInputFieldContext context) {
             if (context.Focused) {
@@ -129,7 +113,7 @@ namespace BeatLeader.UI.Hub {
                 _textAreaText = context.Text;
 
                 if (string.IsNullOrEmpty(_textAreaText)) {
-                    _tagSelectorModal.Component.ClearSelectedTags();
+                    _tagSelectorModal.Component.SelectedTags = Array.Empty<ReplayTag>();
                     _selectedTags.Clear();
                     RefreshFilterStatus();
                     FilterUpdatedEvent?.Invoke();

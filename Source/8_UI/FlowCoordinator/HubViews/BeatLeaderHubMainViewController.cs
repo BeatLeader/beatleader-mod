@@ -167,11 +167,11 @@ namespace BeatLeader.UI.Hub {
         }
 
         private async void OnInitialize() {
-            _quickMiniProfile.SetPlayer(null);
+            _quickMiniProfile.Player = null;
             //waiting for the profile load
             await ProfileManager.WaitUntilProfileLoad();
             var profile = ProfileManager.Profile ?? Player.GuestPlayer;
-            _quickMiniProfile.SetPlayer(profile);
+            _quickMiniProfile.Player = profile;
         }
     }
 }

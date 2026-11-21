@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using BeatLeader.Models;
 using BeatLeader.UI.Reactive.Components;
@@ -8,110 +9,71 @@ using Reactive.Components;
 using Reactive.Yoga;
 using TMPro;
 using UnityEngine;
+using AnimationCurve = Reactive.AnimationCurve;
 
 namespace BeatLeader.UI.Hub {
     internal class TagsStrip : ReactiveComponent {
-        #region AllowEdit
+        #region Public API
 
-        public bool AllowEdit {
-            get => _allowEdit;
+        public ReplayMetadata? Metadata {
+            get;
             set {
-                _allowEdit = value;
-                _editButtonContainer.Enabled = value;
-                _contentContainer.Sprite = value ? BundleLoader.Sprites.backgroundLeft : BundleLoader.Sprites.background;
-            }
-        }
+                var shouldUpdate = field == null || value == null || !field.Tags.SequenceEqual(value.Tags);
 
-        private bool _allowEdit = true;
-
-        #endregion
-
-        #region Setup
-
-        private ReplayMetadata? _metadata;
-
-        public void SetMetadata(ReplayMetadata? metadata) {
-            var shouldAnimate = false;
-
-            // Compare by values if no obvious signs of change
-            if (_metadata != null && _metadata.Tags.Count == metadata?.Tags.Count) {
-                using var newNum = metadata.Tags.GetEnumerator();
-
-                foreach (var oldItem in _metadata.Tags) {
-                    newNum.MoveNext();
-
-                    if (oldItem != newNum.Current) {
-                        shouldAnimate = true;
-                        break;
-                    }
+                if (field != null) {
+                    field.TagAddedEvent -= HandleTagAddedExternal;
+                    field.TagRemovedEvent -= HandleTagRemovedExternal;
                 }
-            } else {
-                shouldAnimate = true;
-            }
 
-            if (_metadata != null) {
-                _metadata.TagAddedEvent -= HandleTagAddedExternal;
-                _metadata.TagRemovedEvent -= HandleTagRemovedExternal;
-            }
-            _metadata = metadata;
-            if (_metadata != null) {
-                _metadata.TagAddedEvent += HandleTagAddedExternal;
-                _metadata.TagRemovedEvent += HandleTagRemovedExternal;
-            }
+                field = value;
 
-            if (shouldAnimate) {
-                StartAnimation();
+                if (field != null) {
+                    field.TagAddedEvent += HandleTagAddedExternal;
+                    field.TagRemovedEvent += HandleTagRemovedExternal;
+                }
+
+                // The tags are swapped once the strip is folded
+                if (shouldUpdate) {
+                    FoldReloadTags();
+                }
             }
         }
 
-        #endregion
-
-        #region Animation
-
-        private float _speed = 10f;
-        private float _progress = 1f;
-        private float _target = 1f;
-        private bool _needToSwapProgress;
-
-        private void StartAnimation() {
-            _target = 0f;
-            _needToSwapProgress = true;
+        public bool ShowEditButton {
+            get => _showEditButton.Value;
+            set => _showEditButton.Value = value;
         }
 
-        protected override void OnUpdate() {
-            _progress = Mathf.Lerp(_progress, _target, Time.deltaTime * _speed);
-            RefreshVisuals();
-        }
-
-        private void RefreshVisuals() {
-            if (_progress <= 0.5f && _needToSwapProgress) {
-                _target = 1f;
-                _needToSwapProgress = false;
-                ReloadTags();
-                RefreshTagsLabel();
+        public bool EditorOpened {
+            get;
+            set {
+                field = value;
+                _editArrowAngle.TargetValue = value ? 180f : 0f;
             }
-            var t = Mathf.Abs((_progress - 0.5f) * 2.0f);
-            _containerGroup.alpha = t;
-            ContentTransform.localScale = new Vector3(1.0f, t, 1.0f);
-            _contentContainer.Color = _contentContainer.Color.ColorWithAlpha(t);
         }
+
+        public Action? OnEditClicked { get; set; }
 
         #endregion
 
         #region Tags
 
-        public int ShownTagsCount = 3;
+        private const int MaxShownTags = 3;
 
         private readonly ReactivePool<ReplayTag, TagPanel> _tagsPool = new() { DetachOnDespawn = false };
 
+        private void FoldReloadTags() {
+            _fold.TargetValue = 0f;
+        }
+
         private void ReloadTags() {
-            var index = 0;
             _tagsPool.DespawnAll();
-            foreach (var tag in _metadata!.Tags) {
-                if (index > ShownTagsCount - 1) break;
+
+            foreach (var tag in Metadata!.Tags.Take(MaxShownTags)) {
                 SpawnTag(tag, false);
-                index++;
             }
+
+            _tagsCount.Value = Metadata.Tags.Count;
         }
 
         private void SpawnTag(ReplayTag tag, bool animated) {
@@ -139,149 +101,138 @@ namespace BeatLeader.UI.Hub {
             panel.IsPresent = false;
         }
 
-        private void RefreshTagsLabel() {
-            var count = _metadata?.Tags.Count;
-            var delta = count - ShownTagsCount;
-            _tagsContainer.Enabled = count > 0;
-            _tagsLabel.Enabled = delta > 0 || count == 0;
-            _tagsLabel.Text = count == 0 ? "No tags" : $"And {delta} more";
-        }
-
         #endregion
 
         #region Construct
 
-        private CanvasGroup _containerGroup = null!;
-        private TagSelectorModal _tagSelectorModal = null!;
-        private Label _tagsLabel = null!;
+        private State<bool> _showEditButton = null!;
+        private State<int> _tagsCount = null!;
+        private AnimatedState<float> _fold = null!;
+        private AnimatedState<float> _editArrowAngle = null!;
         private Layout _tagsContainer = null!;
-        private Image _contentContainer = null!;
-        private Image _editButtonContainer = null!;
 
         protected override GameObject Construct() {
             var editButtonState = Remember(GraphicState.None);
+
+            _showEditButton = Remember(true);
+            _tagsCount = Remember(0);
+            _editArrowAngle = RememberAnimated(0f, 150.ms, AnimationCurve.EaseInOut);
+            
+            _fold = RememberAnimated(1f, 120.ms, AnimationCurve.EaseInOut);
+            _fold.OnFinish = x => {
+                if (x == 0f) {
+                    ReloadTags();
+                    _fold.TargetValue = 1f;
+                }
+            };
 
             return new Layout {
                 FlexController = {
                     Gap = 0.5f
                 },
 
+                ContentTransform = {
+                    slocalScale = _fold.Map(static x => new Vector3(1f, x, 1f))
+                },
+
                 Children = {
-                    new TagSelectorModal {
-                        OnPushed = HandleTagSelectorOpened,
-                        OnClickOutside = HandleTagSelectorClickedOutside,
-                        PlacementData = new() { Placement = RelativePlacement.BottomCenter, Offset = new(0f, 0.5f) },
-                        Component = {
-                            FlexItem = {
-                                Size = new() { x = 50.pt, y = 36.pt }
+                    new Background {
+                        FlexController = {
+                            JustifyContent = Justify.SpaceAround
+                        },
+
+                        FlexItem = {
+                            FlexGrow = 1f
+                        },
+
+                        sSprite = _showEditButton.Map(static x => x ? BundleLoader.Sprites.backgroundLeft : BundleLoader.Sprites.background),
+                        sColor = _fold.Map(static x => Color.white.ColorWithAlpha(x)),
+
+                        Children = {
+                            new Layout {
+                                Name = "TagsContainer",
+
+                                FlexController = {
+                                    Gap = 1f,
+                                    AlignItems = Align.Center,
+                                    JustifyContent = Justify.SpaceAround,
+                                    Padding = new() { left = 1f }
+                                },
+
+                                FlexItem = {
+                                    FlexGrow = 1f
+                                },
+
+                                sEnabled = _tagsCount.Map(static x => x > 0)
+                            }.Bind(ref _tagsContainer),
+
+                            new Label {
+                                FlexItem = {
+                                    Margin = new() { left = 1f, right = 1f }
+                                },
+
+                                Color = BeatSaberStyle.SecondaryTextColor,
+                                FontSize = 3.5f,
+                                Alignment = TextAlignmentOptions.Capline,
+
+                                sText = _tagsCount.Map(static x => x == 0 ? "No tags" : $"And {x - MaxShownTags} more"),
+                                sEnabled = _tagsCount.Map(static x => x is 0 or > MaxShownTags)
                             }
                         }
-                    }.Bind(ref _tagSelectorModal),
+                    }.AsBlurBackground(),
 
                     new Background {
-                            FlexController = {
-                                JustifyContent = Justify.SpaceAround
-                            },
+                        Name = "EditButton",
 
-                            FlexItem = {
-                                FlexGrow = 1f
-                            },
+                        FlexController = {
+                            Padding = 1f,
+                            AlignItems = Align.Center,
+                            JustifyContent = Justify.Center
+                        },
 
-                            Sprite = BundleLoader.Sprites.backgroundLeft,
-                            Children = {
-                                //tags container
-                                new Layout {
-                                    FlexController = {
-                                        Gap = 1f,
-                                        AlignItems = Align.Center,
-                                        JustifyContent = Justify.SpaceAround,
-                                        Padding = new() { left = 1f }
-                                    },
+                        Sprite = BundleLoader.Sprites.backgroundRight,
+                        sEnabled = _showEditButton,
 
-                                    FlexItem = {
-                                        FlexGrow = 1f
+                        Children = {
+                            new Image {
+                                FlexItem = {
+                                    Size = 2.5f
+                                },
+
+                                ContentTransform = {
+                                    slocalEulerAngles = _editArrowAngle.Map(static x => new Vector3(0f, 0f, x))
+                                },
+
+                                Sprite = global::Reactive.BeatSaber.GameResources.ArrowIcon,
+                                PreserveAspect = true,
+                                Material = BundleLoader.Materials.uiAdditiveGlowMaterial,
+                                sColor = editButtonState.MapColorSet(UIStyle.GlowingButtonColorSet),
+
+                                Do = x => x.WithPointerEvents(
+                                    onEnter: _ => editButtonState.IsHovered = true,
+                                    onLeave: _ => editButtonState.IsHovered = false,
+                                    onDown: _ => {
+                                        global::Reactive.BeatSaber.GameResources.ButtonClickSignal.Raise();
+                                        OnEditClicked?.Invoke();
                                     }
-                                }.Bind(ref _tagsContainer),
-                                //tags label
-                                new Label {
-                                    FlexItem = {
-                                        Margin = new() { left = 1f, right = 1f }
-                                    },
-
-                                    Color = BeatSaberStyle.SecondaryTextColor,
-                                    FontSize = 3.5f,
-                                    Alignment = TextAlignmentOptions.Capline
-                                }.Bind(ref _tagsLabel)
+                                )
                             }
                         }
-                        .AsBlurBackground()
-                        .Bind(ref _contentContainer),
-                    //
-                    new Background {
-                            FlexController = {
-                                Padding = 1f
-                            },
-
-                            Sprite = BundleLoader.Sprites.backgroundRight,
-                            Children = {
-                                new Image {
-                                    FlexItem = {
-                                        Size = 3f
-                                    },
-
-                                    Sprite = BundleLoader.Sprites.editIcon,
-                                    Material = BundleLoader.Materials.uiAdditiveGlowMaterial,
-                                    sColor = editButtonState.MapColorSet(UIStyle.GlowingButtonColorSet)
-                                }.WithPointerEvents(
-                                        onEnter: _ => editButtonState.IsHovered = true,
-                                        onLeave: _ => editButtonState.IsHovered = false,
-                                        onDown: _ => {
-                                            global::Reactive.BeatSaber.GameResources.ButtonClickSignal.Raise();
-                                            _tagSelectorModal.IsPushed = true;
-                                        }
-                                    )
-                            }
-                        }
-                        .AsBlurBackground()
-                        .Bind(ref _editButtonContainer)
+                    }.AsBlurBackground()
                 }
-            }.WithNativeComponent(out _containerGroup).Use();
-        }
-
-        protected override void OnInitialize() {
-            _tagSelectorModal.PlacementAnchor = ContentTransform;
+            }.WithAlpha(_fold).Use();
         }
 
         protected override void OnDestroy() {
-            if (_metadata != null) {
-                _metadata.TagAddedEvent -= HandleTagAddedExternal;
-                _metadata.TagRemovedEvent -= HandleTagRemovedExternal;
+            if (Metadata != null) {
+                Metadata.TagAddedEvent -= HandleTagAddedExternal;
+                Metadata.TagRemovedEvent -= HandleTagRemovedExternal;
             }
         }
 
         #endregion
 
         #region Callbacks
-
-        private void HandleTagSelectorOpened() {
-            var tagSelector = _tagSelectorModal.Component;
-
-            if (_metadata == null) {
-                throw new UninitializedComponentException();
-            }
-
-            tagSelector.SelectTags(_metadata.Tags);
-            tagSelector.SelectedTagAddedEvent += HandleSelectedTagAdded;
-            tagSelector.SelectedTagRemovedEvent += HandleSelectedTagRemoved;
-        }
-
-        private void HandleTagSelectorClickedOutside() {
-            _tagSelectorModal.IsPushed = false;
-
-            var tagSelector = _tagSelectorModal.Component;
-            tagSelector.SelectedTagAddedEvent -= HandleSelectedTagAdded;
-            tagSelector.SelectedTagRemovedEvent -= HandleSelectedTagRemoved;
-        }
 
         private void HandleTagDisappearAnimationFinished(ReplayTag tag) {
             var panel = _tagsPool.SpawnedComponents[tag];
@@ -290,32 +241,22 @@ namespace BeatLeader.UI.Hub {
 
             // Spawning another tag if needed
             var spawned = _tagsPool.SpawnedComponents.Count;
-            if (_metadata != null && spawned < ShownTagsCount && _metadata.Tags.Count > spawned) {
-                tag = _metadata.Tags.First(x => !_tagsPool.SpawnedComponents.ContainsKey(x));
+            if (Metadata != null && spawned < MaxShownTags && Metadata.Tags.Count > spawned) {
+                tag = Metadata.Tags.First(x => !_tagsPool.SpawnedComponents.ContainsKey(x));
                 SpawnTag(tag, true);
             }
-        }
-
-        private void HandleSelectedTagAdded(ReplayTag tag) {
-            _metadata!.Tags.Add(tag);
-        }
-
-        private void HandleSelectedTagRemoved(ReplayTag tag) {
-            _metadata!.Tags.Remove(tag);
         }
 
         private void HandleTagAddedExternal(ReplayTag tag) {
-            if (_tagsPool.SpawnedComponents.Count < ShownTagsCount ||
-                _tagsPool.SpawnedComponents.ContainsKey(tag)
-               ) {
+            if (_tagsPool.SpawnedComponents.Count < MaxShownTags || _tagsPool.SpawnedComponents.ContainsKey(tag)) {
                 SpawnTag(tag, true);
             }
-            RefreshTagsLabel();
+            _tagsCount.Value = Metadata!.Tags.Count;
         }
 
         private void HandleTagRemovedExternal(ReplayTag tag) {
             DespawnTag(tag, true);
-            RefreshTagsLabel();
+            _tagsCount.Value = Metadata!.Tags.Count;
         }
 
         #endregion

@@ -117,7 +117,7 @@ namespace BeatLeader.UI.Hub {
             _showEditButton = Remember(true);
             _tagsCount = Remember(0);
             _editArrowAngle = RememberAnimated(0f, 150.ms, AnimationCurve.EaseInOut);
-            
+
             _fold = RememberAnimated(1f, 120.ms, AnimationCurve.EaseInOut);
             _fold.OnFinish = x => {
                 if (x == 0f) {
@@ -125,6 +125,8 @@ namespace BeatLeader.UI.Hub {
                     _fold.TargetValue = 1f;
                 }
             };
+
+            var labelShown = _tagsCount.Map(static x => x is 0 or > MaxShownTags);
 
             return new Layout {
                 FlexController = {
@@ -168,18 +170,22 @@ namespace BeatLeader.UI.Hub {
 
                             new Label {
                                 FlexItem = {
-                                    Margin = new() { left = 1f, right = 1f }
+                                    Position = new() { top = 0.pt, right = -100.pct },
+                                    Margin = new() { left = 1f, right = 1f },
+                                    
+                                    sPositionType = labelShown.Map(x => x ? PositionType.Static : PositionType.Absolute)
                                 },
+
+                                LayoutApplicator = LayoutApplicator.Animated(300.ms, AnimationCurve.EaseOutQuint),
 
                                 Color = BeatSaberStyle.SecondaryTextColor,
                                 FontSize = 3.5f,
                                 Alignment = TextAlignmentOptions.Capline,
 
                                 sText = _tagsCount.Map(static x => x == 0 ? "No tags" : $"And {x - MaxShownTags} more"),
-                                sEnabled = _tagsCount.Map(static x => x is 0 or > MaxShownTags)
                             }
                         }
-                    }.AsBlurBackground(),
+                    }.AsBlurBackground().AsRectMask(),
 
                     new Background {
                         Name = "EditButton",

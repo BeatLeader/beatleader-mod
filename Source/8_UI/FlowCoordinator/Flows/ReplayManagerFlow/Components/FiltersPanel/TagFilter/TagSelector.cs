@@ -113,11 +113,12 @@ namespace BeatLeader.UI.Hub {
 
                 Children = {
                     new TagCreationDialog {
-                        PlacementData = new() { Placement = RelativePlacement.Center, Offset = new(0f, 0.5f) },
+                        PlacementData = new() { Placement = RelativePlacement.Center, Offset = new(0f, 13f) },
                         PlacementAnchor = dialogAnchor,
 
                         sIsPushed = creationOpened,
-                        OnPopped = () => creationOpened.Value = false
+                        OnPopped = () => creationOpened.Value = false,
+                        OnClickOutside = () => creationOpened.Value = false,
                     },
 
                     new TagDeletionDialog {

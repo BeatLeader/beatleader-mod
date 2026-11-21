@@ -63,6 +63,10 @@ namespace BeatLeader.UI.Hub {
 
                     new BsKeyboardModal {
                         Context = _nameContext,
+                        PlacementData = new() {
+                            Placement = RelativePlacement.BottomCenter,
+                            Offset = new(0f, 6.5f),
+                        },
                         PlacementAnchor = inputAnchor
                     },
 

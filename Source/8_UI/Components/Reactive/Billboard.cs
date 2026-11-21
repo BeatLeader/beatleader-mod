@@ -15,11 +15,11 @@ namespace BeatLeader.UI.Reactive.Components;
 public class Billboard : ReactiveComponent {
     #region Public API
 
-    public AnimationDuration AnimationDuration {
-        get => _outerWidth.Duration;
+    public AnimationTiming AnimationTiming {
+        get => _outerWidth.Timing;
         set {
-            _outerWidth.Duration = value;
-            _innerPosX.Duration = value;
+            _outerWidth.Timing = value;
+            _innerPosX.Timing = value;
         }
     }
 

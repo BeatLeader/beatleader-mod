@@ -159,14 +159,15 @@ namespace BeatLeader.UI.Hub {
                 Sprite = BundleLoader.Sprites.background,
                 Material = GameResources.UINoGlowMaterial,
 
-                sColor = _tagButtonState.MapColorSet(_tag, x => {
+                sColor = _tagButtonState.MapColorSet(_tag, static x => {
                     var color = x?.Color ?? Color.red;
 
+                    // The full color is too bright on the dark panels, so selection uses a darker shade of it
+                    Color.RGBToHSV(color, out var h, out var s, out var v);
+                    
                     return new() {
                         Color = color.ColorWithAlpha(0.3f),
-                        NotInteractableColor = color.ColorWithAlpha(0.3f),
-                        HoveredColor = color.ColorWithAlpha(0.7f),
-                        ActiveColor = color.ColorWithAlpha(1f),
+                        ActiveColor = Color.HSVToRGB(h, s * 0.85f, v * 0.75f),
                     };
                 }).In(),
 
@@ -224,7 +225,13 @@ namespace BeatLeader.UI.Hub {
 
                         FontSize = 3f,
                         Alignment = TextAlignmentOptions.Capline,
-                        sText = _tag.Map(static x => x?.Name ?? "Tag")
+                        sText = _tag.Map(static x => x?.Name ?? "Tag"),
+
+                        sColor = _tagButtonState.MapColorSet(new() {
+                            Color = Color.white.ColorWithAlpha(0.5f),
+                            ActiveColor = Color.white,
+                            NotInteractableColor = Color.white,
+                        })
                     }
                 }
             }.Use();

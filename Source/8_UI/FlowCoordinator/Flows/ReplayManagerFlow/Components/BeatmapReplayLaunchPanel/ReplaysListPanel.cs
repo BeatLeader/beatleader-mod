@@ -12,7 +12,6 @@ namespace BeatLeader.UI.Hub {
         public ReplaysList ReplaysList => _replaysList;
 
         private ReplaysList _replaysList = null!;
-        private ReplaysListSettingsPanel _settingsPanel = null!;
 
         protected override GameObject Construct() {
             return new Layout {
@@ -32,14 +31,15 @@ namespace BeatLeader.UI.Hub {
                     new ReplaysListSettingsPanel {
                         FlexItem = {
                             FlexBasis = 4f
-                        }
-                    }.Bind(ref _settingsPanel)
+                        },
+
+                        ReplaysList = _replaysList
+                    }
                 }
             }.Use();
         }
 
         protected override void OnInitialize() {
-            _settingsPanel.Setup(_replaysList);
             _headers.AddRange(ReplayManager.Headers);
             _replaysList.Items = _headers;
 

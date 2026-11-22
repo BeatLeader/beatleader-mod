@@ -13,25 +13,38 @@ using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
     internal class ReplaysListSettingsPanel : ReactiveComponent {
-        private class SortOptionsModal : ModalBase {
+        internal class SortOptionsModal : ModalBase {
             #region Setup
 
-            private IReplaysList? _replaysList;
-
-            public void Setup(IReplaysList replaysList) {
-                _replaysList = replaysList;
-                _replaysList.Sorter = _sortersDropdown.Key;
-                _replaysList.SortOrder = _sortOrderSelector.Key;
+            public IReplaysList? ReplaysList {
+                get => _replaysList.Value;
+                set => _replaysList.Value = value;
             }
 
             #endregion
 
             #region Construct
 
-            private BsDropdown<ReplaysListSorter> _sortersDropdown = null!;
-            private BsSegmentedControl<SortOrder> _sortOrderSelector = null!;
+            private State<IReplaysList?> _replaysList = null!;
 
             protected override IReactiveComponent ConstructContent() {
+                _replaysList = Remember<IReplaysList?>(null);
+
+                var sorter = Remember(ReplaysListSorter.Date);
+                var sortOrder = Remember(SortOrder.Ascending);
+
+                // A list set later gets the options chosen before it
+                _replaysList.AddCallback(
+                    x => {
+                        x?.Sorter = sorter.Value;
+                        x?.SortOrder = sortOrder.Value;
+                    },
+                    lazy: true
+                );
+
+                sorter.AddCallback(x => _replaysList.Value?.Sorter = x, lazy: true);
+                sortOrder.AddCallback(x => _replaysList.Value?.SortOrder = x, lazy: true);
+
                 return new Background {
                     FlexItem = {
                         Size = new() { x = 60.pt, y = 20.pt }
@@ -44,81 +57,85 @@ namespace BeatLeader.UI.Hub {
                     },
 
                     Children = {
-                        //sorter selector
+                        // Sorter selector
                         new NamedRail {
                             FlexItem = {
-                                FlexBasis = 6f
+                                FlexBasis = 6f,
                             },
 
                             Label = {
-                                Text = "Sort By"
+                                Text = "Sort By",
                             },
+
                             Component = new BsDropdown<ReplaysListSorter> {
                                 Skew = 0f,
+                                
                                 Items = new Dictionary<ReplaysListSorter, BsDropdownItem> {
                                     [ReplaysListSorter.Date] = new("Date", null),
                                     [ReplaysListSorter.Player] = new("Player", null),
                                     [ReplaysListSorter.Completion] = new("Completion", null),
                                     [ReplaysListSorter.Difficulty] = new("Difficulty", null)
                                 },
-                                Key = ReplaysListSorter.Date,
-                                OnKeyChanged = x => _replaysList?.Sorter = x
-                            }.Bind(ref _sortersDropdown)
+                                
+                                Key = sorter.Value,
+                                OnKeyChanged = x => sorter.Value = x,
+                            },
                         },
-                        //sort order selector
+
+                        // Sort order selector
                         new NamedRail {
                             FlexItem = {
-                                FlexBasis = 6f
+                                FlexBasis = 6f,
                             },
 
                             Label = {
-                                Text = "Order"
+                                Text = "Order",
                             },
-                            Component = new Background {
+
+                            Component = new BsSegmentedControl<SortOrder> {
                                 FlexItem = {
-                                    Size = new() { x = 36f }
+                                    FlexGrow = 1f,
+                                    Size = new() { y = 6.pt },
+                                    Margin = new() { left = 2.pt }
                                 },
 
-                                Children = {
-                                    new BsSegmentedControl<SortOrder> {
-                                        FlexController = {
-                                            Padding = 1f
-                                        },
-
-                                        FlexItem = {
-                                            FlexGrow = 1f,
-                                            Size = new() { y = 100.pct }
-                                        },
-
-                                        Items = new Dictionary<SortOrder, BsSegmentedControlItem> {
-                                            [SortOrder.Ascending] = new(null, BundleLoader.Sprites.ascendingIcon),
-                                            [SortOrder.Descending] = new(null, BundleLoader.Sprites.descendingIcon)
-                                        },
-                                        Key = SortOrder.Ascending,
-                                        OnKeyChanged = x => _replaysList?.SortOrder = x
-                                    }.Bind(ref _sortOrderSelector)
-                                }
-                            }.AsFlexGroup().AsBlurBackground(
-                                color: Color.white.ColorWithAlpha(0.8f)
-                            )
+                                Skew = 0f,
+                                
+                                Items = new Dictionary<SortOrder, BsSegmentedControlItem> {
+                                    [SortOrder.Ascending] = new(null, BundleLoader.Sprites.ascendingIcon),
+                                    [SortOrder.Descending] = new(null, BundleLoader.Sprites.descendingIcon),
+                                },
+                                
+                                Key = sortOrder.Value,
+                                OnKeyChanged = x => sortOrder.Value = x,
+                            },
                         }
                     }
                 }.AsBlurBackground();
             }
 
-            protected override void OnInitialize() {
-                base.OnInitialize();
-                OnClickOutside = () => IsPushed = false;
-            }
-
             #endregion
         }
 
+        #region Setup
+
+        public IReplaysList? ReplaysList {
+            get => _replaysList.Value;
+            set => _replaysList.Value = value;
+        }
+
+        #endregion
+
         #region Construct
 
-        private SortOptionsModal _sortOptionsModal = null!;
+        private State<IReplaysList?> _replaysList = null!;
 
         protected override GameObject Construct() {
+            var anchor = Ref<RectTransform>();
+            var sortOptionsOpened = Remember(false);
+
+            _replaysList = Remember<IReplaysList?>(null);
+
             return new Background {
                 FlexController = {
                     Padding = 0.6f,
@@ -127,9 +144,17 @@ namespace BeatLeader.UI.Hub {
 
                 Children = {
                     new SortOptionsModal {
-                        PlacementData = new() { Placement = RelativePlacement.TopRight, Offset = new(0f, 0.5f) }
-                    }.Bind(ref _sortOptionsModal),
-                    //label
+                        PlacementData = new() { Placement = RelativePlacement.TopCenter, Offset = new(0f, 0.5f) },
+                        PlacementAnchor = anchor,
+                        CompositionAnimation = new() { DimCanvas = false },
+
+                        sReplaysList = _replaysList,
+
+                        sIsPushed = sortOptionsOpened,
+                        OnPopped = () => sortOptionsOpened.Value = false,
+                        OnClickOutside = () => sortOptionsOpened.Value = false
+                    },
+
                     new Label {
                         FlexItem = {
                             FlexGrow = 1f
@@ -139,21 +164,23 @@ namespace BeatLeader.UI.Hub {
                         Alignment = TextAlignmentOptions.MidlineLeft,
                         FontSize = 3f
                     },
-                    //refresh button
+
+                    // Refresh button
                     CreateGlowingButton(
                         BundleLoader.RotateRightIcon,
                         () => {
                             ReplayManager.ClearHeadersCache();
                             ReplayManager.StartLoading();
                         }
-                    ).AsFlexItem(aspectRatio: 1f),
-                    //settings button
+                    ),
+
+                    // Settings button
                     CreateGlowingButton(
                         BundleLoader.SettingsIcon,
-                        () => _sortOptionsModal.IsPushed = true
-                    ).AsFlexItem(aspectRatio: 1f)
+                        () => sortOptionsOpened.Value = true
+                    ),
                 }
-            }.AsBlurBackground().Use();
+            }.AsBlurBackground().Bind(anchor).Use();
         }
 
         [StateGen]
@@ -161,6 +188,10 @@ namespace BeatLeader.UI.Hub {
             var graphicState = Remember(GraphicState.None);
 
             return new Image {
+                FlexItem = {
+                    AspectRatio = 1,
+                },
+
                 Sprite = sprite,
                 Material = BundleLoader.UIAdditiveGlowMaterial,
                 sColor = graphicState.MapColorSet(UIStyle.GlowingButtonColorSet)
@@ -172,18 +203,6 @@ namespace BeatLeader.UI.Hub {
                     onClick();
                 }
             );
-        }
-
-        protected override void OnInitialize() {
-            _sortOptionsModal.PlacementAnchor = ContentTransform;
-        }
-
-        #endregion
-
-        #region Setup
-
-        public void Setup(IReplaysList replaysList) {
-            _sortOptionsModal.Setup(replaysList);
         }
 
         #endregion

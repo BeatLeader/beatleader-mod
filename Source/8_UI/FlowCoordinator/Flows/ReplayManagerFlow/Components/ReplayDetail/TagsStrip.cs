@@ -45,11 +45,8 @@ namespace BeatLeader.UI.Hub {
         }
 
         public bool EditorOpened {
-            get;
-            set {
-                field = value;
-                _editArrowAngle.TargetValue = value ? 180f : 0f;
-            }
+            get => _editorOpened.Value;
+            set => _editorOpened.Value = value;
         }
 
         public Action? OnEditClicked { get; set; }
@@ -108,7 +105,7 @@ namespace BeatLeader.UI.Hub {
         private State<bool> _showEditButton = null!;
         private State<int> _tagsCount = null!;
         private AnimatedState<float> _fold = null!;
-        private AnimatedState<float> _editArrowAngle = null!;
+        private State<bool> _editorOpened = null!;
         private Layout _tagsContainer = null!;
 
         protected override GameObject Construct() {
@@ -116,7 +113,9 @@ namespace BeatLeader.UI.Hub {
 
             _showEditButton = Remember(true);
             _tagsCount = Remember(0);
-            _editArrowAngle = RememberAnimated(0f, 150.ms, AnimationCurve.EaseInOut);
+            _editorOpened = Remember(false);
+
+            var editArrowAngle = RememberAnimated(_editorOpened.Map(static x => x ? 180f : 0f), 150.ms, AnimationCurve.EaseInOut);
 
             _fold = RememberAnimated(1f, 120.ms, AnimationCurve.EaseInOut);
             _fold.OnFinish = x => {
@@ -206,7 +205,7 @@ namespace BeatLeader.UI.Hub {
                                 },
 
                                 ContentTransform = {
-                                    slocalEulerAngles = _editArrowAngle.Map(static x => new Vector3(0f, 0f, x))
+                                    slocalEulerAngles = editArrowAngle.Map(static x => new Vector3(0f, 0f, x))
                                 },
 
                                 Sprite = global::Reactive.BeatSaber.GameResources.ArrowIcon,

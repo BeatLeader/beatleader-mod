@@ -23,11 +23,8 @@ namespace BeatLeader.UI.Hub {
             _detailsVisible = Remember(false);
             _tagsEditorOpened = Remember(false);
 
-            var detailsAlpha = RememberAnimated(0f, 15.fact);
-            _detailsVisible.AddCallback(x => detailsAlpha.TargetValue = x ? 1f : 0f, lazy: true);
-
-            var tagsEditorOpenProgress = RememberAnimated(0f, 300.ms, AnimationCurve.EaseOutQuint);
-            _tagsEditorOpened.AddCallback(x => tagsEditorOpenProgress.TargetValue = x ? 1f : 0f, lazy: true);
+            var detailsAlpha = RememberAnimated(_detailsVisible.Map(static x => x ? 1f : 0f), 15.fact);
+            var tagsEditorOpenProgress = RememberAnimated(_tagsEditorOpened.Map(static x => x ? 1f : 0f), 300.ms, AnimationCurve.EaseOutQuint);
 
             return new Layout {
                 Children = {

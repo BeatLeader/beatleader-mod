@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using BeatLeader.Models;
+using BeatLeader.UI.Reactive.Components;
 using BeatLeader.Utils;
 using Reactive;
 using Reactive.BeatSaber.Components;
-using Reactive.Components;
 using Reactive.Yoga;
 using UnityEngine;
 
@@ -77,24 +77,20 @@ namespace BeatLeader.UI.Hub {
 
         #endregion
 
-        #region ShowLoadingScreen
-
-        private void ShowLoadingScreen(bool show) {
-            _loadingContainer.Enabled = show;
-            _mainContainerCanvasGroup.alpha = show ? 0.2f : 1;
-        }
-
-        #endregion
-
         #region Construct
 
-        private Background _loadingContainer = null!;
         private Layout _detailPanelContainer = null!;
-        private CanvasGroup _mainContainerCanvasGroup = null!;
         private Label _detailMissingLabel = null!;
         private ReplaysListPanel _replaysListPanel = null!;
+        private State<bool> _detailPanelCovered = null!;
+        private State<bool> _loading = null!;
 
         protected override GameObject Construct() {
+            _detailPanelCovered = Remember(false);
+            _loading = Remember(false);
+
+            var detailPanelAlpha = RememberAnimated(_detailPanelCovered.Map(static x => x ? 0f : 1f), 200.ms);
+
             return new Layout {
                 FlexController = {
                     JustifyContent = Justify.SpaceAround
@@ -108,7 +104,6 @@ namespace BeatLeader.UI.Hub {
                         },
 
                         Children = {
-                            //replays list
                             new ReplaysListPanel {
                                 FlexItem = {
                                     Size = new() { x = 60f }
@@ -118,7 +113,7 @@ namespace BeatLeader.UI.Hub {
                                     OnSelectedItemsChanged = HandleItemsSelected
                                 }
                             }.Bind(ref _replaysListPanel),
-                            //scrollbar
+                            
                             new Scrollbar {
                                 FlexItem = {
                                     Margin = new() { left = 1f, right = 2f }
@@ -127,7 +122,8 @@ namespace BeatLeader.UI.Hub {
                                 ScrollContext = _replaysListPanel.ReplaysList.ScrollContext,
                                 HideIfNothingToScroll = true
                             },
-                            //detail panel container
+                            
+                            // Detail panel container
                             new Layout {
                                 FlexItem = {
                                     Size = new() { x = 50f }
@@ -139,10 +135,11 @@ namespace BeatLeader.UI.Hub {
                                         EnableWrapping = true
                                     }.WithRectExpand().Bind(ref _detailMissingLabel)
                                 }
-                            }.Bind(ref _detailPanelContainer)
+                            }.WithAlpha(detailPanelAlpha).Bind(ref _detailPanelContainer)
                         }
-                    }.WithNativeComponent(out _mainContainerCanvasGroup),
-                    //loading container
+                    }.WithAlpha(_loading.Map(static x => x ? 0.2f : 1f)),
+                    
+                    // Loading container
                     new Background {
                         FlexController = {
                             FlexDirection = FlexDirection.Column,
@@ -151,8 +148,8 @@ namespace BeatLeader.UI.Hub {
                             Gap = 2f
                         },
 
-                        Enabled = false,
                         IgnoreLayout = true,
+                        sEnabled = _loading,
                         Sprite = BundleLoader.Sprites.transparentPixel,
                         Children = {
                             new Spinner {
@@ -166,7 +163,7 @@ namespace BeatLeader.UI.Hub {
                                 OnClick = () => ReplayManager.CancelLoading()
                             }
                         }
-                    }.WithRectExpand().Bind(ref _loadingContainer)
+                    }.WithRectExpand()
                 }
             }.Use();
         }
@@ -201,6 +198,11 @@ namespace BeatLeader.UI.Hub {
 
         private IDetailPanel? _detailPanel;
 
+        public bool DetailPanelCovered {
+            get => _detailPanelCovered.Value;
+            set => _detailPanelCovered.Value = value;
+        }
+
         #endregion
 
         #region Callbacks
@@ -221,11 +223,11 @@ namespace BeatLeader.UI.Hub {
         }
 
         private void HandleReplaysLoadStarted() {
-            ShowLoadingScreen(true);
+            _loading.Value = true;
         }
 
         private void HandleReplaysLoadFinished(bool finished) {
-            ShowLoadingScreen(false);
+            _loading.Value = false;
         }
 
         #endregion

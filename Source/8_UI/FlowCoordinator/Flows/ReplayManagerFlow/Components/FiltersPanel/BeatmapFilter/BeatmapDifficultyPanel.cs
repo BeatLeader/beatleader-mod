@@ -10,37 +10,51 @@ using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
     internal class BeatmapDifficultyPanel : ReactiveComponent {
-        #region Construct
-        
-        public event Action<BeatmapDifficulty>? DifficultySelectedEvent;
+        #region Setup
 
-        private BsSegmentedControl<BeatmapDifficulty?> _segmentedControl = null!;
-        private Label _emptyLabel = null!;
+        public IReadOnlyList<BeatmapDifficulty>? Difficulties {
+            get => _difficulties.Value;
+            set => _difficulties.Value = value;
+        }
+
+        public Action<BeatmapDifficulty>? OnDifficultySelected { get; set; }
+
+        #endregion
+
+        #region Construct
+
+        private State<IReadOnlyList<BeatmapDifficulty>?> _difficulties = null!;
 
         protected override GameObject Construct() {
+            _difficulties = Remember<IReadOnlyList<BeatmapDifficulty>?>(null);
+
             return new Layout {
                     FlexItem = {
-                        Size = new() { x = 52f, y = 6f },
-                        Margin = 0.5f
+                        Size = new() { y = 5.pt }
                     },
 
                     Children = {
                         new BsSegmentedControl<BeatmapDifficulty?> {
-                            FlexController = {
-                                Padding = 1f
-                            },
-
                             FlexItem = {
                                 FlexGrow = 1f,
                                 FlexShrink = 1f,
-                                Size = new() { y = 100.pct }
+                                Size = new() { y = 5.pt }
                             },
 
-                            Enabled = false,
-                            Items = new Dictionary<BeatmapDifficulty?, BsSegmentedControlItem>(),
-                            Key = null,
-                            OnKeyChanged = x => DifficultySelectedEvent?.Invoke(x!.Value)
-                        }.Bind(ref _segmentedControl),
+                            Skew = 0f,
+                            
+                            sEnabled = _difficulties.Map(static x => x != null),
+                            sKey = _difficulties.Map(static x => x?.Count > 0 ? x[0] : (BeatmapDifficulty?)null),
+                            
+                            sItems = _difficulties.Map(static list => (list ?? []).ToDictionary(
+                                static x => (BeatmapDifficulty?)x,
+                                static x => new BsSegmentedControlItem(x.Name(), null))
+                            ),
+                            
+                            OnKeyChanged = x => {
+                                if (x.HasValue) OnDifficultySelected?.Invoke(x.Value);
+                            }
+                        },
 
                         new Label {
                             FlexItem = {
@@ -48,32 +62,16 @@ namespace BeatLeader.UI.Hub {
                                 PositionType = PositionType.Absolute
                             },
 
-                            Text = "No Difficulties",
+                            Text = "Select a map first",
+                            FontSize = 3f,
                             Alignment = TextAlignmentOptions.Midline,
-                            Color = BeatSaberStyle.SecondaryTextColor
-                        }.Bind(ref _emptyLabel)
+                            Color = BeatSaberStyle.SecondaryTextColor,
+                            sEnabled = _difficulties.Map(static x => x == null)
+                        }
                     }
                 }
                 .AsFlexGroup()
                 .Use();
-        }
-
-        #endregion
-
-        #region SetData
-
-        public void SetData(IReadOnlyList<BeatmapDifficulty>? difficulties) {
-            _emptyLabel.Enabled = difficulties == null;
-            _segmentedControl.Enabled = difficulties != null;
-
-            if (difficulties != null) {
-                _segmentedControl.Items = difficulties.ToDictionary(
-                    static x => (BeatmapDifficulty?)x,
-                    static x => new BsSegmentedControlItem(x.Name(), null)
-                );
-
-                _segmentedControl.Key = difficulties[0];
-            }
         }
 
         #endregion

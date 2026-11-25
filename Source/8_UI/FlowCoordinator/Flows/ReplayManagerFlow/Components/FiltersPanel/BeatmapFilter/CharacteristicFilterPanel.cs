@@ -14,9 +14,13 @@ namespace BeatLeader.UI.Hub {
         #region Filter
 
         public IEnumerable<IPanelListFilter<IReplayHeader>>? DependsOn { get; }
-        public string FilterName => "Characteristic Filter";
-        public string FilterStatus { get; private set; } = null!;
+        public string FilterName => "Mode";
         public BeatmapCharacteristicSO? BeatmapCharacteristic { get; private set; }
+        public bool IsActive => BeatmapCharacteristic != null;
+
+        public void Reset() {
+            BeatmapLevel = null;
+        }
 
         public event Action? FilterUpdatedEvent;
 
@@ -25,28 +29,25 @@ namespace BeatLeader.UI.Hub {
             return characteristic == null || value.ReplayInfo.SongMode == characteristic;
         }
 
-        private void RefreshFilterStatus() {
-            FilterStatus = BeatmapCharacteristic == null ? "No Mode" : BeatmapCharacteristic.serializedName;
-        }
-
         #endregion
 
         #region Setup
+        
+        public BeatmapLevel? BeatmapLevel {
+            get;
+            set {
+                field = value;
+                
+                if (IsActive) {
+                    BeatmapCharacteristic = null;
+                    FilterUpdatedEvent?.Invoke();
+                }
 
-        public event Action<BeatmapCharacteristicSO>? CharacteristicSelectedEvent {
-            add => _characteristicPanel.CharacteristicSelectedEvent += value;
-            remove => _characteristicPanel.CharacteristicSelectedEvent -= value;
+                _characteristicPanel.Characteristics = value?.GetCharacteristics().ToArray();
+            }
         }
 
-        public void SetBeatmapLevel(BeatmapLevel? level) {
-            _characteristicPanel.SetData(level?.GetCharacteristics().ToArray());
-        }
-
-        protected override void OnInitialize() {
-            RefreshFilterStatus();
-            _characteristicPanel.SetData(null);
-            _characteristicPanel.CharacteristicSelectedEvent += HandleBeatmapCharacteristicSelected;
-        }
+        public Action<BeatmapCharacteristicSO>? OnCharacteristicSelected { get; set; }
 
         #endregion
 
@@ -55,7 +56,9 @@ namespace BeatLeader.UI.Hub {
         private BeatmapCharacteristicPanel _characteristicPanel = null!;
 
         protected override GameObject Construct() {
-            return new BeatmapCharacteristicPanel().Bind(ref _characteristicPanel).Use();
+            return new BeatmapCharacteristicPanel {
+                OnCharacteristicSelected = HandleBeatmapCharacteristicSelected
+            }.Bind(ref _characteristicPanel).Use();
         }
 
         #endregion
@@ -64,8 +67,8 @@ namespace BeatLeader.UI.Hub {
 
         private void HandleBeatmapCharacteristicSelected(BeatmapCharacteristicSO characteristic) {
             BeatmapCharacteristic = characteristic;
-            RefreshFilterStatus();
             FilterUpdatedEvent?.Invoke();
+            OnCharacteristicSelected?.Invoke(characteristic);
         }
 
         #endregion

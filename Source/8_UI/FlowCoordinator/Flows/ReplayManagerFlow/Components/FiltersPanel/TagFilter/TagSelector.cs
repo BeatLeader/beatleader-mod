@@ -142,6 +142,7 @@ namespace BeatLeader.UI.Hub {
 
                         ScrollContent = new Layout {
                             FlexController = {
+                                ConstrainVertical = false,
                                 Padding = 2f,
                                 FlexWrap = Wrap.Wrap,
                                 AlignItems = Align.FlexStart,

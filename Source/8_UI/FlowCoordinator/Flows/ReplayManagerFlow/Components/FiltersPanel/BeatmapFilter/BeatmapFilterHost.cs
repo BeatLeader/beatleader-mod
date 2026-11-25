@@ -5,15 +5,20 @@ using HMUI;
 namespace BeatLeader.UI.Hub {
     internal class BeatmapFilterHost {
         public BeatmapFilterHost() {
-            _beatmapFilter = new();
+            _beatmapFilter = new() {
+                OnBeatmapSelected = HandleBeatmapSelected
+            };
+
             _characteristicFilter = new(_beatmapFilter);
             _difficultyFilter = new(_beatmapFilter, _characteristicFilter);
+
+            _characteristicFilter.OnCharacteristicSelected = x => _difficultyFilter.BeatmapCharacteristic = x;
+
             Filters = new IPanelListFilter<IReplayHeader>[] {
                 _beatmapFilter,
                 _characteristicFilter,
                 _difficultyFilter
             };
-            Init();
         }
 
         public IEnumerable<IPanelListFilter<IReplayHeader>> Filters { get; }
@@ -26,14 +31,12 @@ namespace BeatLeader.UI.Hub {
             _beatmapFilter.Setup(flowCoordinator, selectionFlowCoordinator);
         }
 
-        private void Init() {
-            _beatmapFilter.BeatmapSelectedEvent += HandleBeatmapSelected;
-            _characteristicFilter.CharacteristicSelectedEvent += _difficultyFilter.SetCharacteristic;
-        }
-
         private void HandleBeatmapSelected(BeatmapLevelWithKey beatmap) {
-            _characteristicFilter.SetBeatmapLevel(beatmap.Level);
-            _difficultyFilter.SetBeatmapLevel(beatmap.Level);
+            var level = beatmap.HasValue ? beatmap.Level : null;
+
+            // Difficulties first, so they forget the previous characteristic before the new one is chosen
+            _difficultyFilter.BeatmapLevel = level;
+            _characteristicFilter.BeatmapLevel = level;
         }
     }
 }

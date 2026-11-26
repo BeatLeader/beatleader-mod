@@ -1,21 +1,23 @@
+using System.Linq;
 using BeatLeader.Utils;
 using Reactive;
 using Reactive.BeatSaber.Components;
+using Reactive.Compiler;
 using Reactive.Components;
 using Reactive.Yoga;
 using UnityEngine;
-using ColorUtils = BeatLeader.Utils.ColorUtils;
+using Random = UnityEngine.Random;
 
 namespace BeatLeader.UI.Hub {
     internal class TagEditorPanel : ReactiveComponent {
         #region Tag
 
         public string TagName => _nameContext.Text ?? string.Empty;
-        public Color TagColor => _colorContext.SelectedColor;
+        public Color TagColor => palette[_colorIndex.Value];
         public IState<bool> Validity => _validity;
 
         public void Clear() {
-            _colorContext.SelectedColor = ColorUtils.RandomColor();
+            _colorIndex.Value = Random.Range(0, palette.Length);
             _nameContext.Text = null;
         }
 
@@ -23,28 +25,28 @@ namespace BeatLeader.UI.Hub {
 
         #region Construct
 
+        private static readonly Color[] palette = Enumerable
+            .Range(0, 8)
+            .Select(static x => Color.HSVToRGB(x / 8f, 0.65f, 1f))
+            .ToArray();
+
         private readonly BsInputFieldContext _nameContext = new() {
             Validate = static x => x is not { Length: > 10 }
         };
 
-        private readonly BsColorPickerContext _colorContext = new() { SelectedColor = ColorUtils.RandomColor() };
+        private State<int> _colorIndex = null!;
         private IState<bool> _validity = null!;
 
-        private BsInputField _inputField = null!;
-        private BsKeyboardModal _keyboardModal = null!;
-        private BsColorPicker _colorPicker = null!;
-        private BsColorCircleModal _colorModal = null!;
-
         protected override GameObject Construct() {
+            _colorIndex = Remember(Random.Range(0, palette.Length));
             _validity = _nameContext.Map(static x => x.Text != null && ReplayMetadataManager.ValidateTagName(x.Text).Ok);
+
+            var inputAnchor = Ref<RectTransform>();
 
             return new Layout {
                 FlexController = {
-                    Gap = 1f
-                },
-
-                FlexItem = {
-                    Size = new() { y = 8f }
+                    FlexDirection = FlexDirection.Column,
+                    Gap = 1.5f
                 },
 
                 Children = {
@@ -57,32 +59,61 @@ namespace BeatLeader.UI.Hub {
                         Context = _nameContext,
                         Placeholder = "Enter Name",
                         Icon = GameResources.Sprites.EditIcon
-                    }.Bind(ref _inputField),
+                    }.Bind(inputAnchor),
 
                     new BsKeyboardModal {
-                        Context = _nameContext
-                    }.Bind(ref _keyboardModal),
-
-                    new BsColorPicker {
-                        Context = _colorContext
-                    }.Bind(ref _colorPicker),
-
-                    new BsColorCircleModal {
-                        Context = _colorContext,
-                        Title = "Select Color",
-                        CircleSize = 54.pt,
+                        Context = _nameContext,
                         PlacementData = new() {
-                            Placement = RelativePlacement.Center,
-                            Clip = true
+                            Placement = RelativePlacement.BottomCenter,
+                            Offset = new(0f, 6.5f),
+                        },
+                        PlacementAnchor = inputAnchor
+                    },
+
+                    new Layout {
+                        FlexController = {
+                            AlignItems = Align.Center,
+                            JustifyContent = Justify.SpaceBetween,
+                            Padding = new() { left = 1f, right = 1f }
+                        },
+
+                        FlexItem = {
+                            Size = new() { y = 4.5f }
+                        },
+
+                        Children = {
+                            CreateSwatch(0, _colorIndex),
+                            CreateSwatch(1, _colorIndex),
+                            CreateSwatch(2, _colorIndex),
+                            CreateSwatch(3, _colorIndex),
+                            CreateSwatch(4, _colorIndex),
+                            CreateSwatch(5, _colorIndex),
+                            CreateSwatch(6, _colorIndex),
+                            CreateSwatch(7, _colorIndex)
                         }
-                    }.Bind(ref _colorModal)
+                    }
                 }
             }.Use();
         }
 
-        protected override void OnInitialize() {
-            _keyboardModal.PlacementAnchor = _inputField.ContentTransform;
-            _colorModal.PlacementAnchor = _colorPicker.ContentTransform;
+        [StateGen]
+        private static Image CreateSwatch(int index, State<int> selected) {
+            var color = palette[index];
+
+            return new Image {
+                FlexItem = {
+                    Size = 3.5f
+                },
+
+                ContentTransform = {
+                    slocalScale = selected.Map(x => Vector3.one * (x == index ? 1.25f : 1f))
+                },
+
+                Sprite = GameResources.Sprites.Circle,
+                sColor = selected.Map(x => x == index ? color : color.ColorWithAlpha(0.35f)),
+
+                Do = x => x.WithPointerEvents(onDown: _ => selected.Value = index)
+            };
         }
 
         #endregion

@@ -2,33 +2,36 @@ using BeatLeader.Models;
 using BeatLeader.Utils;
 using Reactive;
 using Reactive.BeatSaber.Components;
+using Reactive.Compiler;
 using Reactive.Yoga;
 
 namespace BeatLeader.UI.Hub {
     internal class TagDeletionDialog : DialogBase {
         #region Setup
 
-        private ReplayTag? _replayTag;
-
-        public void SetTag(ReplayTag tag) {
-            _replayTag = tag;
-            _label.Text = $"Do you really want to delete {tag.Name}?";
+        public ReplayTag? Tag {
+            get => _tag.Value;
+            set => _tag.Value = value;
         }
 
         #endregion
 
         #region Construct
 
-        private Label _label = null!;
+        private State<ReplayTag?> _tag = null!;
 
+        [StateGen]
         protected override IReactiveComponent ConstructDialogContent() {
+            _tag = Remember<ReplayTag?>(null);
+
             return new Label {
                 FlexItem = {
                     Size = new() { x = 60.pt, y = 12.pt }
                 },
 
-                EnableWrapping = true
-            }.Bind(ref _label);
+                EnableWrapping = true,
+                sText = _tag.Map(static x => $"Do you really want to delete {x?.Name}?")
+            };
         }
 
         protected override void OnInitialize() {
@@ -45,12 +48,10 @@ namespace BeatLeader.UI.Hub {
 
         private void HandleOkButtonClicked() {
             IsPushed = false;
-            if (_replayTag == null) {
-                return;
-            }
 
-            ReplayMetadataManager.DeleteTag(_replayTag.Name);
-            _replayTag = null;
+            if (Tag != null) {
+                ReplayMetadataManager.DeleteTag(Tag.Name);
+            }
         }
 
         #endregion

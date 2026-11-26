@@ -4,10 +4,8 @@ using BeatLeader.Utils;
 using HarmonyLib;
 using HMUI;
 using Reactive;
-using Reactive.Components;
 using Reactive.Yoga;
 using Zenject;
-using CollectionExtensions = Reactive.CollectionExtensions;
 
 namespace BeatLeader.UI.Hub {
     [HarmonyPatch]
@@ -34,11 +32,14 @@ namespace BeatLeader.UI.Hub {
 
         public async void NavigateToReplay(IReplayHeader header) {
             await ReplayManager.WaitForLoadingAsync();
-            
+
             _replayPanel.ReplaysListPanel.QueueNavigation(header);
         }
 
         private void Awake() {
+            var beatmapFilters = new BeatmapFilterHost();
+            beatmapFilters.Setup(_replayManagerFlowCoordinator, _levelSelectionFlowCoordinator);
+
             new Layout {
                 FlexController = {
                     FlexDirection = FlexDirection.Column,
@@ -54,18 +55,11 @@ namespace BeatLeader.UI.Hub {
                         },
 
                         SearchContract = static x => new[] { x.ReplayInfo.PlayerName, x.ReplayInfo.SongName },
-                        Filters = {
-                            new TagFilter()
-                        }
-                    }.With(
-                        x => {
-                            //adding beatmap filter items
-                            var beatmapFilters = new BeatmapFilterHost();
-                            beatmapFilters.Setup(_replayManagerFlowCoordinator, _levelSelectionFlowCoordinator);
-                            CollectionExtensions.AddRange(x.Filters, beatmapFilters.Filters);
-                        }
-                    ).Export(out var filtersPanel),
-                    //
+                        OnFiltersOpenedChanged = x => _replayPanel.DetailPanelCovered = x,
+
+                        Filters = [new TagFilter(), .. beatmapFilters.Filters]
+                    }.Export(out var filtersPanel),
+
                     new BeatmapReplayLaunchPanel {
                         FlexItem = {
                             FlexBasis = 68f

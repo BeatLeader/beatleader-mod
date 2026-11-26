@@ -143,7 +143,7 @@ namespace BeatLeader.UI.Replayer {
 
         private void RefreshPlayer() {
             var replayData = _replay!.ReplayData;
-            _miniProfile.SetPlayer(replayData.Player!);
+            _miniProfile.Player = replayData.Player!;
             _replayOverview.SetReplay(_replay);
             Enabled = true;
         }

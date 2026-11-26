@@ -10,7 +10,7 @@ using Zenject;
 namespace BeatLeader.UI.Hub {
     internal class BattleRoyaleReplaySelectionViewController : ViewController {
         #region Injection
-        
+
         [Inject] private readonly IBattleRoyaleHost _battleRoyaleHost = null!;
         [Inject] private readonly BeatLeaderHubTheme _hubTheme = null!;
 
@@ -36,11 +36,11 @@ namespace BeatLeader.UI.Hub {
                         },
 
                         SearchContract = x => [x.ReplayInfo.PlayerName, x.ReplayInfo.SongName],
-                        Filters = {
-                            new TagFilter()
-                        }
+                        OnFiltersOpenedChanged = x => _replayLaunchPanel.DetailPanelCovered = x,
+
+                        Filters = [new TagFilter()]
                     }.Export(out var filtersPanel),
-                    //
+
                     new BeatmapReplayLaunchPanel {
                         FlexItem = {
                             FlexBasis = 68f
@@ -68,7 +68,7 @@ namespace BeatLeader.UI.Hub {
             _battleRoyaleHost.ReplayRemovedEvent += HandleReplayRemoved;
             _battleRoyaleHost.ReplayBeatmapChangedEvent += HandleBeatmapChanged;
             _battleRoyaleHost.ReplayNavigationRequestedEvent += HandleHostNavigationRequested;
-            
+
             ReplayManager.StartLoadingIfNeverLoaded();
         }
 
@@ -89,7 +89,7 @@ namespace BeatLeader.UI.Hub {
             list.ScrollTo(replay.ReplayHeader);
             list.Select(replay.ReplayHeader);
         }
-        
+
         private void HandleReplayAdded(IBattleRoyaleReplay replay, object caller) {
             if (caller.Equals(this)) return;
             _replayLaunchPanel.AddSelectedReplay(replay.ReplayHeader, false);

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using BeatLeader.Models;
 using BeatLeader.UI.Reactive.Components;
 using BeatLeader.Utils;
@@ -15,34 +16,25 @@ namespace BeatLeader.UI.Hub {
     internal class TagSelector : ReactiveComponent {
         #region Setup
 
-        public IReadOnlyCollection<ReplayTag> SelectedTags => _selectedTags;
+        public IEnumerable<ReplayTag> SelectedTags {
+            get => _selectedTags;
+            set {
+                _selectedTags.Clear();
 
-        public event Action<ReplayTag>? SelectedTagAddedEvent;
-        public event Action<ReplayTag>? SelectedTagRemovedEvent;
+                foreach (var (tag, panel) in _tagsPool.SpawnedComponents) {
+                    panel.IsSelected = value.Contains(tag);
 
-        private readonly HashSet<ReplayTag> _selectedTags = new();
-
-        public void SelectTags(ICollection<ReplayTag> tags) {
-            _selectedTags.Clear();
-
-            foreach (var (tag, panel) in _tagsPool.SpawnedComponents) {
-                var selected = tags.Contains(tag);
-                panel.IsSelected = selected;
-
-                if (selected) {
-                    _selectedTags.Add(tag);
+                    if (panel.IsSelected) {
+                        _selectedTags.Add(tag);
+                    }
                 }
             }
         }
 
-        public void ClearSelectedTags() {
-            foreach (var tag in _selectedTags) {
-                var panel = _tagsPool.SpawnedComponents[tag];
-                panel.IsSelected = false;
-                SelectedTagRemovedEvent?.Invoke(tag);
-            }
-            _selectedTags.Clear();
-        }
+        public Action<ReplayTag>? OnSelectedTagAdded { get; set; }
+        public Action<ReplayTag>? OnSelectedTagRemoved { get; set; }
+
+        private readonly HashSet<ReplayTag> _selectedTags = new();
 
         protected override void OnInitialize() {
             ReplayMetadataManager.TagCreatedEvent += SpawnTag;
@@ -70,8 +62,9 @@ namespace BeatLeader.UI.Hub {
             panel.Tag = tag;
             panel.IsPresent = true;
 
-            panel.TagStateChangedEvent += HandleTagStateChanged;
-            panel.DeleteButtonClickedEvent += HandleTagDeleteButtonClicked;
+            panel.OnTagStateChanged = HandleTagStateChanged;
+            panel.OnDeleteButtonClicked = x => _deletingTag.Value = x;
+            panel.OnDisappearAnimationFinished = null;
 
             _tagsContainer.Children.Add(panel);
         }
@@ -81,17 +74,16 @@ namespace BeatLeader.UI.Hub {
                 return;
             }
 
-            panel.TagStateChangedEvent -= HandleTagStateChanged;
-            panel.DeleteButtonClickedEvent -= HandleTagDeleteButtonClicked;
-            //starting disappear animation
-            panel.DisappearAnimationFinishedEvent += HandleTagDisappearAnimationFinished;
+            panel.OnTagStateChanged = null;
+            panel.OnDeleteButtonClicked = null;
+            panel.OnDisappearAnimationFinished = HandleTagDisappearAnimationFinished;
             panel.IsPresent = false;
         }
 
         private void SetEditModeEnabled(bool enabled) {
             _createButtonState.IsInteractable = !enabled;
             foreach (var (_, tag) in _tagsPool.SpawnedComponents) {
-                tag.IsEditing = enabled;
+                tag.IsBeingEdited = enabled;
             }
         }
 
@@ -99,14 +91,17 @@ namespace BeatLeader.UI.Hub {
 
         #region Construct
 
-        private TagCreationDialog _tagCreationDialog = null!;
-        private TagDeletionDialog _tagDeletionDialog = null!;
         private Layout _tagsContainer = null!;
         private State<GraphicState> _createButtonState = null!;
+        private State<ReplayTag?> _deletingTag = null!;
 
         protected override GameObject Construct() {
             var editButtonState = Remember(GraphicState.None);
+            var creationOpened = Remember(false);
+            var dialogAnchor = Ref<RectTransform>();
+
             _createButtonState = Remember(GraphicState.None);
+            _deletingTag = Remember<ReplayTag?>(null);
 
             return new Background {
                 FlexController = {
@@ -118,13 +113,24 @@ namespace BeatLeader.UI.Hub {
 
                 Children = {
                     new TagCreationDialog {
-                        PlacementData = new() { Placement = RelativePlacement.Center, Offset = new(0f, 0.5f) }
-                    }.Bind(ref _tagCreationDialog),
-                    //
+                        PlacementData = new() { Placement = RelativePlacement.Center, Offset = new(0f, 13f) },
+                        PlacementAnchor = dialogAnchor,
+
+                        sIsPushed = creationOpened,
+                        OnPopped = () => creationOpened.Value = false,
+                        OnClickOutside = () => creationOpened.Value = false,
+                    },
+
                     new TagDeletionDialog {
-                        PlacementData = new() { Placement = RelativePlacement.Center, Offset = new(0f, 0.5f) }
-                    }.Bind(ref _tagDeletionDialog),
-                    //
+                        PlacementData = new() { Placement = RelativePlacement.Center, Offset = new(0f, 0.5f) },
+                        PlacementAnchor = dialogAnchor,
+
+                        sTag = _deletingTag,
+
+                        sIsPushed = _deletingTag.Map(static x => x != null),
+                        OnPopped = () => _deletingTag.Value = null
+                    },
+
                     new ScrollArea {
                         FlexItem = {
                             FlexGrow = 1f,
@@ -133,13 +139,15 @@ namespace BeatLeader.UI.Hub {
 
                         ScrollContext = new ScrollContext(),
                         LineSize = 7f,
+
                         ScrollContent = new Layout {
                             FlexController = {
+                                ConstrainVertical = false,
                                 Padding = 2f,
                                 FlexWrap = Wrap.Wrap,
                                 AlignItems = Align.FlexStart,
                                 JustifyContent = Justify.SpaceAround,
-                                Gap = new() { x = 1.5f, y = 2f }
+                                Gap = new() { x = 1.5f, y = 3f }
                             },
 
                             FlexItem = {
@@ -147,8 +155,10 @@ namespace BeatLeader.UI.Hub {
                             }
                         }.Bind(ref _tagsContainer)
                     },
-                    //action buttons
+
                     new Background {
+                        Name = "ActionButtons",
+
                         FlexController = {
                             Padding = 1f,
                             JustifyContent = Justify.SpaceAround
@@ -160,7 +170,7 @@ namespace BeatLeader.UI.Hub {
 
                         Sprite = BundleLoader.Sprites.backgroundBottom,
                         Children = {
-                            //delete button
+                            // Delete button
                             CreateGlowingButton(
                                 BundleLoader.Sprites.trashIcon,
                                 editButtonState,
@@ -168,27 +178,30 @@ namespace BeatLeader.UI.Hub {
                                     editButtonState.IsActive = !editButtonState.IsActive;
                                     SetEditModeEnabled(editButtonState.IsActive);
                                 }
-                            ).AsFlexItem(size: 4f),
-                            //create button
+                            ),
+
+                            // Create button
                             CreateGlowingButton(
                                 BundleLoader.Sprites.plusIcon,
                                 _createButtonState,
-                                HandleCreateButtonClicked
-                            ).AsFlexItem(size: 4f)
+                                () => creationOpened.Value = true
+                            )
                         }
-                    }.AsBlurBackground(
-                        color: Color.white.ColorWithAlpha(0.9f)
-                    )
+                    }.AsBlurBackground(color: Color.white.ColorWithAlpha(0.9f))
                 }
-            }.AsBlurBackground().Use();
+            }.AsBlurBackground().Bind(dialogAnchor).Use();
         }
 
         [StateGen]
         private static Image CreateGlowingButton(Sprite sprite, State<GraphicState> graphicState, Action onClick) {
             return new Image {
+                FlexItem = {
+                    Size = 4.pt
+                },
+                
                 Sprite = sprite,
                 Material = BundleLoader.Materials.uiAdditiveGlowMaterial,
-                sColor = graphicState.MapColorSet(UIStyle.GlowingButtonColorSet)
+                sColor = graphicState.MapColorSet(UIStyle.GlowingButtonColorSet),
             }.WithPointerEvents(
                 onEnter: _ => graphicState.IsHovered = true,
                 onLeave: _ => graphicState.IsHovered = false,
@@ -204,34 +217,23 @@ namespace BeatLeader.UI.Hub {
 
         #region Callbacks
 
-        private void HandleCreateButtonClicked() {
-            _tagCreationDialog.PlacementAnchor = CanvasTransform;
-            _tagCreationDialog.IsPushed = true;
-        }
-
-        private void HandleTagDeleteButtonClicked(ReplayTag tag) {
-            _tagDeletionDialog.SetTag(tag);
-            _tagDeletionDialog.PlacementAnchor = CanvasTransform;
-            _tagDeletionDialog.IsPushed = true;
-        }
-
         private void HandleTagDisappearAnimationFinished(ReplayTag tag) {
             if (_selectedTags.Contains(tag)) {
                 HandleTagStateChanged(tag, false);
             }
 
             var panel = _tagsPool.SpawnedComponents[tag];
-            panel.DisappearAnimationFinishedEvent -= HandleTagDisappearAnimationFinished;
+            panel.OnDisappearAnimationFinished = null;
             _tagsPool.Despawn(panel);
         }
 
         private void HandleTagStateChanged(ReplayTag tag, bool state) {
             if (state) {
                 _selectedTags.Add(tag);
-                SelectedTagAddedEvent?.Invoke(tag);
+                OnSelectedTagAdded?.Invoke(tag);
             } else {
                 _selectedTags.Remove(tag);
-                SelectedTagRemovedEvent?.Invoke(tag);
+                OnSelectedTagRemoved?.Invoke(tag);
             }
         }
 

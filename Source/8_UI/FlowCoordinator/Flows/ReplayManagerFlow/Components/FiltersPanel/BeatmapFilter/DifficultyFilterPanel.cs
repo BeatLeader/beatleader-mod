@@ -14,9 +14,13 @@ namespace BeatLeader.UI.Hub {
         #region Filter
 
         public IEnumerable<IPanelListFilter<IReplayHeader>>? DependsOn { get; }
-        public string FilterName => "Difficulty Filter";
-        public string FilterStatus { get; private set; } = null!;
+        public string FilterName => "Difficulty";
         public BeatmapDifficulty? BeatmapDifficulty { get; private set; }
+        public bool IsActive => BeatmapDifficulty.HasValue;
+
+        public void Reset() {
+            BeatmapLevel = null;
+        }
 
         public event Action? FilterUpdatedEvent;
 
@@ -25,34 +29,30 @@ namespace BeatLeader.UI.Hub {
             return !diff.HasValue || value.ReplayInfo.SongDifficulty == diff.Value.ToString();
         }
 
-        private void RefreshFilterStatus() {
-            FilterStatus = BeatmapDifficulty == null ? "No Diff" : BeatmapDifficulty.ToString();
-        }
-
         #endregion
 
         #region Setup
-
-        private BeatmapLevel? _beatmapLevel;
-        private BeatmapCharacteristicSO? _characteristic;
-
-        public void SetBeatmapLevel(BeatmapLevel? level) {
-            _beatmapLevel = level;
-            if (_characteristic != null) {
-                SetCharacteristic(_characteristic);
+        
+        public BeatmapLevel? BeatmapLevel {
+            get;
+            set {
+                field = value;
+                BeatmapCharacteristic = null;
             }
         }
+        
+        public BeatmapCharacteristicSO? BeatmapCharacteristic {
+            get;
+            set {
+                field = value;
 
-        public void SetCharacteristic(BeatmapCharacteristicSO characteristic) {
-            _characteristic = characteristic;
-            var sets = _beatmapLevel?.GetDifficulties(characteristic).ToArray();
-            _difficultyPanel.SetData(sets);
-        }
+                if (IsActive) {
+                    BeatmapDifficulty = null;
+                    FilterUpdatedEvent?.Invoke();
+                }
 
-        protected override void OnInitialize() {
-            RefreshFilterStatus();
-            _difficultyPanel.SetData(null);
-            _difficultyPanel.DifficultySelectedEvent += HandleDifficultySelected;
+                _difficultyPanel.Difficulties = value != null ? BeatmapLevel?.GetDifficulties(value).ToArray() : null;
+            }
         }
 
         #endregion
@@ -62,7 +62,9 @@ namespace BeatLeader.UI.Hub {
         private BeatmapDifficultyPanel _difficultyPanel = null!;
 
         protected override GameObject Construct() {
-            return new BeatmapDifficultyPanel().Bind(ref _difficultyPanel).Use();
+            return new BeatmapDifficultyPanel {
+                OnDifficultySelected = HandleDifficultySelected
+            }.Bind(ref _difficultyPanel).Use();
         }
 
         #endregion
@@ -71,7 +73,6 @@ namespace BeatLeader.UI.Hub {
 
         private void HandleDifficultySelected(BeatmapDifficulty difficulty) {
             BeatmapDifficulty = difficulty;
-            RefreshFilterStatus();
             FilterUpdatedEvent?.Invoke();
         }
 

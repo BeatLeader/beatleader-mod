@@ -5,9 +5,9 @@ using BeatLeader.UI.Reactive.Components;
 using BeatLeader.Utils;
 using Reactive;
 using Reactive.BeatSaber.Components;
-using Reactive.Components;
 using Reactive.Yoga;
 using UnityEngine;
+using AnimationCurve = Reactive.AnimationCurve;
 
 namespace BeatLeader.UI.Hub {
     internal abstract class BasicReplayDetailPanel : ReactiveComponent, BeatmapReplayLaunchPanel.IDetailPanel {
@@ -16,51 +16,106 @@ namespace BeatLeader.UI.Hub {
         private ReplayStatisticsPanel _replayStatisticsPanel = null!;
         private QuickMiniProfile _miniProfile = null!;
         private TagsStrip _tagsStrip = null!;
-        private Label _emptyLabel = null!;
-        private AnimatedState<float> _detailsAlpha = null!;
+        private State<bool> _detailsVisible = null!;
+        private State<bool> _tagsEditorOpened = null!;
 
         protected sealed override GameObject Construct() {
-            _detailsAlpha = RememberAnimated(0f, 15.fact);
+            _detailsVisible = Remember(false);
+            _tagsEditorOpened = Remember(false);
+
+            var detailsAlpha = RememberAnimated(_detailsVisible.Map(static x => x ? 1f : 0f), 15.fact);
+            var tagsEditorOpenProgress = RememberAnimated(_tagsEditorOpened.Map(static x => x ? 1f : 0f), 300.ms, AnimationCurve.EaseOutQuint);
 
             return new Layout {
                 Children = {
-                    //actual content
                     new Layout {
                         FlexController = {
                             FlexDirection = FlexDirection.Column,
-                            Gap = new() { y = 0.5f }
+                            Gap = new() { y = 0.5f },
                         },
 
                         Children = {
                             new QuickMiniProfile {
                                 FlexItem = {
-                                    Size = new() { y = 16f }
-                                }
+                                    Size = new() { y = 16f },
+                                },
                             }.Bind(ref _miniProfile),
-                            //
+
                             new TagsStrip {
                                 FlexItem = {
-                                    Size = new() { y = 5f }
-                                }
+                                    Size = new() { y = 5f },
+                                },
+
+                                ShowEditButton = AllowTagsEdit,
+                                sEditorOpened = _tagsEditorOpened,
+                                OnEditClicked = () => _tagsEditorOpened.Value = !_tagsEditorOpened.Value,
                             }.Bind(ref _tagsStrip),
-                            //
-                            new ReplayStatisticsPanel {
+
+                            new Layout {
+                                FlexController = {
+                                    FlexDirection = FlexDirection.Column,
+                                },
+
                                 FlexItem = {
                                     Size = new() { y = 37f },
-                                    Margin = new() { bottom = 1f }
-                                }
-                            }.Bind(ref _replayStatisticsPanel),
-                            //
-                            ConstructButtons()
+                                    Margin = new() { bottom = 1f },
+                                },
+
+                                Children = {
+                                    new ReplayStatisticsPanel {
+                                            FlexItem = {
+                                                FlexGrow = 1f,
+                                                // Gives way much less than the editor comes in, as if there is no room to move
+                                                sPosition = tagsEditorOpenProgress.Map(static x => new YogaFrame { top = (x * 30f).pct }),
+                                            },
+
+                                            ContentTransform = {
+                                                pivot = new(0.5f, 0f),
+                                                slocalScale = tagsEditorOpenProgress.Map(static x => Vector3.one * Mathf.Lerp(1f, 0.75f, x)),
+                                            },
+                                        }
+                                        .WithAlpha(tagsEditorOpenProgress.Map(static x => 1f - x))
+                                        .Bind(ref _replayStatisticsPanel),
+
+                                    new TagSelector {
+                                        FlexItem = {
+                                            PositionType = PositionType.Absolute,
+                                            Size = new() { y = 100.pct },
+
+                                            // Kept above the visible area until it slides in
+                                            sPosition = tagsEditorOpenProgress.Map(static x => new YogaFrame {
+                                                top = ((x - 1f) * 100f).pct,
+                                                left = 0f,
+                                                right = 0f,
+                                            }),
+                                        },
+
+                                        OnSelectedTagAdded = tag => Header?.ReplayMetadata.Tags.Add(tag),
+                                        OnSelectedTagRemoved = tag => Header?.ReplayMetadata.Tags.Remove(tag),
+                                    }.On(
+                                        _tagsEditorOpened,
+                                        (x, opened) => {
+                                            if (opened && Header != null) {
+                                                x.SelectedTags = Header.ReplayMetadata.Tags;
+                                            }
+                                        },
+                                        lazy: true
+                                    )
+                                },
+                            }.AsRectMask(),
+
+                            ConstructButtons(),
                         }
-                    }.WithAlpha(_detailsAlpha).WithRectExpand(),
-                    //empty label
+                    }.WithAlpha(detailsAlpha).WithRectExpand(),
+
                     new Label {
-                        Text = "Select a replay to let Monke think on it",
+                        Name = "EmptyLabel",
+
+                        Text = EmptyText,
                         RaycastTarget = false,
                         EnableWrapping = true,
-                        sColor = _detailsAlpha.Map(static x => Color.white.ColorWithAlpha(1f - x))
-                    }.WithRectExpand().Bind(ref _emptyLabel)
+                        sColor = detailsAlpha.Map(static x => Color.white.ColorWithAlpha(1f - x))
+                    }.WithRectExpand()
                 }
             }.Use();
         }
@@ -76,20 +131,6 @@ namespace BeatLeader.UI.Hub {
 
         public virtual void Setup(IBeatmapReplayLaunchPanel? launchPanel) { }
 
-        protected override void OnInitialize() {
-            _miniProfile.SetPlayer(null);
-            _tagsStrip.AllowEdit = AllowTagsEdit;
-            _emptyLabel.Text = EmptyText;
-        }
-
-        #endregion
-
-        #region Animation
-
-        private void SetDetailsVisible(bool visible) {
-            _detailsAlpha.TargetValue = visible ? 1f : 0f;
-        }
-
         #endregion
 
         #region Data
@@ -102,6 +143,7 @@ namespace BeatLeader.UI.Hub {
 
         public void SetData(IReplayHeader? header) {
             if (header == Header) return;
+            _tagsEditorOpened.Value = false;
             _tokenSource.Cancel();
             _tokenSource = new();
             SetDataAsync(header, _tokenSource.Token).RunCatching();
@@ -109,14 +151,15 @@ namespace BeatLeader.UI.Hub {
 
         private async Task SetDataAsync(IReplayHeader? header, CancellationToken token) {
             Header = header;
+            _detailsVisible.Value = header != null;
+
             if (header == null) {
-                SetDetailsVisible(false);
-                _miniProfile.SetPlayer(null);
+                _miniProfile.Player = null;
+                _miniProfile.IsLoading = false;
                 _lastPlayerId = null;
             } else {
-                SetDetailsVisible(true);
                 //starting tasks
-                _tagsStrip.SetMetadata(header.ReplayMetadata);
+                _tagsStrip.Metadata = header.ReplayMetadata;
                 var playerTask = RefreshPlayerAsync(header, token);
                 var statsTask = RefreshStatsAsync(header, token);
                 var setDataTask = SetDataInternalAsync(header, token);
@@ -142,11 +185,12 @@ namespace BeatLeader.UI.Hub {
                 return;
             }
 
-            _miniProfile.SetLoading();
+            _miniProfile.IsLoading = true;
 
             var player = await header.LoadPlayerAsync(false, token) as IPlayer;
 
-            _miniProfile.SetPlayer(player);
+            _miniProfile.Player = player;
+            _miniProfile.IsLoading = false;
             _lastPlayerId = player.Id;
         }
 

@@ -8,7 +8,7 @@ namespace BeatLeader.UI.Replayer {
         #region Setup
 
         public void Setup(IPlayer? player) {
-            _miniProfile.SetPlayer(player);
+            _miniProfile.Player = player;
         }
 
         #endregion

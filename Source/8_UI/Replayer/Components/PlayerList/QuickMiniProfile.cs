@@ -4,6 +4,7 @@ using BeatLeader.Models;
 using BeatLeader.UI.Reactive.Components;
 using Reactive;
 using Reactive.BeatSaber.Components;
+using Reactive.Compiler;
 using Reactive.Components;
 using Reactive.Yoga;
 using TMPro;
@@ -11,102 +12,50 @@ using UnityEngine;
 
 namespace BeatLeader.UI {
     internal class QuickMiniProfile : ReactiveComponent {
-        #region Layout
+        #region Public API
 
+        /// <summary>
+        /// Only <see cref="Justify.FlexStart"/> and <see cref="Justify.Center"/> are supported.
+        /// </summary>
         public Justify JustifyContent {
-            get => _layoutController.JustifyContent;
+            get => _justifyContent.Value;
             set {
-                switch (value) {
-                    case Justify.FlexStart:
-                        _railsLayoutModifier.FlexGrow = 1;
-                        _railsLayoutModifier.Size = new() { x = YogaValue.Undefined };
-                        break;
-                    case Justify.Center:
-                        _railsLayoutModifier.FlexGrow = 0;
-                        _railsLayoutModifier.Size = new() { x = YogaValue.Auto };
-                        break;
-                    default:
-                        throw new Exception("Only FlexStart and Center are supported");
+                if (value is not (Justify.FlexStart or Justify.Center)) {
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "Only FlexStart and Center are supported");
                 }
-                _layoutController.JustifyContent = value;
+                _justifyContent.Value = value;
             }
         }
 
         public bool UseAlternativeBlur {
-            set {
-                var mat = value ? 
-                    BundleLoader.Materials.tintedBlurredBackgroundMaterial :
-                    GameResources.UIFogBackgroundMaterial;
-                _nameFitterBackground.Material = mat;
-                _rankFitterBackground.Material = mat;
-                _ppFitterBackground.Material = mat;
-            }
+            get => _alternativeBlur.Value;
+            set => _alternativeBlur.Value = value;
         }
 
-        #endregion
-
-        #region Setup
-
-        public IPlayer? Player { get; private set; }
-
-        public void SetPlayer(IPlayer? player) {
-            Player = player;
-            _playerAvatar.SetAvatar(player);
-            _playerCountryFlag.SetCountry(player?.Country ?? "not set");
-            _playerCountryFlag.GetRootTransform().gameObject.SetActive(true);
-
-            _playerNameLabel.Text = player?.Name ?? "Unknown";
-            _playerGlobalRankLabel.Text = FormatUtils.FormatRank(player?.Rank ?? -1, true);
-            _playerPpLabel.Text = FormatUtils.FormatPP(player?.PerformancePoints ?? -1);
+        public IPlayer? Player {
+            get => _player.Value;
+            set => _player.Value = value;
         }
 
-        public void SetLoading() {
-            _playerAvatar.SetLoading();
-            _playerCountryFlag.GetRootTransform().gameObject.SetActive(false);
-
-            _playerNameLabel.Text = "Loading...";
-            _playerGlobalRankLabel.Text = FormatUtils.FormatRank(-1, true);
-            _playerPpLabel.Text = FormatUtils.FormatPP(-1);
+        /// <summary>
+        /// Shows placeholders instead of the player while it loads.
+        /// </summary>
+        public bool IsLoading {
+            get => _loading.Value;
+            set => _loading.Value = value;
         }
 
         #endregion
 
         #region Construct
 
-        private PlayerAvatar _playerAvatar = null!;
-        private CountryFlag _playerCountryFlag = null!;
-        private Label _playerNameLabel = null!;
-        private Label _playerGlobalRankLabel = null!;
-        private Label _playerPpLabel = null!;
-        private YogaLayoutController _layoutController = null!;
-        private YogaModifier _railsLayoutModifier = null!;
-        private Image _nameFitterBackground = null!;
-        private Image _rankFitterBackground = null!;
-        private Image _ppFitterBackground = null!;
+        private State<Justify> _justifyContent = null!;
+        private State<bool> _alternativeBlur = null!;
+        private State<IPlayer?> _player = null!;
+        private State<bool> _loading = null!;
 
         protected override GameObject Construct() {
-            static ReactiveComponent CreateFitter(
-                out Image background,
-                params ILayoutItem[] children
-            ) {
-                var layout = new Background {
-                    FlexController = {
-                        Padding = new() { left = 1f, right = 1f },
-                        Gap = new() { x = 1f }
-                    },
-
-                    FlexItem = {
-                        Size = YogaVector.Auto,
-                        MaxSize = 100.pct
-                    }
-                }.Export(out background).AsBlurBackground(pixelsPerUnit: 12f);
-                layout.Children.AddRange(children);
-                return layout;
-            }
-
-            static ReactiveComponent CreateRail(
-                params ILayoutItem[] children
-            ) {
+            static ReactiveComponent CreateRail(params ILayoutItem[] children) {
                 var layout = new Layout {
                     FlexController = {
                         JustifyContent = Justify.FlexStart,
@@ -117,11 +66,19 @@ namespace BeatLeader.UI {
                 return layout;
             }
 
+            _justifyContent = Remember(Justify.FlexStart);
+            _alternativeBlur = Remember(false);
+            _player = Remember<IPlayer?>(null);
+            _loading = Remember(false);
+
+            var profile = RememberDerived(_player, _loading, static (player, loading) => (player, loading));
+
             return new Layout {
                 FlexController = {
                     FlexDirection = FlexDirection.Row,
                     Gap = new() { x = 2f },
-                    Padding = 1f
+                    Padding = 1f,
+                    sJustifyContent = _justifyContent
                 },
 
                 Children = {
@@ -130,7 +87,13 @@ namespace BeatLeader.UI {
                         FlexItem = {
                             AspectRatio = 1f
                         }
-                    }.BindRee(ref _playerAvatar),
+                    }.On(profile, static (x, y) => {
+                        if (y.loading) {
+                            x.ReeComponent.SetLoading();
+                        } else {
+                            x.ReeComponent.SetAvatar(y.player);
+                        }
+                    }),
                     //infos
                     new Layout {
                         FlexController = {
@@ -140,17 +103,27 @@ namespace BeatLeader.UI {
                             Gap = new() { y = 1f }
                         },
 
+                        FlexItem = {
+                            // Stretches the rails when aligned to the start, otherwise fits them to be centered
+                            sFlexGrow = _justifyContent.Map(static x => x == Justify.FlexStart ? 1f : 0f),
+                            sSize = _justifyContent.Map(
+                                static x => new YogaVector { x = x == Justify.FlexStart ? YogaValue.Undefined : YogaValue.Auto }
+                            )
+                        },
+
                         Children = {
                             //player & country
                             CreateRail(
                                 CreateFitter(
-                                    out _nameFitterBackground,
+                                    _alternativeBlur,
                                     //flag
                                     new ReeWrapperV2<CountryFlag> {
                                         FlexItem = {
                                             MinSize = new() { x = 4f }
-                                        }
-                                    }.BindRee(ref _playerCountryFlag),
+                                        },
+
+                                        sEnabled = _loading.Map(static x => !x)
+                                    }.On(_player, static (x, y) => x.ReeComponent.SetCountry(y?.Country ?? "not set")),
                                     //name text
                                     new Label {
                                         FlexItem = {
@@ -158,46 +131,66 @@ namespace BeatLeader.UI {
                                         },
 
                                         Overflow = TextOverflowModes.Ellipsis,
-                                        FontSize = 3
-                                    }.Bind(ref _playerNameLabel)
+                                        FontSize = 3,
+                                        sText = profile.Map(static x => x.loading ? "Loading..." : x.player?.Name ?? "Unknown")
+                                    }
                                 )
                             ).AsFlexItem(size: new() { y = YogaValue.Auto }),
                             //rank & pp
                             CreateRail(
                                 //rank container
                                 CreateFitter(
-                                    out _rankFitterBackground,
+                                    _alternativeBlur,
                                     //rank text
                                     new Label {
                                         FlexItem = {
                                             Size = YogaVector.Auto
                                         },
 
-                                        FontSize = 3
-                                    }.Bind(ref _playerGlobalRankLabel)
+                                        FontSize = 3,
+                                        sText = profile.Map(static x => FormatUtils.FormatRank(x.loading ? -1 : x.player?.Rank ?? -1, true))
+                                    }
                                 ),
                                 //pp container
                                 CreateFitter(
-                                    out _ppFitterBackground,
+                                    _alternativeBlur,
                                     //pp text
                                     new Label {
                                         FlexItem = {
                                             Size = YogaVector.Auto
                                         },
 
-                                        FontSize = 3
-                                    }.Bind(ref _playerPpLabel)
+                                        FontSize = 3,
+                                        sText = profile.Map(static x => FormatUtils.FormatPP(x.loading ? -1 : x.player?.PerformancePoints ?? -1))
+                                    }
                                 )
                             ).AsFlexItem(size: new() { y = YogaValue.Auto })
                         }
-                    }.AsFlexItem(out _railsLayoutModifier)
+                    }
                 }
-            }.AsFlexGroup(out _layoutController).Use();
+            }.Use();
         }
 
-        protected override void OnInitialize() {
-            JustifyContent = Justify.FlexStart;
-            UseAlternativeBlur = false;
+        [StateGen]
+        private static ReactiveComponent CreateFitter(IState<bool> alternativeBlur, params ILayoutItem[] children) {
+            var layout = new Background {
+                FlexController = {
+                    Padding = new() { left = 1f, right = 1f },
+                    Gap = new() { x = 1f }
+                },
+
+                FlexItem = {
+                    Size = YogaVector.Auto,
+                    MaxSize = 100.pct
+                },
+
+                sMaterial = alternativeBlur.Map(
+                    static x => x ? BundleLoader.Materials.tintedBlurredBackgroundMaterial : GameResources.UIFogBackgroundMaterial
+                )
+            }.AsBlurBackground(pixelsPerUnit: 12f);
+
+            layout.Children.AddRange(children);
+            return layout;
         }
 
         #endregion

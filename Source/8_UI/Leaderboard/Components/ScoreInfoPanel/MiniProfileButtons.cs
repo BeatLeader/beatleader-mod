@@ -4,6 +4,7 @@ using BeatLeader.API;
 using BeatLeader.DataManager;
 using BeatLeader.Manager;
 using BeatLeader.Models;
+using BeatLeader.UI.Hub;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
@@ -23,6 +24,9 @@ namespace BeatLeader.Components {
         [UIValue("profile-button"), UsedImplicitly]
         private MiniProfileButton _profileButton;
 
+        [UIValue("full-profile-button"), UsedImplicitly]
+        private MiniProfileButton _fullProfileButton;
+
         [UIValue("twitter-button"), UsedImplicitly]
         private MiniProfileButton _twitterButton;
 
@@ -36,6 +40,7 @@ namespace BeatLeader.Components {
             _friendButton = Instantiate<MiniProfileButton>(transform);
             _hideButton = Instantiate<MiniProfileButton>(transform);
             _profileButton = Instantiate<MiniProfileButton>(transform);
+            _fullProfileButton = Instantiate<MiniProfileButton>(transform);
 
             _twitterButton = Instantiate<MiniProfileButton>(transform);
             _twitchButton = Instantiate<MiniProfileButton>(transform);
@@ -44,6 +49,7 @@ namespace BeatLeader.Components {
             InitializeFriendButton();
             InitializeHideButton();
             InitializeProfileButton();
+            InitializeFullProfileButton();
             InitializeSocialsButtons();
         }
 
@@ -187,6 +193,21 @@ namespace BeatLeader.Components {
 
         #endregion
 
+        #region FullProfileButton
+        
+        private void InitializeFullProfileButton() {
+            _fullProfileButton.Setup(GameResources.Sprites.ArrowIcon, false, 1.1f, 90.0f);
+            _fullProfileButton.SetLabel("Full profile");
+            _fullProfileButton.OnClick += OnFullProfileButtonClick;
+        }
+
+        private void OnFullProfileButtonClick() {
+            ReeModalSystem.CloseAll();
+            PlayerProfileFlowCoordinator.Open(_player.id);
+        }
+
+        #endregion
+
         #region Socials buttons
 
         private static Color TwitterColor => new Color(0.1f, 0.6f, 1.0f, 1.0f);
@@ -257,41 +278,48 @@ namespace BeatLeader.Components {
         private Transform _rightButtonsRoot;
 
         private void UpdateLayout() {
-            UpdateLayout(_leftButtonsRoot, OffsetRadians, StepRadians, out var leftA, out var leftB);
-            UpdateLayout(_rightButtonsRoot, -OffsetRadians, -StepRadians, out var rightA, out var rightB);
+            UpdateLayout(_leftButtonsRoot, OffsetRadians, StepRadians, GetSlots, out var leftA, out var leftB);
+            UpdateLayout(_rightButtonsRoot, -OffsetRadians, -StepRadians, GetSlots, out var rightA, out var rightB);
             UpdateBackground(leftA, leftB, rightB, rightA);
         }
 
+        private int GetSlots(Transform child) {
+            return child == _fullProfileButton.Root ? 2 : 1;
+        }
+
         private static void UpdateLayout(
-            Transform parent, float offsetRadians, float stepRadians,
+            Transform parent, float offsetRadians, float stepRadians, System.Func<Transform, int> getSlots,
             out float fromRadians, out float toRadians
         ) {
-            var activeCount = 0;
+            var slotCount = 0;
             for (var i = 0; i < parent.childCount; i++) {
                 var child = parent.GetChild(i);
-                if (child.gameObject.activeSelf) activeCount += 1;
+                if (child.gameObject.activeSelf) slotCount += getSlots(child);
             }
 
-            fromRadians = offsetRadians - (activeCount - 1) * stepRadians / 2;
-            toRadians = fromRadians + stepRadians * (activeCount - 1);
+            fromRadians = offsetRadians - (slotCount - 1) * stepRadians / 2;
+            toRadians = fromRadians + stepRadians * (slotCount - 1);
 
-            if (activeCount <= 0) {
+            if (slotCount <= 0) {
                 parent.gameObject.SetActive(false);
                 return;
             }
 
             parent.gameObject.SetActive(true);
 
-            var angleRadians = Mathf.PI / 2 + fromRadians;
+            var slot = 0;
             for (var i = 0; i < parent.childCount; i++) {
                 var child = parent.GetChild(i);
                 if (!child.gameObject.activeSelf) continue;
+
+                var slots = getSlots(child);
+                var angleRadians = Mathf.PI / 2 + fromRadians + (slot + (slots - 1) / 2f) * stepRadians;
                 child.localPosition = new Vector3(
                     Mathf.Cos(angleRadians) * Radius,
                     Mathf.Sin(angleRadians) * Radius,
                     0
                 );
-                angleRadians += stepRadians;
+                slot += slots;
             }
         }
 

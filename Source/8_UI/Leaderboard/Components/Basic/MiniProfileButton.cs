@@ -24,7 +24,7 @@ namespace BeatLeader.Components {
         #region Animation
 
         private void OnHoverStateChanged(bool isHovered, float progress) {
-            var scale = _state is State.NonInteractable ? 0.8f : 1.0f + 0.5f * progress;
+            var scale = _iconScale * (_state is State.NonInteractable ? 0.8f : 1.0f + 0.5f * progress);
             _imageComponent.transform.localScale = new Vector3(scale, scale, scale);
 
             var maxAlpha = _state is State.NonInteractable ? 0.5f : 1.0f;
@@ -39,9 +39,16 @@ namespace BeatLeader.Components {
         [UIComponent("label-root"), UsedImplicitly] private RectTransform _labelRoot;
         [UIComponent("label-component"), UsedImplicitly] private TextMeshProUGUI _labelComponent;
 
-        public void Setup(Sprite sprite, bool labelOnLeft) {
+        private float _iconScale = 1.0f;
+
+        public Transform? Root => _rootObject ? _rootObject.transform : null;
+
+        public void Setup(Sprite sprite, bool labelOnLeft, float iconScale = 1.0f, float iconRotation = 0.0f) {
             _imageComponent.sprite = sprite;
             _labelOnLeft = labelOnLeft;
+            _iconScale = iconScale;
+            _imageComponent.transform.localScale = Vector3.one * iconScale;
+            _imageComponent.transform.localEulerAngles = new Vector3(0, 0, iconRotation);
             UpdateLabelOffset();
         }
 
@@ -112,7 +119,7 @@ namespace BeatLeader.Components {
         }
 
         private void UpdateLabelOffset() {
-            var offset = BaseOffset + _labelComponent.preferredWidth / 2;
+            var offset = BaseOffset * _iconScale + _labelComponent.preferredWidth / 2;
             _labelRoot.localPosition = new Vector3(_labelOnLeft ? -offset : offset, 0, 0);
         }
 

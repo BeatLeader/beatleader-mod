@@ -89,6 +89,10 @@ namespace BeatLeader.Models {
         public ServiceIntegration[] socials;
         public PlayerContextExtension[]? contextExtensions;
         public ProfileSettings? profileSettings;
+        public PlayerScoreStats? scoreStats;
+        public PlayerBadge[]? badges;
+        public string? platform;
+        public int lastWeekRank;
 
         public Player ContextPlayer(int context) {
             var contextPlayer = contextExtensions?.FirstOrDefault(ce => ce.context == context);
@@ -155,6 +159,7 @@ namespace BeatLeader.Models {
         [JsonIgnore] public float saturation;
 
         public string message;
+        public string? profileCover;
 
         private void RefreshTheme(string effectName) {
             ThemesUtils.ParseEffectName(effectName, out var themeType, out var themeTier);

@@ -19,6 +19,7 @@ namespace BeatLeader.UI.Hub {
         [Inject] private readonly BeatLeaderHubTheme _beatLeaderHubTheme = null!;
 
         private QuickMiniProfile _quickMiniProfile = null!;
+        private BsAeroButton _myProfileButton = null!;
 
         [StateGen]
         private BsAeroButton CreateActionButton(
@@ -85,6 +86,7 @@ namespace BeatLeader.UI.Hub {
             }.WithHoverScale(1f, 1.2f);
         }
 
+        [StateGen]
         private void Awake() {
             var menuButtonsTheme = _beatLeaderHubTheme.MenuButtonsTheme;
 
@@ -104,18 +106,47 @@ namespace BeatLeader.UI.Hub {
                         JustifyContent = Justify.Center
                     }.Bind(ref _quickMiniProfile),
 
-                    // Welcome label
-                    new Label {
-                            FlexItem = {
-                                Size = YogaVector.Auto
+                    new BsAeroButton {
+                        FlexController = {
+                            Padding = new() { left = 3f, right = 3.5f },
+                            AlignItems = Align.Center
+                        },
+
+                        FlexItem = {
+                            Size = new() { y = 10f }
+                        },
+
+                        Interactable = false,
+                        Skew = 0f,
+                        sColors = menuButtonsTheme.State.Map(static x => UIStyle.AeroButtonColors(x.SettingsButtonColors.ToColorSet())),
+                        OnClick = () => {
+                            if (ProfileManager.Profile is { } profile) PlayerProfileFlowCoordinator.Open(profile.id);
+                        },
+                        ConstructContent = (color, _) => new Layout {
+                            FlexController = {
+                                AlignItems = Align.Center,
+                                Gap = 2f
                             },
 
-                            Text = "Welcome to the Beat Leader Hub!",
-                            FontSize = 6f
+                            Children = {
+                                new Image {
+                                    FlexItem = {
+                                        Size = 5.5f
+                                    },
+
+                                    Sprite = BundleLoader.FriendsIcon,
+                                    PreserveAspect = true,
+                                    sColor = color.In()
+                                },
+
+                                new Label {
+                                    Text = "My profile",
+                                    FontSize = 6f,
+                                    sColor = color.In()
+                                }
+                            }
                         }
-                        //background
-                        .InBlurBackground()
-                        .AsFlexGroup(padding: new() { left = 2f, top = 1f, right = 2f, bottom = 1f }),
+                    }.WithHoverScale(1f, 1.1f).Bind(ref _myProfileButton),
 
                     // Buttons (use absolute pos for correct overlap)
                     new Layout {
@@ -172,6 +203,7 @@ namespace BeatLeader.UI.Hub {
             await ProfileManager.WaitUntilProfileLoad();
             var profile = ProfileManager.Profile ?? Player.GuestPlayer;
             _quickMiniProfile.Player = profile;
+            _myProfileButton.Interactable = ProfileManager.Profile != null;
         }
     }
 }

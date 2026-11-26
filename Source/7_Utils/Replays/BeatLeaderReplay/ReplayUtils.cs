@@ -48,7 +48,7 @@ namespace BeatLeader.Utils {
             viveCosmos = 128,
         }
 
-        private enum HMD {
+        public enum HMD {
             unknown = 0,
             rift = 1,
             riftS = 16,
@@ -148,7 +148,7 @@ namespace BeatLeader.Utils {
             return score;
         }
 
-        private static string? HMDToName(HMD hmd) {
+        public static string? HMDToName(HMD hmd) {
             return hmd switch {
                 HMD.rift => "Oculus Rift",
                 HMD.riftS => "Oculus Rift S",

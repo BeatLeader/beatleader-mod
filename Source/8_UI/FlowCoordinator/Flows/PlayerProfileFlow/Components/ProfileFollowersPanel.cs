@@ -65,6 +65,7 @@ namespace BeatLeader.UI.Hub {
             if ((request.PlayerId, request.Following) != _loadedList) {
                 _loadedList = (request.PlayerId, request.Following);
                 _players.Value = [];
+                _pageCount.Value = 0;
                 _listHeight.SetValueImmediate(GetExpectedHeight());
             }
 
@@ -81,8 +82,9 @@ namespace BeatLeader.UI.Hub {
             }
 
             _loading.Value = false;
+            _pageCount.Value = result.Result?.metadata.PagesCount ?? 0;
 
-            var players = (IReadOnlyList<PlayerFollower>?)result.Result ?? [];
+            var players = (IReadOnlyList<PlayerFollower>?)result.Result?.data ?? [];
 
             _listHeight.TargetValue = GetListHeight(players.Count);
 
@@ -100,6 +102,7 @@ namespace BeatLeader.UI.Hub {
 
         private State<FollowersRequest> _request = null!;
         private State<IReadOnlyList<PlayerFollower>> _players = null!;
+        private State<int> _pageCount = null!;
         private State<bool> _loading = null!;
         private AnimatedState<float> _time = null!;
         private AnimatedState<float> _listHeight = null!;
@@ -107,6 +110,7 @@ namespace BeatLeader.UI.Hub {
         protected override GameObject Construct() {
             _request = Remember(new FollowersRequest(null, false, 1));
             _players = Remember<IReadOnlyList<PlayerFollower>>([]);
+            _pageCount = Remember(0);
             _loading = Remember(false);
             _time = RememberAnimated(0f, ProfileReveal.TotalTime.sec);
 
@@ -116,6 +120,8 @@ namespace BeatLeader.UI.Hub {
 
             var listAlpha = RememberAnimated(_loading.Map(static x => x ? 0.3f : 1f), 150.ms);
             var emptyShown = RememberDerived(_players, _loading, static (x, y) => x.Count == 0 && !y);
+            var pageText = RememberDerived(_request, _pageCount, static (x, y) => $"{x.Page}/{Mathf.Max(y, 1)}");
+            var hasNextPage = RememberDerived(_request, _pageCount, static (x, y) => x.Page < y);
 
             return new Layout {
                 FlexController = {
@@ -164,12 +170,12 @@ namespace BeatLeader.UI.Hub {
 
                             new Label {
                                 FlexItem = {
-                                    Size = new() { x = 4f }
+                                    Size = new() { x = 7f }
                                 },
 
                                 FontSize = 2.8f,
                                 Alignment = TextAlignmentOptions.Capline,
-                                sText = _request.Map(static x => x.Page.ToString())
+                                sText = pageText
                             },
 
                             new BsTextButton {
@@ -178,7 +184,7 @@ namespace BeatLeader.UI.Hub {
                                 },
 
                                 Text = ">",
-                                sInteractable = _players.Map(static x => x.Count == PlayersPerPage),
+                                sInteractable = hasNextPage,
                                 OnClick = () => _request.Value = _request.Value with { Page = _request.Value.Page + 1 }
                             }
                         }

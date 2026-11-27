@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Net.Http;
 using BeatLeader.Models;
 using BeatLeader.Utils;
@@ -17,8 +16,8 @@ namespace BeatLeader.API {
         }
     }
 
-    internal class PlayerFollowersRequest : PersistentWebRequestBase<List<PlayerFollower>, JsonResponseParser<List<PlayerFollower>>> {
-        public static IWebRequest<List<PlayerFollower>> Send(string playerId, bool following, int page, int count) {
+    internal class PlayerFollowersRequest : PersistentWebRequestBase<Paged<PlayerFollower>, JsonResponseParser<Paged<PlayerFollower>>> {
+        public static IWebRequest<Paged<PlayerFollower>> Send(string playerId, bool following, int page, int count) {
             return SendRet($"{BLConstants.BEATLEADER_API_URL}/player/{playerId}/followers?type={(following ? 0 : 1)}&page={page}&count={count}", HttpMethod.Get, waitForLogin: false);
         }
     }

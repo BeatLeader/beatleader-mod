@@ -47,7 +47,7 @@ namespace BeatLeader.UI.Hub {
         #region Callbacks
 
         private void HandleOpenRequested(string playerId) {
-            _context.Load(playerId);
+            _context.Open(playerId, isActivated);
 
             if (isActivated) {
                 return;

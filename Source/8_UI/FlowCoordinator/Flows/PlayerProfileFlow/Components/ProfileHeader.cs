@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using BeatLeader.Components;
@@ -31,6 +32,13 @@ namespace BeatLeader.UI.Hub {
             get => _time.Value;
             set => _time.Value = value;
         }
+
+        public Player? PreviousPlayer {
+            get => _previousPlayer.Value;
+            set => _previousPlayer.Value = value;
+        }
+
+        public Action? OnBack { get; set; }
 
         #endregion
 
@@ -80,11 +88,15 @@ namespace BeatLeader.UI.Hub {
         private State<Player?> _player = null!;
         private State<PlayerFollowersInfo?> _followers = null!;
         private State<float> _time = null!;
+        private State<Player?> _previousPlayer = null!;
+
+        private const float BackButtonHeight = 3.4f;
 
         protected override GameObject Construct() {
             _player = Remember<Player?>(null);
             _followers = Remember<PlayerFollowersInfo?>(null);
             _time = Remember(0f);
+            _previousPlayer = Remember<Player?>(null);
 
             return new Layout {
                 FlexController = {
@@ -108,7 +120,8 @@ namespace BeatLeader.UI.Hub {
                     },
 
                     CreateIdentity(),
-                    CreateStrip()
+                    CreateStrip(),
+                    CreateBackButton()
                 }
             }.With(static x => x.Content.AddComponent<UnityEngine.UI.RectMask2D>()).Use();
         }
@@ -218,6 +231,58 @@ namespace BeatLeader.UI.Hub {
         }
 
         [StateGen]
+        private BsButton CreateBackButton() {
+            return new BsButton {
+                FlexItem = {
+                    PositionType = PositionType.Absolute,
+                    Position = new() { left = 0.6f, top = 0.6f },
+                    Size = new() { y = BackButtonHeight }
+                },
+
+                FlexController = {
+                    AlignItems = Align.Center,
+                    Padding = new() { left = 1f, right = 1f },
+                    Gap = 0.8f
+                },
+
+                ShowUnderline = false,
+                Skew = 0f,
+                sEnabled = _previousPlayer.Map(static x => x != null),
+                OnClick = () => OnBack?.Invoke(),
+
+                ConstructContent = (color, _) => new Layout {
+                    FlexController = {
+                        AlignItems = Align.Center,
+                        Gap = 0.8f
+                    },
+
+                    Children = {
+                        new Image {
+                            FlexItem = {
+                                Size = 2f
+                            },
+
+                            ContentTransform = {
+                                localEulerAngles = new(0f, 0f, -90f)
+                            },
+
+                            Sprite = GameResources.Sprites.ArrowIcon,
+                            PreserveAspect = true,
+                            sColor = color.In()
+                        },
+
+                        new Label {
+                            FontSize = 2.6f,
+                            Alignment = TextAlignmentOptions.Top,
+                            Text = "Back",
+                            sColor = color.In()
+                        }
+                    }
+                }
+            };
+        }
+
+        [StateGen]
         private Background CreateStrip() {
             var stage = ProfileReveal.Stage(_time, 0.36f);
 
@@ -233,22 +298,16 @@ namespace BeatLeader.UI.Hub {
                 },
 
                 Children = {
-                    new ProfileFollowers {
-                        sPlayerId = _player.Map(static x => x?.id),
-                        sInfo = _followers
-                    },
-
-                    new Layout {
-                        FlexItem = {
-                            FlexGrow = 1f
-                        }
-                    },
-
                     new Repeater<SocialLink, ProfileTag> {
                         FlexController = {
                             FlexDirection = FlexDirection.Row,
                             AlignItems = Align.Center,
                             Gap = 1f
+                        },
+
+                        FlexItem = {
+                            PositionType = PositionType.Absolute,
+                            Position = new() { right = 2f, top = 0f, bottom = 0f }
                         },
 
                         SelectionMode = SelectionMode.None,
@@ -269,6 +328,11 @@ namespace BeatLeader.UI.Hub {
                                 }
                             };
                         }
+                    },
+
+                    new ProfileFollowers {
+                        sPlayerId = _player.Map(static x => x?.id),
+                        sInfo = _followers
                     }
                 }
             }.AsBlurBackground().WithAlpha(stage);

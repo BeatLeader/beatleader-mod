@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using BeatLeader.API;
 using BeatLeader.Models;
@@ -13,6 +14,7 @@ namespace BeatLeader.UI.Hub {
         public PlayerFollowersInfo? Followers { get; private set; }
         public bool IsLoading { get; private set; }
         public bool IsFailed { get; private set; }
+        public Player? PreviousPlayer => _history.Count > 0 ? _history.Peek() : null;
 
         PlayerProfileContext IState<PlayerProfileContext>.Value => this;
 
@@ -20,7 +22,24 @@ namespace BeatLeader.UI.Hub {
 
         #region Load
 
+        private readonly Stack<Player> _history = new();
         private int _loadVersion;
+
+        public void Open(string playerId, bool keepHistory) {
+            if (!keepHistory) {
+                _history.Clear();
+            } else if (Player != null && Player.id != playerId) {
+                _history.Push(Player);
+            }
+
+            Load(playerId);
+        }
+
+        public void Back() {
+            if (_history.Count > 0) {
+                Load(_history.Pop().id);
+            }
+        }
 
         public void Load(string playerId) {
             _ = LoadAsync(playerId).RunCatching();

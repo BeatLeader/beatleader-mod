@@ -64,7 +64,9 @@ namespace BeatLeader.UI.Hub {
                             new ProfileHeader {
                                 sPlayer = player,
                                 sFollowers = context.Map(static x => x.Followers),
-                                sTime = _time
+                                sPreviousPlayer = context.Map(static x => x.PreviousPlayer),
+                                sTime = _time,
+                                OnBack = context.Back
                             },
 
                             new ProfileBadges {

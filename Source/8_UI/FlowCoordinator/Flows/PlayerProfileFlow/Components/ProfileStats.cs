@@ -11,6 +11,7 @@ using Reactive.Components;
 using Reactive.Yoga;
 using TMPro;
 using UnityEngine;
+using AnimationCurve = Reactive.AnimationCurve;
 using SelectionMode = Reactive.Components.Basic.SelectionMode;
 
 namespace BeatLeader.UI.Hub {
@@ -102,12 +103,16 @@ namespace BeatLeader.UI.Hub {
 
         private State<Player?> _player = null!;
         private State<float> _time = null!;
+        private AnimatedState<float> _detailsProgress = null!;
 
         protected override GameObject Construct() {
             _player = Remember<Player?>(null);
             _time = Remember(0f);
+            _detailsProgress = RememberAnimated(0f, 400.ms, AnimationCurve.EaseOutQuint);
 
             var stage = ProfileReveal.Stage(_time, 0.5f);
+
+            _player.AddCallback(this, static (x, _) => x._detailsProgress.SetValueImmediate(0f));
 
             return new Layout {
                 FlexController = {
@@ -129,6 +134,10 @@ namespace BeatLeader.UI.Hub {
         private Background CreateInfoBlock() {
             var ppStage = ProfileReveal.Stage(_time, ItemsDelay, 1.4f);
             var ppText = RememberDerived(_player, ppStage, static (x, y) => $"{(x?.pp ?? 0f) * y:N2}pp");
+            var buttonHover = RememberAnimated(1f, 300.ms, AnimationCurve.EaseOutBack);
+            var buttonScale = buttonHover.Map(static x => Vector3.one * x);
+            var arrowRotation = _detailsProgress.Map(static x => new Vector3(0f, 0f, 90f + 180f * x));
+            var contentColor = Color.Lerp(ProfileStyle.PpColor, Color.white, 0.6f);
 
             return new Background {
                 FlexController = {
@@ -143,16 +152,70 @@ namespace BeatLeader.UI.Hub {
                 },
 
                 Children = {
-                    new ProfileTag {
+                    new Background {
+                        FlexController = {
+                            AlignItems = Align.Center,
+                            Padding = new() { left = 1.2f, right = 0.8f, top = 0.2f, bottom = 0.2f },
+                            Gap = 1f
+                        },
+
                         FlexItem = {
                             AlignSelf = Align.FlexStart
                         },
 
-                        FontSize = 4.2f,
-                        Color = ProfileStyle.PpColor,
-                        Interactable = false,
-                        sText = ppText
-                    },
+                        ContentTransform = {
+                            slocalScale = buttonScale
+                        },
+
+                        PixelsPerUnit = 10f,
+                        Sprite = BundleLoader.Sprites.background,
+                        Material = global::Reactive.BeatSaber.GameResources.UINoGlowMaterial,
+                        Color = Color.Lerp(ProfileStyle.PpColor, Color.black, 0.55f),
+
+                        Children = {
+                            new Label {
+                                FontSize = 4.2f,
+                                FontStyle = FontStyles.Bold,
+                                Alignment = TextAlignmentOptions.Capline,
+                                EnableWrapping = false,
+                                Color = contentColor,
+                                sText = ppText
+                            },
+
+                            new Image {
+                                FlexItem = {
+                                    Size = new() { x = 0.5f, y = 3.4f }
+                                },
+
+                                Sprite = GameResources.Sprites.VerticalRoundRect,
+                                ImageType = UnityEngine.UI.Image.Type.Sliced,
+                                PixelsPerUnit = 32f,
+                                Color = contentColor.ColorWithAlpha(0.6f)
+                            },
+
+                            new Image {
+                                FlexItem = {
+                                    Size = 3f,
+                                    Margin = new() { left = -0.3f }
+                                },
+
+                                ContentTransform = {
+                                    slocalEulerAngles = arrowRotation
+                                },
+
+                                Sprite = GameResources.Sprites.ArrowIcon,
+                                Color = contentColor,
+                                PreserveAspect = true
+                            }
+                        }
+                    }.WithPointerEvents(
+                        onEnter: _ => buttonHover.TargetValue = 1.06f,
+                        onLeave: _ => buttonHover.TargetValue = 1f,
+                        onDown: _ => {
+                            global::Reactive.BeatSaber.GameResources.ButtonClickSignal.Raise();
+                            _detailsProgress.TargetValue = _detailsProgress.TargetValue > 0.5f ? 0f : 1f;
+                        }
+                    ),
 
                     new Repeater<InfoRow, Layout> {
                         FlexController = {
@@ -216,10 +279,14 @@ namespace BeatLeader.UI.Hub {
         }
 
         [StateGen]
-        private Background CreateChipsBlock() {
-            return new Background {
+        private Layout CreateChipsBlock() {
+            var chipsAlpha = _detailsProgress.Map(static x => 1f - x);
+            var chipsOffset = _detailsProgress.Map(static x => new YogaFrame { left = (x * 30f).pct });
+            var chipsScale = _detailsProgress.Map(static x => Vector3.one * Mathf.Lerp(1f, 0.75f, x));
+
+            return new Layout {
                 FlexController = {
-                    Padding = 2f
+                    FlexDirection = FlexDirection.Row
                 },
 
                 FlexItem = {
@@ -228,37 +295,60 @@ namespace BeatLeader.UI.Hub {
                 },
 
                 Children = {
-                    new Repeater<StatChip, ProfileTag> {
+                    new Background {
                         FlexController = {
-                            FlexDirection = FlexDirection.Row,
-                            FlexWrap = Wrap.Wrap,
-                            AlignContent = Align.FlexStart,
-                            Gap = 1f
+                            Padding = 2f
                         },
 
                         FlexItem = {
                             FlexGrow = 1f,
-                            FlexShrink = 1f
+                            sPosition = chipsOffset
                         },
 
-                        SelectionMode = SelectionMode.None,
-                        sItems = _player.Map(CreateChips),
+                        ContentTransform = {
+                            pivot = new(1f, 0.5f),
+                            slocalScale = chipsScale
+                        },
 
-                        ConstructCell = ctx => {
-                            var appear = RememberDerived(ctx, _time, static (cell, x) => ProfileReveal.Progress(x, ItemsDelay + cell.Index * 0.05f, 0.45f));
-                            var count = RememberDerived(ctx, _time, static (cell, x) => ProfileReveal.Progress(x, ItemsDelay + cell.Index * ProfileReveal.ItemDelay, 1.3f));
-                            var text = RememberDerived(ctx, count, static (cell, x) => $"{cell.Item.Title}  <color=#FFFFFF60>|</color>  {cell.Item.Format(cell.Item.Value * x)}");
+                        Children = {
+                            new Repeater<StatChip, ProfileTag> {
+                                FlexController = {
+                                    FlexDirection = FlexDirection.Row,
+                                    FlexWrap = Wrap.Wrap,
+                                    AlignContent = Align.FlexStart,
+                                    Gap = 1f
+                                },
 
-                            return new ProfileTag {
-                                FontSize = 2.5f,
-                                sColor = ctx.Map(static x => x.Item.Color),
-                                sAppear = appear,
-                                sText = text
-                            };
+                                FlexItem = {
+                                    FlexGrow = 1f,
+                                    FlexShrink = 1f
+                                },
+
+                                SelectionMode = SelectionMode.None,
+                                sItems = _player.Map(CreateChips),
+
+                                ConstructCell = ctx => {
+                                    var appear = RememberDerived(ctx, _time, static (cell, x) => ProfileReveal.Progress(x, ItemsDelay + cell.Index * 0.05f, 0.45f));
+                                    var count = RememberDerived(ctx, _time, static (cell, x) => ProfileReveal.Progress(x, ItemsDelay + cell.Index * ProfileReveal.ItemDelay, 1.3f));
+                                    var text = RememberDerived(ctx, count, static (cell, x) => $"{cell.Item.Title}  <color=#FFFFFF60>|</color>  {cell.Item.Format(cell.Item.Value * x)}");
+
+                                    return new ProfileTag {
+                                        FontSize = 2.5f,
+                                        sColor = ctx.Map(static x => x.Item.Color),
+                                        sAppear = appear,
+                                        sText = text
+                                    };
+                                }
+                            }
                         }
+                    }.AsBlurBackground().WithAlpha(chipsAlpha),
+
+                    new ProfileRankings {
+                        sPlayer = _player,
+                        sProgress = _detailsProgress
                     }
                 }
-            }.AsBlurBackground();
+            }.AsRectMask();
         }
 
         #endregion

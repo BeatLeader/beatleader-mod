@@ -21,4 +21,10 @@ namespace BeatLeader.API {
             return SendRet($"{BLConstants.BEATLEADER_API_URL}/player/{playerId}/followers?type={(following ? 0 : 1)}&page={page}&count={count}", HttpMethod.Get, waitForLogin: false);
         }
     }
+
+    internal class MiniRankingsRequest : PersistentWebRequestBase<MiniRankings, JsonResponseParser<MiniRankings>> {
+        public static IWebRequest<MiniRankings> Send(int rank, string country, int countryRank) {
+            return SendRet($"{BLConstants.BEATLEADER_API_URL}/minirankings?rank={rank}&country={country}&countryRank={countryRank}", HttpMethod.Get, waitForLogin: false);
+        }
+    }
 }

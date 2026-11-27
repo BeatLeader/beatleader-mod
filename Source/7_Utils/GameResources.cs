@@ -14,6 +14,8 @@ namespace BeatLeader {
             
             public static readonly Sprite ArrowIcon = GetResource<Sprite>("ArrowIcon");
             
+            public static readonly Sprite GlobalIcon = GetResource<Sprite>("GlobalIcon");
+            
             public static readonly Sprite Caret = GetResource<Sprite>("Caret");
 
             public static readonly Sprite VerticalRoundRect = GetResource<Sprite>("VerticalRoundRect8");

@@ -49,4 +49,18 @@ namespace BeatLeader.Models {
         public int count;
         public bool mutual;
     }
+
+    public class RankingPlayer {
+        public string id = "";
+        public string name = "";
+        public string country = "";
+        public int rank;
+        public int countryRank;
+        public float pp;
+    }
+
+    public class MiniRankings {
+        public RankingPlayer[] global = [];
+        public RankingPlayer[] country = [];
+    }
 }
